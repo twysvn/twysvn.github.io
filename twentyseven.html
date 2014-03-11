@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>twentyseven</title>
+
+	<!-- Fonts -->
+	<link href='http://fonts.googleapis.com/css?family=Lato:100,200,400,700,900' rel='stylesheet' type='text/css'>
+	<link href='http://fonts.googleapis.com/css?family=Open+Sans:400,300,600,700,800' rel='stylesheet' type='text/css'>
+	<link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:200,300,400,600,700,900,200italic,400italic' rel='stylesheet' type='text/css'>
+	<link href='http://fonts.googleapis.com/css?family=Amatic+SC:400,700' rel='stylesheet' type='text/css'>
+	<link href='http://fonts.googleapis.com/css?family=Raleway:400,100,200,300,500,600,700,800,900' rel='stylesheet' type='text/css'>
+	<link href='http://fonts.googleapis.com/css?family=Yanone+Kaffeesatz:400,700' rel='stylesheet' type='text/css'>
+
+	<!-- JQuery -->
+	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.0/jquery.min.js"></script>
+	<script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
+
+	<!-- Responsive -->
+	<!--<meta name="viewport" content="width=device-width, target-densitydpi=device-dpi, initial-scale=1.0, user-scalable=no">-->
+	
+	<!-- Charset -->
+	<meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+	<!-- Favicon -->
+	<link rel="shortcut icon" type="image/png" href="img/favicon.ico"/>
+
+	<style type="text/css">
+
+		*{
+			margin: 0 auto;
+			padding: 0;
+			text-rendering: optimizeLegibility;
+			-webkit-font-smoothing: antialiased;
+			-webkit-appearance: none;
+			border-radius: 0;
+			text-decoration: none;
+			list-style-type: none;
+			font-family: Raleway;
+			font-weight: 300;
+
+			/*
+			color: white;*/
+		}
+
+		:focus {outline:none;}
+
+		::selection {
+			background: #FEB0B6; /* Safari */
+		}
+
+		::-moz-selection {
+			background: #FEB0B6; /* Firefox */
+		}
+
+		html{
+			background: #191618;
+			
+			background-image: url("img/test.png");
+		}
+
+		html, body{
+			height: 100%;
+			width: 100%;
+		}
+
+
+		#head{
+			display: block;
+			min-height: 100%;
+			width: 100%;
+			
+			background: #FFF;
+			/*background-image: url("img/7.jpg");*/
+			background-size: cover;
+			/*opacity: 0.9;*/
+		}
+
+		.menu{
+			position: absolute;
+			top: 0;
+			left: 0;
+			padding: 1rem;
+			
+			position: fixed;
+			
+			/*
+			opacity: 0;
+			-moz-animation: fadein 0.5s ease 0.6s forwards;
+			-webkit-animation: fadein 0.5s ease 0.6s forwards; 
+			-o-animation: fadein 0.5s ease 0.6s forwards; 
+			animation: fadein 0.5s ease 0.6s forwards;*/
+		}
+
+		.menu li{
+			margin: 0.1rem;
+			display: inline-block;
+		}
+
+		.menu a{
+			transition: all 0.1s ease;
+			padding: 0.4em;
+			background: #222;
+			color: #fff;
+
+			width: auto !important;
+			vertical-align: top;
+
+		    -moz-box-sizing: border-box;
+		    -webkit-box-sizing: border-box;
+		    box-sizing: border-box;
+		}
+
+		.menu a:hover{
+			transition: all 0.1s ease;
+			background: rgba(255,255,255,0.8);
+			color: black;
+		}
+
+		#logo{
+			text-align: center;
+			position: absolute;
+			/*top: -15%;*/
+			top: 35%;
+			bottom: 0;
+			right: 0;
+			left: 0;
+			width: 90%;
+			margin: auto;
+			opacity: 0.9;
+		}
+
+		#logo img {
+			/*background: #111;
+			padding: 1rem;
+			border-radius: 99rem;*/
+			width: 10rem;
+			height: 10rem;
+
+			-webkit-animation: spin 10s infinite linear;
+
+			/*
+			-moz-box-shadow: 0 0 10rem 10rem rgba(0,0,0,0.1);
+			-webkit-box-shadow: 0 0 10rem 10rem rgba(0,0,0,0.1);
+			box-shadow: 0 0 10rem 10rem rgba(0,0,0,0.1);*/
+		}
+
+		#logo img:hover{
+			/*background: #111;*/
+		}
+
+		#logo h1{
+			color: black;
+			opacity: 0;
+			-moz-animation: fadein 0.5s ease 2s forwards;
+			-webkit-animation: fadein 0.5s ease 2s forwards; 
+			-o-animation: fadein 0.5s ease 2s forwards; 
+			animation: fadein 0.5s ease 2s forwards;
+		}
+
+		#content{
+			padding-top: 8rem;
+			padding-bottom: 8rem;
+			background: #fff;
+		}
+
+		#intro {
+			margin-bottom: 5rem;
+		}
+
+		#content h1{
+			font-size: 4em;
+			text-align: center;
+			font-family: 'Yanone Kaffeesatz', sans-serif;
+			
+		}
+		#content h2{
+			font-size: 2em;
+			text-align: center;
+			padding: 0.4em;
+			color:#000;
+		}
+		
+		#content p{
+			text-align: center;
+			font-family: Helvetica;
+		}
+		
+		#content p a{
+			color: black;
+			text-decoration: underline;
+		}
+		
+		#content p a:hover{
+			background: #ddd;
+			opacity: 0.8;
+			color: black;
+		}
+		
+		#holyspace{
+			min-height: 50rem;
+			background-image: url("img/test.png");
+		}
+
+		#wrapper{
+			width: 15%;
+			background: #fff;
+			min-height: 1px;
+			margin: 1rem auto;
+			opacity: 0.4;
+		}
+
+		footer{
+			padding: 5rem;
+			padding-top: 5rem;
+			text-align: center;
+			background: #3498DB;
+		}
+		
+		footer a {
+			color: white;
+			text-decoration: none;
+			font-size: 1.4rem;
+			font-family: 'Lato', Helvetica;
+			display: inline-block;
+			padding: 0.2em;
+				
+	  -webkit-transition: all 0.5s ease;
+		 -moz-transition: all 0.5s ease;
+		   -o-transition: all 0.5s ease;
+		  -ms-transition: all 0.5s ease;
+			  transition: all 0.5s ease;
+		}
+		
+		footer a img{
+			width: 2em;
+			display: block;
+		}
+		
+		footer a:hover { /*
+			filter: invert(1);
+			-webkit-filter: invert(1);
+			-moz-filter: invert(1);*/
+			
+			-moz-transform: scale(0.9);
+			-webkit-transform: scale(0.9);
+			-o-transform: scale(0.9);
+			-ms-transform: scale(0.9);
+			transform: scale(0.9);
+		}
+		
+		noscript{
+			color: white;
+			background: black;
+			position: fixed;
+			padding: 4px;
+			width: 100%;
+			text-align:center;
+		}
+		#whatwedo{
+			margin:auto;
+			margin-top: 2em;
+			margin-bottom: 4em;
+			text-align:center;
+		}
+		
+		#whatwedo td{
+			font-family: Helvetica;
+			width: 16em;
+			padding-left: 0.5em;
+			padding-right: 0.5em;
+		}
+
+		#whatwedo h1{
+			margin-left: 1em;
+			margin-right: 1em;
+			font-size: 2rem;
+	  -webkit-transition: all 0.5s ease;
+		 -moz-transition: all 0.5s ease;
+		   -o-transition: all 0.5s ease;
+		  -ms-transition: all 0.5s ease;
+			  transition: all 0.5s ease;
+		}
+		
+		#whatwedo a{
+			text-decoration: none;
+			color: black;
+		}
+		#whatwedo a:hover{
+			background: #fff;
+		}
+		#whatwedo a:hover > h1{
+			/*
+			background: #ddd;*/
+			-moz-transform: translateY(-20px);
+			-webkit-transform: translateY(-5px);
+			-o-transform: translateY(-20px);
+			-ms-transform: translateY(-20px);
+			transform: translateY(-20px);
+		}
+		
+		#whatwedo img{
+			max-width: 8em;
+			text-align: center;
+		}
+		
+		.item{
+			max-width: 50em;
+			margin-left: auto;
+			margin-right: auto;
+			display:block;
+			background: #fafafa;
+		}
+		
+		.title{
+			background: url('img/2.jpg');
+			background-position:center;
+			text-align:center;
+			font-family: 'Lato';
+			font-size: 5rem;
+			padding-top: 1em;
+			padding-bottom: 1em;
+			margin-top:2em;
+			margin-bottom:1em;
+		}
+		
+		@keyframes fadein{
+			from {opacity: 0;}
+			to {opacity: 1;}
+		}
+		@-webkit-keyframes fadein{
+			from {opacity: 0;}
+			to {opacity: 1;}
+		}
+		@-webkit-keyframes spin {
+		    0%   {-webkit-transform: rotate(0deg)}
+		    100% {-webkit-transform: rotate(360deg)}
+		}
+	</style>
+
+	<script>
+		var state = 0;
+		var logoParallax = 0.1;
+		var contentParallax = 0.4; //0.4 ? Yep
+		/*
+		window.onscroll = function (event) {
+
+			if(window.scrollY < $('#head').outerHeight()-window.scrollY*contentParallax){
+				document.getElementById('logo').style.marginTop = "-"+window.scrollY*logoParallax + "px";
+				document.getElementById('content').style.marginTop = "-"+window.scrollY*contentParallax + "px";
+			}
+			
+			
+			if($(window).width()<900){<!--500-->
+					document.getElementsByClassName('menu')[0].style.position = "absolute";
+			}else if(window.scrollY>$('#head').outerHeight()-window.scrollY*contentParallax - 60){<!--120-->
+				document.getElementsByClassName('menu')[0].style.position = "fixed";
+				if(state == 1){
+					$( ".menu" ).animate({
+						opacity: 0.0
+					  }, 300, function() {
+						document.getElementsByClassName('menu')[0].style.display = "none";
+					  });
+					  state = 0;
+				}
+			}else{
+				document.getElementsByClassName('menu')[0].style.position = "fixed";
+				if(state == 0){
+					document.getElementsByClassName('menu')[0].style.display = "block";
+					$( ".menu" ).animate({
+						opacity: 1.0
+					  }, 300, function() {
+					});
+					state = 1;
+				}
+			}
+			*/
+		}
+	</script>
+	
+	<script type="text/javascript">
+		$(document).ready(function() 
+		{
+			//document.getElementById('head').style.background = 'url(img/' + Math.floor((Math.random()*2)+1) + '.jpg)';
+			document.getElementById('head').style.backgroundSize = 'cover';
+			$("body").hide().delay(100).fadeIn(400);
+//			$("body").animate({ scrollTop: 0 }, 500);
+		});
+	</script>
+</head>
+<body>
+	<noscript>
+	Come on you lil p... Turn da m..f.. javascript on
+	</noscript>
+	<div id="head"></div>
+
+	<ul class="menu" style="display: none;">
+		<li><a href="#">HOME</a></li>
+		<li><a href="#">BLOG</a></li>
+		<li><a href="#">PROJECTS</a></li>
+		<li><a href="#">ABOUT 27</a></li>
+	</ul>
+	
+	<div id="logo">
+		<img src="img/load.png">
+		<h1>We are still working on our Website..</h1>
+	</div>
+
+	<div id="content" style="display: none;">
+		<section id="intro">
+			<h1>Welcome to twentyseven</h1>
+			<p>We are a design Company based in <a href="#">south tyrol</a>.</p>
+		</section>
+
+		<table id = "whatwedo">
+			<tr>
+				<td><a href="#design"><img src="img/design2.png"></img><h1>Design.</h1></a></td>
+				<td><a href="#development"><img src="img/development2.png"></img><h1>Development.</h1></a></td>
+				<td><a href="#fashion"><img src="img/blank.png"></img><h1>Fashion.</h1></a></td>
+			</tr>
+			<tr>
+				<td>Here at twentyseven we just love good design.<br />Web, print, branding, advertising and lot more!</td>
+				<td>We even like to script and write awesome code. Check it out <a href="#">here</a>!<br />Java, C, Python, PHP, Bash, Objective c.. We can't even stop.</td>
+				<td>We got the right fashion just for you. You are going to look awesome!<br /><br /><br /></td>
+			</tr>
+		</table>
+		
+		<!--<p style="max-width:1000px;margin: 20px auto;">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin sagittis justo quis felis commodo, sit amet condimentum velit dapibus. Aliquam iaculis augue vel lorem ultricies, sed porttitor diam pretium. Phasellus blandit mauris tristique libero pellentesque, quis vestibulum quam condimentum. Quisque mattis arcu ac dignissim feugiat. Aenean ornare lectus in mattis vulputate. Ut erat nibh, accumsan sed luctus nec, blandit sed mi. Suspendisse ullamcorper ut nunc vel accumsan. Sed placerat volutpat enim vestibulum euismod. Donec pellentesque elementum dictum. Vestibulum aliquam blandit justo vel aliquam.
+
+Pellentesque sodales eros quis lacus gravida ultricies. Ut eros dui, rhoncus sit amet porta eget, pharetra a metus. Fusce interdum nisl ac purus lacinia tincidunt. Suspendisse varius risus a ligula sodales viverra. Maecenas nec imperdiet tortor. Phasellus tempor erat mauris, vel ornare urna eleifend ut. Mauris dui ipsum, tempor eu commodo a, consequat non nibh. In feugiat est at porttitor porttitor. Donec a arcu eu mauris porttitor consequat. Donec nunc purus, luctus eget justo quis, venenatis iaculis ipsum. Mauris sit amet scelerisque leo. Nulla orci elit, vestibulum et erat sed, posuere congue ante. Praesent tempor dolor et malesuada auctor. Nunc eu diam et augue facilisis tempus. Morbi lobortis a turpis a ultricies. Vivamus et mauris eget augue dignissim adipiscing vitae vel purus.
+
+Integer sodales ante id neque tempor, sed tristique lacus sagittis. Phasellus porta dui elit, ut scelerisque velit porttitor tincidunt. Duis in iaculis erat. Proin at lacinia nunc, vel congue nibh. Vestibulum eget risus quis dolor condimentum tempus sit amet ut nisi. Pellentesque nunc nulla, placerat pharetra adipiscing ut, euismod sed felis. Vivamus ac commodo tortor. Cras fermentum in tortor sed aliquet. Maecenas id risus et sem iaculis malesuada. Maecenas eu porta purus. Donec sed sollicitudin erat. Ut egestas turpis in nibh faucibus sodales. Phasellus et scelerisque elit. Donec at augue eget sapien pellentesque rutrum. Phasellus venenatis eros lacus, at dapibus tellus vehicula at. Donec tempus quis eros ac tempus.
+
+Aliquam eu lorem a purus scelerisque condimentum. Morbi venenatis neque at risus interdum vehicula. In sed malesuada nunc, at tempor leo. Etiam tristique libero eu massa fringilla, ac eleifend nulla mollis. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Etiam eu lacinia diam, ut tempor dolor. Phasellus justo nisl, sollicitudin vel condimentum id, venenatis vitae velit. Nullam urna velit, fermentum at mi vitae, euismod ornare tellus. Suspendisse potenti. Etiam fermentum leo in nunc bibendum, ac pharetra dolor aliquet. Nullam dignissim arcu a massa elementum dapibus.
+
+Quisque risus odio, pulvinar eu ultrices at, porttitor commodo mauris. Aliquam ante leo, vestibulum et aliquam sed, faucibus a ante. Mauris et nisi vel sem auctor rutrum. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Fusce ut orci iaculis, ullamcorper tortor eu, iaculis sapien. Quisque tristique cursus arcu. Duis placerat nibh velit, vel sodales augue sagittis eu. In sed tortor tellus.</p>
+	-->
+	<!--
+	<div class="item">
+		<div class="title" id="design">design</div>
+		achwas isch des scheißeicies. Ut eros dui, rhoncus sit amet porta eget, pharetra a metus. Fusce interdum nisl ac purus lacinia tincidunt. Suspendisse varius risus a ligula sodales viverra. Maecenas nec imperdiet tortor. Phasellus tempor erat mauris, vel ornare urna eleifend ut. Mauris dui ipsum, tempor eu commodo a, consequat non nibh. In feugiat est at porttitor porttitor. Donec a arcu eu mauris porttitor consequat. Donec nunc purus, luctus eget justo quis, venenatis iaculis ipsum. Mauris sit amet scelerisque leo. Nulla orci elit, vestibulum et erat sed, posuere congue ante. Praesent tempor dolor et malesuada auctor. Nunc eu diam et augue facilisis tempus. Morbi lobortis a turpis a ultricies. Vivamus et mauris eget augue dignissim adipiscing vitae vel purus.
+	</div>
+	<div class="item">
+	<div class="title" id="development">development</div>
+	achwas isch des scheißeicies. Ut eros dui, rhoncus sit amet porta eget, pharetra a metus. Fusce interdum nisl ac purus lacinia tincidunt. Suspendisse varius risus a ligula sodales viverra. Maecenas nec imperdiet tortor. Phasellus tempor erat mauris, vel ornare urna eleifend ut. Mauris dui ipsum, tempor eu commodo a, consequat non nibh. In feugiat est at porttitor porttitor. Donec a arcu eu mauris porttitor consequat. Donec nunc purus, luctus eget justo quis, venenatis iaculis ipsum. Mauris sit amet scelerisque leo. Nulla orci elit, vestibulum et erat sed, posuere congue ante. Praesent tempor dolor et malesuada auctor. Nunc eu diam et augue facilisis tempus. Morbi lobortis a turpis a ultricies. Vivamus et mauris eget augue dignissim adipiscing vitae vel purus.
+	</div>
+	<div class="item">
+	<div class="title" id="fashion">fashion</div>
+	achwas isch des scheißeicies. Ut eros dui, rhoncus sit amet porta eget, pharetra a metus. Fusce interdum nisl ac purus lacinia tincidunt. Suspendisse varius risus a ligula sodales viverra. Maecenas nec imperdiet tortor. Phasellus tempor erat mauris, vel ornare urna eleifend ut. Mauris dui ipsum, tempor eu commodo a, consequat non nibh. In feugiat est at porttitor porttitor. Donec a arcu eu mauris porttitor consequat. Donec nunc purus, luctus eget justo quis, venenatis iaculis ipsum. Mauris sit amet scelerisque leo. Nulla orci elit, vestibulum et erat sed, posuere congue ante. Praesent tempor dolor et malesuada auctor. Nunc eu diam et augue facilisis tempus. Morbi lobortis a turpis a ultricies. Vivamus et mauris eget augue dignissim adipiscing vitae vel purus.
+
+	</div>
+	<!--
+	<div id="holyspace"></div>
+
+	<div id="wrapper"></div>-->
+	
+	<!--<img src="img/hjo.jpg" style="max-width:500px;"></img>-->
+	
+	</div>
+
+	<footer>
+		<a href="#"><img src="img/logo_white.png"><!--&copy; -->twentyseven</a>
+	</footer>
+</body>
+</html>
