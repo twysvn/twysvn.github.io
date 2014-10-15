@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Beeramyde</title>
+
+	<!-- JQuery -->
+	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.0/jquery.min.js"></script>
+	<script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
+
+	<!-- Responsive -->
+	<meta name="viewport" content="width=device-width, target-densitydpi=device-dpi, initial-scale=1.0, user-scalable=no">
+	
+	<!-- Charset -->
+	<meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+	<link href='http://fonts.googleapis.com/css?family=Open+Sans+Condensed:300,700' rel='stylesheet' type='text/css'>
+	<link href='http://fonts.googleapis.com/css?family=Open+Sans:400,300' rel='stylesheet' type='text/css'>
+
+	<style type="text/css">
+
+		@font-face {
+			font-family: UniSans;
+			src: url("fonts/Uni Sans Heavy Italic.otf");
+		}
+
+		*{
+			margin: 0 auto;
+			padding: 0;
+			text-rendering: optimizeLegibility;
+			-webkit-font-smoothing: antialiased;
+			-webkit-appearance: none;
+			border-radius: 0;
+			text-decoration: none;
+			list-style-type: none;
+			color: black;
+		}
+
+		:focus {outline:none;}
+
+		::selection {
+			baackground: #60E698; /* Safari */
+		}
+
+		::-moz-selection {
+			baackground: #60E698; /* Firefox */
+		}
+
+		*, *:before, *:after {
+			-moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box;
+		}
+
+		body, html{
+			height: 100%;
+			width: 100%;
+		}
+
+		body{
+			background-image: url('img/beeramyde.gif');
+			-webkit-box-shadow:inset 0 0 20px 0px #000;
+			box-shadow:inset 0 0 20px 0px #000;
+			background-repeat: no-repeat;
+			background-size: 110% auto;
+			background-position: 100% bottom;
+
+			opacity: 0;
+			-moz-animation: fadein 1s ease 2s forwards;
+			-webkit-animation: fadein 1s ease 2s forwards; 
+			-o-animation: fadein 1s ease 2s forwards; 
+			animation: fadein 1s ease 2s forwards;
+		}
+
+		.verticalCenter{
+			position: absolute;
+			top: 50%; left: 0; right: 0;
+			-webkit-transform: translateY(-50%);
+			-ms-transform: translateY(-50%);
+			transform: translateY(-50%);
+			-webkit-box-sizing: border-box;
+			box-sizing: border-box;
+		}
+
+		.bmd {
+			margin: auto;
+			width: 1037px;
+			height: 691px;
+			display: block;
+			-webkit-box-shadow:inset 0 0 20px 0px #222;
+			box-shadow:inset 0 0 20px 0px #222;
+			display: none;
+		}
+
+		.title {
+			display: block;
+			font-family: 'Source Sans Pro';
+
+			text-align: center;
+			padding-top: 0.8em;
+			text-transform: uppercase;
+			font-size: 4rem;
+
+		    color: rgba(10,120,10, 0.0);
+		    text-shadow: 1px 4px 6px #fff, 0 0 0 #000, 1px 4px 6px #fff;
+		    text-shadow: 0 0 5px #222;
+		    background: rgba(10,120,10, 0.0);
+		}
+
+		footer{
+			text-align: center;
+			color: black;
+			margin: 1em;
+
+			position: absolute;
+			bottom: -99%;
+			right: 0em;
+			left: 0;
+		}
+
+		.second {
+			height: 100%;
+			position: absolute;
+			bottom: -100%;
+			left: 0;
+			right: 0;
+			text-align: center;
+		}
+
+		.second h2 {
+			font-family: 'Open Sans Condensed';
+			text-align: center;
+			margin-top: 1em;
+			font-size: 4rem;
+		}
+
+		.howmany {
+			display: inline-block;
+			margin-top: 4em;
+		}
+
+		.howmany img {
+			float: left;
+			height: 6rem;
+		}
+
+		.howmany p {
+			float: left;
+			font-size: 6rem;
+			line-height: 6rem;
+			font-family: 'Source Sans Pro';
+			font-weight: 100;
+			margin-left: 0.1em;
+		}
+
+		footer a{
+			font-family: 'Source Sans Pro';
+		}
+
+		footer a:hover{
+			text-decoration: underline;
+		}
+
+		footer img{
+			height: 1em;
+			width: auto;
+			vertical-align: bottom;
+		}
+		@keyframes fadein{
+			from {opacity: 0;}
+			to {opacity: 1;}
+		}
+		@-webkit-keyframes fadein{
+			from {opacity: 0;}
+			to {opacity: 1;}
+		}
+	</style>
+</head>
+<body>
+	<h1 class="title">Beeramyde</h1>
+
+	<div class = "bmd"></div>
+
+	<footer>
+		<a href="http://twysvn.com">Designed with <img src="img/love.png"> by twentyseven</a>
+	</footer>
+
+	<div class="second">
+		<h2>Cans we drunk</h2>
+		<div class="howmany">
+			<img src="img/dose.png">
+			<p>x 24</p>
+		</div>
+	</div>
+</body>
+</html>
