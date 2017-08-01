@@ -73,6 +73,7 @@
 			font-family: "Open Sans Condensed";
 			font-weight: 700;
 			font-size: 3.5rem;
+			color: white;
 		}
 
 		#tits h2{
@@ -80,7 +81,7 @@
 			font-weight: 300;
 			font-size: 1.7rem;
 			margin-bottom: 1rem;
-			color: #999;
+			color: #bbb;
 		}
 
 		#tits a{
@@ -94,16 +95,17 @@
 			-webkit-transition: all 0.5s ease;
 			padding: 0 0.5em;
 			padding-bottom: 0.1em;
-			color: #aaa;
-			border: 1px solid #aaa;
+			color: #ccc;
+			border: 1px solid #ccc;
+			background-color: rgba(255, 255, 255, 0.1);
 		}
 
 		#tits a:hover{
 			transition: all 0.3s ease;
 			-moz-transition: all 0.3s ease;
 			-webkit-transition: all 0.3s ease;
-			color: #000;
-			border: 1px solid #000;
+			color: #fff;
+			border: 1px solid #fff;
 		}
 
 		footer{
@@ -118,6 +120,7 @@
 
 		footer a{
 			font-family: 'Source Sans Pro';
+			color: white;
 		}
 
 		footer a:hover{
@@ -130,6 +133,17 @@
 			vertical-align: bottom;
 		}
 
+		@keyframes fly-in {
+		  0% {
+		    opacity: 0;
+		    transform: scale(0.85); }
+		  13% {
+		    opacity: 0;
+		    transform: scale(0.85); }
+		  100% {
+		    opacity: 1;
+		    transform: scale(1); } }
+
 		@keyframes fadein{
 			from {opacity: 0;}
 			to {opacity: 1;}
@@ -138,6 +152,113 @@
 			from {opacity: 0;}
 			to {opacity: 1;}
 		}
+		.background {
+		  position: absolute;
+		  top: 0;
+		  left: 0;
+		  width: 100%;
+		  height: 100%;
+		  overflow: hidden;
+		  z-index: -1;
+		  transform-origin: center;
+		  display: flex;
+		  justify-content: center;
+		  align-items: center;
+		  pointer-events: none;
+
+		  background: #0d141d;}
+		  .background .items {
+		    width: 100%;
+		    height: 100%;
+		    position: relative;
+		    animation: fly-in 13s cubic-bezier(0, 0.53, 0.145, 0.99);
+		    transform-origin: 50% 50%; }
+		  .background img {
+		    width: 600px; }
+		  .background .planet {
+		    width: 50px;
+		    opacity: 0.7; }
+
+
+				#tits div {
+					display: inline-block;
+				}
+
+				@media (max-width: 900px) {
+					#tits h1 {
+						font-size: 2.2rem;
+						margin-bottom: 0.6rem;
+					}
+					#tits h2 {
+						font-size: 1.6rem;
+					}
+					#tits a {
+						font-size: 1.2rem;
+					}
+				}
+				@media (max-width: 500px) {
+					#tits h1 {
+						font-size: 2.2rem;
+						line-height: 2.16rem;
+					}
+					#tits h2 {
+						font-size: 1.6rem;
+					}
+					#tits div {
+						display: block;
+					}
+					#tits a {
+						font-size: 1.2rem;
+						display: inline-block;
+						margin: 0.4rem 0;
+					}
+					footer {
+						font-size: 1rem;
+					}
+					.background .items {
+						display: none;
+					}
+				}
+				@media (max-width: 400px) {
+					#tits h1 {
+						font-size: 2rem;
+						line-height: 1.96rem;
+					}
+					#tits h2 {
+						font-size: 1.4rem;
+					}
+					#tits a {
+						font-size: 1.2rem;
+						display: inline-block;
+						margin: 0.4rem 0;
+					}
+					.background .items {
+						display: none;
+					}
+					footer {
+						font-size: 0.8rem;
+					}
+				}
+				@media (max-width: 330px) {
+					#tits h1 {
+						font-size: 1.9rem;
+						line-height: 1.86rem;
+					}
+					#tits h2 {
+						font-size: 1.1rem;
+					}
+					#tits a {
+						font-size: 1.1rem;
+						display: inline-block;
+						margin: 0.4rem 0;
+					}
+					.background .items {
+						display: none;
+					}
+					footer {
+						font-size: 0.6rem;
+					}
+				}
 	</style>
 
 	<script>
@@ -150,13 +271,31 @@
 	</script>
 </head>
 <body>
+
+
+		<section class="background">
+			<div class="items">
+				<img src="orbit/img/sun.svg" alt="" style="position: absolute; top: 0rem; left: -10rem;"/>
+				<img src="orbit/img/sun.svg" alt="" style="position: absolute; top: 20rem; left: 42rem;"/>
+
+				<img class="planet" src="orbit/img/green.svg" alt="" style="position: absolute; top: 30rem; left: 10rem;"/>
+				<img class="planet" src="orbit/img/green1.svg" alt="" style="position: absolute; top: 7rem; left: 25rem;"/>
+				<img class="planet" src="orbit/img/orange.svg" alt="" style="position: absolute; top: 2rem; left: 5rem;"/>
+				<img class="planet" src="orbit/img/pink.svg" alt="" style="position: absolute; top: 34rem; left: 71rem;"/>
+				<img class="planet" src="orbit/img/red.svg" alt="" style="position: absolute; top: 40rem; left: 25rem;"/>
+				<img class="planet" src="orbit/img/white.svg" alt="" style="position: absolute; top: 23rem; left: 72rem;"/>
+				<img class="planet" src="orbit/img/red.svg" alt="" style="position: absolute; top: 5rem; left: 64rem;"/>
+			</div>
+		</section>
+
 	<div id="tits">
 		<div class="verticalCenter border">
 			<h1>We are a Design Company.</h1>
 			<h2>Check out some of our work:</h2>
-			<a href="orbit">Orbit</a>
-			<a href="http://whereismyweekend.com">Where is my Weekend?</a>
-			<a href="https://github.com/twentysevenInc/cms">CMS</a>
+
+			<div><a href="orbit">Orbit</a></div>
+			<div><a href="http://whereismyweekend.com">Where is my Weekend?</a></div>
+			<div><a href="https://github.com/twentysevenInc/cms">CMS</a></div>
 			<!--<a href="http://twysvn.com/trapdonalds">Trapdonalds</a-->
 			<!-- <a href="http://suedtirolsdialekte.com">Südtirols Dialekte</a> -->
 			<!-- <a href="http://twysvn.com/beeramyde">Beeramyde</a> -->
@@ -164,7 +303,7 @@
 	</div>
 
 	<footer>
-		<a href="http://twysvn.com" class="verticalCenter">Designed with <img src="img/love.png"> by twentyseven</a>
+		<a href="http://twysvn.com" class="verticalCenter">Designed with 🍹 by twentyseven</a>
 	</footer>
 </body>
 </html>
