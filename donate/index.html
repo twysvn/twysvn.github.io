@@ -91,7 +91,14 @@
 			color: #bbb;
 		}
 
-		#tits a{
+		#tits div {
+			font-family: "Open Sans Condensed";
+			font-weight: 300;
+			font-size: 1.7rem;
+			color: white;
+		}
+
+		#tits a, #tits input {
 			margin: 0.1em 0;
 			font-size: 1.5rem;
 			display: inline-block;
@@ -105,6 +112,10 @@
 			color: #ccc;
 			border: 1px solid #ccc;
 			background-color: rgba(255, 255, 255, 0.1);
+		}
+		#tits input {
+			width: 25rem;
+			text-align: center;
 		}
 
 		#tits a:hover{
@@ -285,8 +296,11 @@
 
 	<div id="tits">
 		<div class="verticalCenter border">
-			<p>If you enjoyed our work, consider supporting us, by buying us a coffe.</p><br />
-			<div><a href="https://paypal.me/twysvn">PayPal</a></div>
+			<h1>☕️</h1>
+			<p>If you enjoyed our work, consider supporting us, by buying us a coffee.</p><br />
+			<div><a href="https://paypal.me/twysvn">PayPal</a></div><br />
+			<div>BTC Wallet: <input type="text" value="1LS6odBEK7yPjqHNMZmQByVcSYUxK4VpAn" id="btcwallet" readonly></div>
+
 		</div>
 	</div>
 
