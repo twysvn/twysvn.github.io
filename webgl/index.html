@@ -506,13 +506,12 @@
             sbecky.p_sum = parseFloat(sbecky.p_flat) + parseFloat(sbecky.p_hole) + parseFloat(sbecky.p_obstacle)
             if(sbecky.p_sum == 1) {
                 bindings[0]["p_sum"][0].style.color = "black";
-                bindings[0]["p_sum"][0].style.backgroundColor = "white"; 
                 gameInstance.SendMessage('Simulation', 'setProbabilities', sbecky.p_flat+";"+sbecky.p_hole+";"+sbecky.p_obstacle);
                 custom(document.getElementById("custom-button"));
                 kill()
             }else{
-                bindings[0]["p_sum"][0].style.color = "white"; 
-                bindings[0]["p_sum"][0].style.backgroundColor = "red"; 
+                bindings[0]["p_sum"][0].style.color = "white";
+                bindings[0]["p_sum"][0].style.backgroundColor = "white";
             }
         }
 
