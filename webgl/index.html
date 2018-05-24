@@ -367,8 +367,8 @@
             kill()
         }
 
-        function kill() {
-            gameInstance.SendMessage('Simulation', 'restart')
+        function kill(save=false) {
+            gameInstance.SendMessage('Simulation', 'restart', ""+save)
         }
 
         function slower() {
