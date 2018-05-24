@@ -346,7 +346,7 @@
 
         function set(id){
             custom(document.getElementById("custom-button"));
-            gameInstance.SendMessage('Simulation', 'setParams', sbecky["hist_"+window.id])
+            gameInstance.SendMessage('Simulation', 'setParams', sbecky["hist_"+id])
             kill()
         }
 
@@ -502,17 +502,19 @@
 
         function set_p_sum(){
             sbecky.p_sum = parseFloat(sbecky.p_flat) + parseFloat(sbecky.p_hole) + parseFloat(sbecky.p_obstacle)
-            if(sbecky.p_sum == 1) {
+            if(sbecky.p_sum > 0.99999 && sbecky.p_sum < 1.00001) {
                 bindings[0]["p_sum"][0].style.color = "black";
-                bindings[0]["p_sum"][0].style.backgroundColor = "white"; 
+                bindings[0]["p_sum"][0].style.backgroundColor = "white";
+                sbecky.p_sum = sbecky.p_sum.toPrecision(2);
                 if(should_set_p){
                     gameInstance.SendMessage('Simulation', 'setProbabilities', sbecky.p_flat+";"+sbecky.p_hole+";"+sbecky.p_obstacle);
                     custom(document.getElementById("custom-button"));
                     kill()
                 }
             }else{
-                bindings[0]["p_sum"][0].style.color = "white"; 
-                bindings[0]["p_sum"][0].style.backgroundColor = "red"; 
+                sbecky.p_sum = sbecky.p_sum.toPrecision(2);
+                bindings[0]["p_sum"][0].style.color = "white";
+                bindings[0]["p_sum"][0].style.backgroundColor = "red";
             }
         }
 
