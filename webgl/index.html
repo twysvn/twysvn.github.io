@@ -49,7 +49,7 @@
             line-height: 2rem;
         }
         #sidebar input, #sidebar label {
-            width: 50%;
+            /* width: 50%; */
             display: inline-block;
             /* background: #eee; */
             box-sizing: border-box;
@@ -165,6 +165,18 @@
             text-transform: uppercase;
             margin-bottom: 0.75rem;
         }
+        .line>*:nth-child(1) {
+            width: 60%;
+        }
+        .line>*:nth-child(2) {
+            width: 40%;
+        }
+        .line, .speed{
+            overflow: hidden;
+        }
+        .speed input[type="range"] {
+            width: 100%;
+        }
     </style>
 
   </head>
@@ -258,7 +270,7 @@
 
                         <div class="line">
                             <label for="">Max Players: <span sb-bind="max_players"></span></label>
-                            <input type="range" name="" value="" sb-bind="max_players" min="1" max="100" step="1" value="100">
+                            <input type="range" sb-bind="max_players" min="1" max="100" step="1" value="100">
                         </div>
               </div>
               <div class="controls">
@@ -266,10 +278,11 @@
                 <a href="javascript:void(0)" onclick="kill()">Generate new level</a>
                 <a href="javascript:void(0)" onclick="importLevel()">Import Level</a>
               </div>
-              <div class="controls">
+              <div class="controls speed">
                 <div class="header">
                     <h2>Simulation speed (<span sb-bind="time"></span>x)</h2>
                 </div>
+                <input type="range" sb-bind="sim_speed" min="0" max="8" step="0.1" value="1">
                 <a href="javascript:void(0)" onclick="slower()">Slower</a>
                 <a href="javascript:void(0)" onclick="normal()">Normal speed</a>
                 <a href="javascript:void(0)" onclick="pause()">Pause</a>
@@ -391,6 +404,10 @@
             gameInstance.SendMessage('Simulation', 'faster')
         }
 
+        function setSimulationSpeed(val) {
+            gameInstance.SendMessage('Simulation', 'setSimulationSpeed', val + "")
+        }
+
         function selectButton(el) {
             var ch = el.parentNode.children
             for (let i = 0; i < ch.length; i++) {
@@ -501,6 +518,14 @@
                 save()
                 custom(document.getElementById("custom-button"));
                 kill()
+            }
+        })
+
+        sbecky_change("sim_speed", function(to){
+            if(to.length > 0 && should_set_time_slider) {
+                console.log("set", to);
+                gameInstance.SendMessage('Simulation', 'setSimulationSpeed', to)
+                sbecky.time = to
             }
         })
 
