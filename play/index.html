@@ -521,11 +521,11 @@
                     }
                 }
             });
-            
+
             sbecky_onresponse("rating", function(e){
 
                 // TODO: show thank you popup
-                console.log("response");
+                console.log("response", e);
 
                 document.getElementById("rating-popup").style.display = "none";
                 gameInstance.SendMessage('Simulation', 'start_game')
@@ -534,7 +534,7 @@
 
             sbecky_onsubmit("rating", function(e){
 
-                console.log("submit");
+                console.log("submit", e);
 
                 // document.getElementById("rating-popup").style.display = "none";
                 // gameInstance.SendMessage('Simulation', 'start_game')
@@ -596,7 +596,7 @@
                     importLevel(json)
                     play()
                     kill()
-                }, 500)
+                }, 100)
 
             }, function(err) {
                 console.log("play not called error:", err);
