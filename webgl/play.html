@@ -4,9 +4,9 @@
 <head>
     <meta charset="utf-8">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>Unity WebGL Player | bakk1</title>
+    <title>Unity WebGL Player | %UNITY_WEB_NAME%</title>
     <script src="sbecky.js" charset="utf-8"></script>
-    <script src="Build/UnityLoader.js"></script>
+    <script src="%UNITY_WEBGL_LOADER_URL%"></script>
     <script src="Chart.min.js" charset="utf-8"></script>
 
     <style media="screen" id="style">
@@ -204,115 +204,6 @@
         .speed input[type="range"] {
             width: 100%;
         }
-
-        #rating-popup {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: #fff;
-            z-index: 10;
-            padding: 10vw 0;
-            box-sizing: border-box;
-            text-align: center;
-        }
-
-        #rating-popup>* {
-            font-size: 24px;
-            width: 700px;
-            margin: 0 auto;
-        }
-
-        #rating-popup p {
-            padding: 0.5rem;
-            box-sizing: border-box;
-            margin-bottom: 3rem;
-        }
-
-        #rating-popup .rating-controls {
-            padding: 0.5rem;
-            box-sizing: border-box;
-            margin-top: 3.5rem;
-            text-align: center;
-        }
-
-        #rating-popup .rating-controls>input {
-            background: #000;
-            color: #fff;
-            text-decoration: none;
-            padding: 0.5rem;
-            transition: 0.15s all ease;
-            margin: 0 auto;
-            -webkit-appearance: none;
-            border: none;
-            font-size: inherit;
-            cursor: pointer;
-        }
-
-        #rating-popup .rating-controls>input:hover {
-            transition: 0.15s all ease;
-            background: #222;
-        }
-
-        .rating-item {
-            text-align: left;
-            padding: 0.5rem 0;
-            max-width: 100%;
-        }
-
-        .rating-item label {
-            font-size: 24px;
-        }
-
-        .rating {
-            float: right;
-        }
-
-        .rating .rating-line {
-            position: relative;
-            width: 18rem;
-        }
-
-        .rating .rating-line input {
-            position: absolute;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 0;
-            opacity: 0;
-        }
-
-        .rating .rating-line .rating-stars {
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 3rem;
-            pointer-events: none;
-            fill: gray;
-        }
-
-        .rating .rating-line .rating-stars .rating-star {
-            width: calc(100%/5);
-            float: left;
-            height: 100%;
-            box-sizing: border-box;
-        }
-
-        .rating .rating-line .rating-stars .rating-star:first-of-type {
-            fill: gold;
-        }
-
-        .rating .rating-line .rating-stars .rating-star>* {
-            height: 100%;
-            width: 100%;
-        }
-
-        .rating .rating-line .rating-stars .rating-star>*>* {
-            height: 100%;
-        }
-
     </style>
 
 </head>
@@ -320,7 +211,7 @@
 <body>
     <div class="wrapper">
         <div id="gamewrapper">
-            <div id="gameContainer" style="width: 400px; height: 300px; margin: auto"></div>
+            <div id="gameContainer" style="width: %UNITY_WIDTH%px; height: %UNITY_HEIGHT%px; margin: auto"></div>
         </div>
         <div id="sidebar">
             <div class="controls">
@@ -328,25 +219,29 @@
                     <h2>Play mode</h2>
                 </div>
             </div>
-            <div class="slider" >
+            <div class="slider">
                 <div class="line">
+                    <!-- <input type="range" name="" value="" sb-bind="p_flat" min="" max="" step="0."> -->
                     <label for="">Play<span sb-bind="p_flat"></span></label>
                     <input type="range" name="" value="" sb-bind="p_flat" min="0" max="1" step="0.1" value="0.4">
                 </div>
 
                 <div class="line">
+                    <!-- <input type="range" name="" value="" sb-bind="p_hole" min="" max="" step="0."> -->
                     <label for="">P(hole):<span sb-bind="p_hole"></span></label>
                     <input type="range" name="" value="" sb-bind="p_hole" min="0" max="1" step="0.1" value="0.3">
 
                 </div>
 
                 <div class="line">
+                    <!-- <input type="range" name="" value="" sb-bind="p_obstacle" min="" max="" step="0."> -->
                     <label for="">P(obstacle):<span sb-bind="p_obstacle"></span></label>
                     <input type="range" name="" value="" sb-bind="p_obstacle" min="0" max="1" step="0.1" value="0.3">
 
                 </div>
 
                 <div class="line">
+                    <!-- <input type="range" name="" value="" sb-bind="p_obstacle" min="" max="" step="0."> -->
                     <label for="">P(f)+P(h)+P(o)</label>
                     <label for="" sb-bind="p_sum"></label>
                 </div>
@@ -405,233 +300,86 @@
                 <a href="javascript:void(0)" onclick="kill()">Generate new level</a>
                 <a href="javascript:void(0)" onclick="importLevel()">Import Level</a>
             </div> -->
-            <!-- <canvas id="chart" width="100" height="100"></canvas> -->
+            <div class="controls speed">
+                <div class="header">
+                    <h2>Simulation speed (<span sb-bind="time"></span>x)</h2>
+                </div>
+                <input type="range" sb-bind="sim_speed" min="0" max="8" step="0.1" value="1">
+                <a href="javascript:void(0)" onclick="slower()">Slower</a>
+                <a href="javascript:void(0)" onclick="normal()">Normal speed</a>
+                <a href="javascript:void(0)" onclick="pause()">Pause</a>
+                <a href="javascript:void(0)" onclick="faster()">Faster</a>
+            </div>
+            <canvas id="chart" width="100" height="100"></canvas>
         </div>
         <!-- <div style="clear:both;"></div> -->
-        <!-- <div class="bar-controls">
+        <div class="bar-controls">
             <a href="javascript:void(0)" onclick="document.getElementById('history').innerHTML = ''">Delete all</a>
-            <a href="javascript:void(0)" onclick="exportAll(this)" download="history.html">Export all as HTML</a>
-            <a href="javascript:void(0)" onclick="alert('todo')" download="history.txt">Export all as JSON</a>
-        </div> -->
+            <!-- <a href="javascript:void(0)" onclick="exportAll(this)" download="history.html">Export all as HTML</a> -->
+            <!-- <a href="javascript:void(0)" onclick="alert('todo')" download="history.txt">Export all as JSON</a> -->
+        </div>
+        <div id="history"></div>
     </div>
 
-    <form class="rating-popup" id="rating-popup" sb-form="rating" method="post" action="http://rokity.com/webgl/rate.php">
-        <p>Game over! ☠︎</p>
-        <p>How was the game? bla bla bla</p>
-        <div class="rating-item">
-            <label>Difficulty</label>
-            <div sb-form="rating" class="rating">
-                <div class="rating-line">
-                    <div class="rating-stars">
-                        <div class="rating-star">
-                            <svg viewBox="0 0 15 23" height="25" width="23" class="star rating" data-rating="2">
-                                <polygon points="9.9, 1.1, 3.3, 21.78, 19.8, 8.58, 0, 8.58, 16.5, 21.78" style="fill-rule:nonzero;"/>
-                            </svg>
-                        </div>
-                        <div class="rating-star">
-                            <svg viewBox="0 0 15 23" height="25" width="23" class="star rating" data-rating="2">
-                                <polygon points="9.9, 1.1, 3.3, 21.78, 19.8, 8.58, 0, 8.58, 16.5, 21.78" style="fill-rule:nonzero;"/>
-                            </svg>
-                        </div>
-                        <div class="rating-star">
-                            <svg viewBox="0 0 15 23" height="25" width="23" class="star rating" data-rating="2">
-                                <polygon points="9.9, 1.1, 3.3, 21.78, 19.8, 8.58, 0, 8.58, 16.5, 21.78" style="fill-rule:nonzero;"/>
-                            </svg>
-                        </div>
-                        <div class="rating-star">
-                            <svg viewBox="0 0 15 23" height="25" width="23" class="star rating" data-rating="2">
-                                <polygon points="9.9, 1.1, 3.3, 21.78, 19.8, 8.58, 0, 8.58, 16.5, 21.78" style="fill-rule:nonzero;"/>
-                            </svg>
-                        </div>
-                        <div class="rating-star">
-                            <svg viewBox="0 0 15 23" height="25" width="23" class="star rating" data-rating="2">
-                                <polygon points="9.9, 1.1, 3.3, 21.78, 19.8, 8.58, 0, 8.58, 16.5, 21.78" style="fill-rule:nonzero;"/>
-                            </svg>
-                        </div>
-
-                    </div>
-                    <input type="range" min="1" max="5" name="" value="1" sb-bind="slider1" name="difficulty">
-                </div>
-            </div>
-        </div>
-        <div class="rating-item">
-            <label>Fun factor</label>
-            <div sb-form="rating" class="rating">
-                <div class="rating-line">
-                    <div class="rating-stars">
-                        <div class="rating-star">
-                            <svg viewBox="0 0 15 23" height="25" width="23" class="star rating" data-rating="2">
-                                <polygon points="9.9, 1.1, 3.3, 21.78, 19.8, 8.58, 0, 8.58, 16.5, 21.78" style="fill-rule:nonzero;"/>
-                            </svg>
-                        </div>
-                        <div class="rating-star">
-                            <svg viewBox="0 0 15 23" height="25" width="23" class="star rating" data-rating="2">
-                                <polygon points="9.9, 1.1, 3.3, 21.78, 19.8, 8.58, 0, 8.58, 16.5, 21.78" style="fill-rule:nonzero;"/>
-                            </svg>
-                        </div>
-                        <div class="rating-star">
-                            <svg viewBox="0 0 15 23" height="25" width="23" class="star rating" data-rating="2">
-                                <polygon points="9.9, 1.1, 3.3, 21.78, 19.8, 8.58, 0, 8.58, 16.5, 21.78" style="fill-rule:nonzero;"/>
-                            </svg>
-                        </div>
-                        <div class="rating-star">
-                            <svg viewBox="0 0 15 23" height="25" width="23" class="star rating" data-rating="2">
-                                <polygon points="9.9, 1.1, 3.3, 21.78, 19.8, 8.58, 0, 8.58, 16.5, 21.78" style="fill-rule:nonzero;"/>
-                            </svg>
-                        </div>
-                        <div class="rating-star">
-                            <svg viewBox="0 0 15 23" height="25" width="23" class="star rating" data-rating="2">
-                                <polygon points="9.9, 1.1, 3.3, 21.78, 19.8, 8.58, 0, 8.58, 16.5, 21.78" style="fill-rule:nonzero;"/>
-                            </svg>
-                        </div>
-
-                    </div>
-                    <input type="range" min="1" max="5" name="" value="1" sb-bind="slider2" name="rating">
-                </div>
-            </div>
-            <input type="hidden" name="score" sb-bind="score_scaled">
-            <input type="hidden" name="user" sb-bind="user">
-            <input type="hidden" name="sd" sb-bind="score_scaled_standard_deviation">
-            <div class="rating-controls">
-                <input type="submit" name="" value="Play again">
-            </div>
-        </div>
-
-
-        <script type="text/javascript">
-            sbecky_ready(function () {
-                var sliders = ["slider1", "slider2"]
-                for (var i in sliders) {
-                    if (sliders.hasOwnProperty(i)) {
-                        var _slider = sliders[i];
-                        (function(slider){
-                            sbecky_onchange(slider, function(val) {
-                                var parent = sbecky_get(slider)[0].parentNode
-                                var stars = parent.getElementsByClassName("rating-star");
-                                for (var i in stars) {
-                                    if (stars.hasOwnProperty(i)) {
-                                        if (i < val) {
-                                            stars[i].style.fill = "gold";
-                                        }else{
-                                            stars[i].style.fill = "gray";
-                                        }
-                                    }
-                                }
-                            })
-                        })(_slider)
-                    }
-                }
-
-                sbecky_onsubmit("rating", function(e){
-
-                    // TODO: show thank you popup
-
-                    document.getElementById("rating-popup").style.display = "none";
-                    gameInstance.SendMessage('Simulation', 'start_game')
-                    gameInstance.SendMessage('Simulation', 'remove_dead')
-                })
-            })
-        </script>
-    </form>
-
     <script>
-        gameInstance = UnityLoader.instantiate("gameContainer", "Build/webgl.json");
+        gameInstance = UnityLoader.instantiate("gameContainer", "%UNITY_WEBGL_BUILD_URL%");
 
-        // var ctx = document.getElementById("chart").getContext('2d');
-        // var chart = new Chart(ctx, {
-        //     type: 'line',
-        //     data: {
-        //         labels: [],
-        //         datasets: [{
-        //             label: '# of alive player',
-        //             data: [],
-        //             backgroundColor: [
-        //                 'rgba(255, 80, 90, 0.6)'
-        //             ],
-        //             pointRadius: 0,
-        //             lineTension: 0
-        //         }]
-        //     },
-        //     options: {
-        //         scales: {
-        //             yAxes: [{
-        //                 ticks: {
-        //                     beginAtZero: true,
-        //                     fontSize: 14
-        //                 }
-        //             }],
-        //             xAxes: [{
-        //                 ticks: {
-        //                     fontSize: 14
-        //                 }
-        //             }]
-        //         },
-        //         animation: false
-        //     }
-        // });
-
-        function init() {
-
-            pause()
-
-            console.log("init");
-            ajax("http://rokity.com/webgl/getplayed.php", "GET", {"game": "true"}, function(json){
-                console.log("play called", json);
-                if(getCookie("player") == null) {
-                    setCookie("player", Math.floor((Math.random() * Math.pow(2, 10)) + 1), 99)
-                }
-                sbecky.player = getCookie("player")
-                importLevel(json)
-                play()
-                kill()
-            }, function(err) {
-                console.log("play not called error:", err);
-            })
-
-            // setTimeout(function(){
-            //     play()
-            //     kill()
-            // }, 500)
-
-        }
-
-        function end() {
-            document.getElementById("rating-popup").style.display = "block";
-        }
-
-        // setCookie & getCookie taken from https://stackoverflow.com/a/24103596
-        function setCookie(name,value,days) {
-            var expires = "";
-            if (days) {
-                var date = new Date();
-                date.setTime(date.getTime() + (days*24*60*60*1000));
-                expires = "; expires=" + date.toUTCString();
+        var ctx = document.getElementById("chart").getContext('2d');
+        var chart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: '# of alive player',
+                    data: [],
+                    backgroundColor: [
+                        'rgba(255, 80, 90, 0.6)'
+                    ],
+                    pointRadius: 0,
+                    lineTension: 0
+                }]
+            },
+            options: {
+                scales: {
+                    yAxes: [{
+                        ticks: {
+                            beginAtZero: true,
+                            fontSize: 14
+                        }
+                    }],
+                    xAxes: [{
+                        ticks: {
+                            fontSize: 14
+                        }
+                    }]
+                },
+                animation: false
             }
-            document.cookie = name + "=" + (value || "")  + expires + "; path=/";
-        }
-        function getCookie(name) {
-            var nameEQ = name + "=";
-            var ca = document.cookie.split(';');
-            for(var i=0;i < ca.length;i++) {
-                var c = ca[i];
-                while (c.charAt(0)==' ') c = c.substring(1,c.length);
-                if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length,c.length);
-            }
-            return null;
-        }
-        function eraseCookie(name) {
-            document.cookie = name+'=; Max-Age=-99999999;';
-        }
+        });
 
         function updateChart(data) {
-            return
+            // chart.data.labels.pop();
+            // chart.data.datasets.forEach((dataset) => {
+            //     dataset.data.pop();
+            // });
+
+            var label = [];
+            for (var i = 0; i <= data.length; i++) {
+                label.push(i * 10);
+            }
+
+            chart.data.labels = label;
+            chart.data.datasets.forEach((dataset) => {
+                dataset.data = data;
+            });
+            chart.update();
         }
 
         function save() {
-            var s = sbecky.p_flat + ";" + sbecky.p_hole + ";" + sbecky.p_obstacle + ";" + sbecky.obst_height +
-                ";" + sbecky.speed + ";" + sbecky.force + ";" + sbecky.gravity + ";" + sbecky.block_length +
-                ";" + sbecky.seed + ";" + sbecky.players
-            gameInstance.SendMessage('Simulation', 'setParams', s)
+            // var s = sbecky.p_flat + ";" + sbecky.p_hole + ";" + sbecky.p_obstacle + ";" + sbecky.obst_height +
+            //     ";" + sbecky.speed + ";" + sbecky.force + ";" + sbecky.gravity + ";" + sbecky.block_length +
+            //     ";" + sbecky.seed + ";" + sbecky.players
+            // gameInstance.SendMessage('Simulation', 'setParams', s)
         }
 
         function set(id) {
