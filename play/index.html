@@ -582,9 +582,9 @@
                 }
 
                 sbecky.player = getCookie("player")
-                importLevel(json)
 
                 setTimeout(function(){
+                    importLevel(json)
                     play()
                     kill()
                 }, 500)
@@ -623,6 +623,10 @@
         }
 
         function updateChart(data) {
+            return
+        }
+
+        function custom(wat) {
             return
         }
 
@@ -719,11 +723,6 @@
                 sbecky.max_players = json["max_players"]
 
                 _sbecky_sould_call_change = true
-
-                custom(document.getElementById("custom-button"));
-                save()
-                gameInstance.SendMessage('Simulation', 'playmode');
-                kill()
             }
         }
 
