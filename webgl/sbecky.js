@@ -712,7 +712,6 @@ function _sbecky_call_oninput(variable, param) {
 function ajax(url, type, params={}, success, error) {
     var xhttp = new XMLHttpRequest();
     xhttp.onreadystatechange = function() {
-        console.log(this);
         if (this.readyState === 4) {
             if(this.status === 200) {
                 success(this.responseText)
