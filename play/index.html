@@ -450,7 +450,7 @@
                         </div>
 
                     </div>
-                    <input type="range" min="1" max="5" name="" value="1" sb-bind="slider1" name="difficulty">
+                    <input type="range" min="1" max="5" value="1" sb-bind="slider1" name="difficulty">
                 </div>
             </div>
         </div>
@@ -486,7 +486,7 @@
                         </div>
 
                     </div>
-                    <input type="range" min="1" max="5" name="" value="1" sb-bind="slider2" name="rating">
+                    <input type="range" min="1" max="5" value="1" sb-bind="slider2" name="rating">
                 </div>
             </div>
             <input type="hidden" name="score" sb-bind="score_scaled">
@@ -590,13 +590,13 @@
                     setCookie("player", Math.floor((Math.random() * Math.pow(2, 10)) + 1), 99)
                 }
 
-                sbecky.player = getCookie("player")
+                sbecky.user = getCookie("player")
 
                 setTimeout(function(){
                     importLevel(json)
                     play()
                     kill()
-                }, 100)
+                }, 50)
 
             }, function(err) {
                 console.log("play not called error:", err);
