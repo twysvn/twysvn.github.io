@@ -237,7 +237,7 @@ function _sbecky_form_ajax(url, type, data, success, error) {
     };
 
     xhttp.open(type, url, true);
-    xhttp.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+    // xhttp.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
     xhttp.send(data);
 }
 
