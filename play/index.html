@@ -551,6 +551,10 @@
                 }
             });
 
+            sbecky_onsubmit("rating", function(){
+                sbecky.tmp = sbecky.rating
+            })
+
             sbecky_onresponse("rating", function(e){
 
                 // TODO: show thank you popup
@@ -568,6 +572,7 @@
                 document.getElementById("rating-popup").style.display = "none";
                 gameInstance.SendMessage('Simulation', 'start_game')
                 gameInstance.SendMessage('Simulation', 'remove_dead')
+                sbecky.rating = sbecky.tmp
             }
         </script>
     </form>
