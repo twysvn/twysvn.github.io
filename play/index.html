@@ -491,7 +491,6 @@
             </div>
             <input type="hidden" name="score" sb-bind="score_scaled">
             <input type="hidden" name="user" sb-bind="user">
-            <input type="hidden" name="sd" sb-bind="score_scaled_standard_deviation">
             <div class="rating-controls">
                 <input type="submit" name="" value="Play again">
             </div>
@@ -576,7 +575,7 @@
 
             console.log("init");
             ajax("http://rokity.com/webgl/getplayed.php?game=true", "POST", {"game":"true"}, function(json){
-                console.log("play called", json);
+                console.log(json);
                 if(getCookie("player") == null) {
                     setCookie("player", Math.floor((Math.random() * Math.pow(2, 10)) + 1), 99)
                 }
@@ -638,7 +637,7 @@
         }
 
         function set(id) {
-            custom(document.getElementById("custom-button"));
+            // custom(document.getElementById("custom-button"));
             gameInstance.SendMessage('Simulation', 'setParams', sbecky["hist_" + id])
             kill()
         }
@@ -654,7 +653,7 @@
         }
 
         function setSeed(value) {
-            custom(document.getElementById("custom-button"));
+            // custom(document.getElementById("custom-button"));
             save()
             gameInstance.SendMessage('Simulation', 'setSeed', "" + value)
             kill()
@@ -796,7 +795,7 @@
                 sbecky.p_sum = sbecky.p_sum.toPrecision(2);
                 if (should_set_p) {
                     gameInstance.SendMessage('Simulation', 'setProbabilities', sbecky.p_flat + ";" + sbecky.p_hole + ";" + sbecky.p_obstacle);
-                    custom(document.getElementById("custom-button"));
+                    // custom(document.getElementById("custom-button"));
                     kill()
                 }
             } else {
