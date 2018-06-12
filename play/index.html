@@ -238,7 +238,7 @@
             text-align: center;
         }
 
-        #rating-popup .rating-controls>input {
+        #rating-popup .rating-controls>input, #rating-popup .rating-controls>a {
             background: #000;
             color: #fff;
             text-decoration: none;
@@ -556,6 +556,9 @@
                 // TODO: show thank you popup
                 console.log("response", e);
 
+                sbecky.slider1 = 1
+                sbecky.slider2 = 1
+
                 // document.getElementById("rating-popup").style.display = "none";
                 // gameInstance.SendMessage('Simulation', 'start_game')
                 // gameInstance.SendMessage('Simulation', 'remove_dead')
@@ -609,7 +612,6 @@
 
             pause()
 
-            console.log("init");
             ajax("http://rokity.com/webgl/getplayed.php?game=true", "POST", {"game":"true"}, function(json){
                 console.log(json);
                 if(getCookie("player") == null) {
@@ -627,6 +629,7 @@
 
             }, function(err) {
                 console.log("play not called error:", err);
+                document.innerHTML = "error loading game"
             })
         }
 
