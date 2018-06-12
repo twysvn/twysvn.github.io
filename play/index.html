@@ -491,6 +491,7 @@
             </div>
             <input type="hidden" name="score" sb-bind="score_scaled">
             <input type="hidden" name="user" sb-bind="user">
+            <input type="hidden" name="id" sb-bind="gameid">
             <div class="rating-controls">
                 <input type="submit" name="" value="Play again">
             </div>
@@ -731,6 +732,8 @@
                 sbecky.block_length = json["block_length"]
                 sbecky.seed = json["seed"]
                 sbecky.max_players = json["max_players"]
+
+                if (json["id"] != undefined) sbecky.gameid = json["id"]
 
                 _sbecky_sould_call_change = true
             }
