@@ -722,7 +722,7 @@ function ajax(url, type, params={}, success, error) {
     };
 
     xhttp.open(type, url, true);
-    xhttp.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+    // xhttp.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
     xhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
     xhttp.send(Object.keys(params).map(function(k) {
         return encodeURIComponent(k) + '=' + encodeURIComponent(params[k])
