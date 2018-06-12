@@ -552,7 +552,8 @@
             });
 
             sbecky_onsubmit("rating", function(){
-                sbecky.tmp = sbecky.rating
+                if (sbecky.tmp == undefined)
+                    sbecky.tmp = sbecky.rating
             })
 
             sbecky_onresponse("rating", function(e){
