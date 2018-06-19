@@ -411,17 +411,17 @@
             <div class="rating-controls">
                 <input type="submit" name="" value="Rate game">
                 <a href="javascript:void(0)" onclick="play_again();">Play again!</a>
-                <a href="javascript:void(0)" onclick="play_new();">Play another level!</a>
+                <a href="javascript:void(0)" onclick="play_new();">Try another level!</a>
             </div>
         </div>
     </form>
 
     <div id="welcome">
-        <h1>welcome</h1>
-        <p>labber labber</p>
-        <p>press space to jump</p>
+        <!-- <h1>welcome</h1> -->
+        <p>Try to jump over holes and obstacles. Can you make it to the end?</p>
+        <p>Press the 'space' key on your keyboard to let the player jump.</p>
         <div class="rating-controls">
-            <a href="javascript:void(0)" onclick="start_game(this);">Start game!</a>
+            <a href="javascript:void(0)" onclick="start_game(this);" id="start-button">Loading game... </a>
         </div>
     </div>
 
@@ -442,14 +442,26 @@
             for (var i in sliders) {
                 if (sliders.hasOwnProperty(i)) {
                     var _slider = sliders[i];
-                    (function(slider){
+                    (function(slider) {
                         var f = function(val) {
                             var parent = sbecky_get(slider)[0].parentNode
                             var stars = parent.getElementsByClassName("rating-star");
                             for (var i in stars) {
                                 if (stars.hasOwnProperty(i)) {
+                                    var color = "gold"
+                                    // if(slider == "slider1"){
+                                    //     if (i==0) color = "green";
+                                    //     else if (i==1) color = "lime";
+                                    //     else if (i==3) color = "orange";
+                                    //     else if (i==4) color = "red";
+                                    // }else{
+                                    //     if (i==4) color = "green";
+                                    //     else if (i==3) color = "lime";
+                                    //     else if (i==1) color = "orange";
+                                    //     else if (i==0) color = "red";
+                                    // }
                                     if (i < val) {
-                                        stars[i].style.fill = "gold";
+                                        stars[i].style.fill = color;
                                     }else{
                                         stars[i].style.fill = "gray";
                                     }
@@ -458,7 +470,7 @@
                         }
                         sbecky_onchange(slider, f)
                         sbecky_oninput(slider, f)
-                    })(_slider)
+                    } )(_slider)
                 }
             }
         }
@@ -515,6 +527,8 @@
             // document.getElementById("rating-popup").style.display = "none";
             gameInstance.SendMessage('Simulation', 'start_game')
             gameInstance.SendMessage('Simulation', 'remove_dead')
+            bindings[0]["slider1"] = []
+            bindings[0]["slider2"] = []
             sbecky.rating = sbecky.tmp
             init_rating()
             get_level_and_start()
@@ -523,17 +537,16 @@
         function start_game(button) {
             if (init_called){
                 get_level_and_start()
-            } else {
-                init_should_start_game = true
-                button.innerHTML = "Get ready!"
             }
         }
 
         function init() {
             init_called = true
             pause()
-            if(init_should_start_game)
-                get_level_and_start()
+            var button = document.getElementById("start-button")
+            button.innerHTML = "Start game!"
+            // if(init_should_start_game)
+            //     get_level_and_start()
         }
 
         function get_level_and_start() {
