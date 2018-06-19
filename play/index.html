@@ -332,8 +332,8 @@
     </div>
 
     <form class="rating-popup" id="rating-popup" sb-form="rating" method="post" action="http://rokity.com/webgl/rate.php" sb-bind="rating" style="display:none;">
-        <p>Game over! ☠︎</p>
-        <p>How was the game? bla bla bla</p>
+        <p>Game over!</p>
+        <p>How was the game?</p>
         <div class="rating-item">
             <label>Difficulty</label>
             <div sb-form="rating" class="rating">
@@ -580,7 +580,7 @@
 
         function end() {
             document.getElementById("rating-popup").style.display = "block";
-            sbecky.score_scaled_final = sbecky.score_scaled
+            sbecky.score_scaled_final = 1-sbecky.score_scaled
             console.log("final score: ", sbecky.score_scaled_final);
             pause()
         }
