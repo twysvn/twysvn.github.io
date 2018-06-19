@@ -16,7 +16,7 @@
 
         body {
             /* background: #f9f9f9; */
-            background: 
+            background:
         }
         .wrapper {
             text-align: center;
@@ -419,7 +419,7 @@
             <input type="hidden" name="id" sb-bind="gameid">
             <div class="rating-controls">
                 <input type="submit" name="" value="Rate game">
-                <a href="javascript:void(0)" onclick="play_agan();">Play again!</a>
+                <a href="javascript:void(0)" onclick="play_again();">Play again!</a>
                 <a href="javascript:void(0)" onclick="play_new();">Play another level!</a>
             </div>
         </div>
@@ -507,7 +507,7 @@
                 if (sbecky.tmp == undefined)
                     sbecky.tmp = sbecky.rating
 
-                document.getElementById("rating-popup").style.display = "none";
+                // document.getElementById("rating-popup").style.display = "none";
                 gameInstance.SendMessage('Simulation', 'start_game')
                 gameInstance.SendMessage('Simulation', 'remove_dead')
                 sbecky.rating = sbecky.tmp
@@ -561,6 +561,7 @@
                     importLevel(level)
                     save()
                     play()
+                    document.getElementById("rating-popup").style.display = "none";
                 }, 50)
             }else{
 
@@ -576,6 +577,7 @@
                         importLevel(json)
                         save()
                         play()
+                        document.getElementById("rating-popup").style.display = "none";
                     }, 50)
 
                 }, function(err) {
@@ -589,6 +591,7 @@
 
         function end() {
             document.getElementById("rating-popup").style.display = "block";
+            pause()
         }
 
         // setCookie & getCookie taken from https://stackoverflow.com/a/24103596
