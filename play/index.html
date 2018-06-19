@@ -332,7 +332,7 @@
     </div>
 
     <form class="rating-popup" id="rating-popup" sb-form="rating" method="post" action="http://rokity.com/webgl/rate.php" sb-bind="rating" style="display:none;">
-        <p>Game over!</p>
+        <p id="game-message">Game over!</p>
         <p>How was the game?</p>
         <div class="rating-item">
             <label>Difficulty</label>
@@ -529,6 +529,8 @@
             gameInstance.SendMessage('Simulation', 'remove_dead')
             bindings[0]["slider1"] = []
             bindings[0]["slider2"] = []
+            bindings[0]["user"] = []
+            bindings[0]["score"] = []
             sbecky.rating = sbecky.tmp
             init_rating()
             get_level_and_start()
@@ -594,6 +596,7 @@
         function end() {
             document.getElementById("rating-popup").style.display = "block";
             sbecky.score_scaled_final = 1-sbecky.score_scaled
+            document.getElementById("game-message").innerHTML = (sbecky.score_scaled_final > 0.999) ? "Congrats! You made it." : "Game over!"
             console.log("final score: ", sbecky.score_scaled_final);
             pause()
         }
