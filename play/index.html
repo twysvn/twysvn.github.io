@@ -23,6 +23,7 @@
         #gameContainer {
             width: 100% !important;
             height: auto !important;
+            background: none!important;
         }
 
         #gameContainer canvas {
@@ -475,7 +476,8 @@
             }
         }
 
-        sbecky_onsubmit("rating", function(){
+        sbecky_onsubmit("rating", function(data){
+            console.log("submit data", data);
             if (sbecky.tmp == undefined)
                 sbecky.tmp = sbecky.rating
         })
@@ -513,7 +515,8 @@
                 "difficulty": sbecky.score_scaled,
                 "difficulty_standard_deviation": sbecky.score_scaled_standard_deviation,
                 "survivors": sbecky.players,
-                "max_players": sbecky.max_players
+                "max_players": sbecky.max_players,
+                "id": sbecky.gameid
             }
             level = JSON.stringify(level)
             hideme()
@@ -539,6 +542,7 @@
         function start_game(button) {
             if (init_called){
                 get_level_and_start()
+                button.setAttribute("onclick", "console.log('not cool man!')")
             }
         }
 
@@ -552,6 +556,12 @@
         }
 
         function get_level_and_start() {
+
+            if(getCookie("player") == null) {
+                setCookie("player", Math.floor((Math.random() * Math.pow(2, 10)) + 1), 99)
+            }
+            sbecky.user = getCookie("player")
+
             if (level != undefined) {
 
                 // console.log(level);
@@ -567,14 +577,6 @@
             }else{
 
                 ajax("http://rokity.com/webgl/getplayed.php?game=true", "POST", {"game":"true"}, function(json){
-
-                    // console.log(json);
-
-                    if(getCookie("player") == null) {
-                        setCookie("player", Math.floor((Math.random() * Math.pow(2, 10)) + 1), 99)
-                    }
-
-                    sbecky.user = getCookie("player")
 
                     setTimeout(function(){
                         importLevel(json)
