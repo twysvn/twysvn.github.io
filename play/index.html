@@ -15,22 +15,14 @@
         }
 
         body {
-            /* background: #f9f9f9; */
-            background:
+            background: rgb(0,5,39) !important;
         }
         .wrapper {
             text-align: center;
         }
         #gameContainer {
-            background: #aaa;
             width: 100% !important;
             height: auto !important;
-            position: relative;
-            top: 0;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            margin: auto;
         }
 
         #gameContainer canvas {
@@ -197,8 +189,7 @@
             width: 40%;
         }
 
-        .line,
-        .speed {
+        .line, .speed {
             overflow: hidden;
         }
 
@@ -206,8 +197,8 @@
             width: 100%;
         }
 
-        #rating-popup {
-            display: none;
+        #rating-popup, #welcome {
+            /* display: none; */
             position: fixed;
             top: 0;
             left: 0;
@@ -220,26 +211,26 @@
             text-align: center;
         }
 
-        #rating-popup>* {
+        #rating-popup>*, #welcome>* {
             font-size: 24px;
             width: 700px;
             margin: 0 auto;
         }
 
-        #rating-popup p {
+        #rating-popup p, #welcome p {
             padding: 0.5rem;
             box-sizing: border-box;
             margin-bottom: 3rem;
         }
 
-        #rating-popup .rating-controls {
+        #rating-popup .rating-controls, #welcome .rating-controls {
             padding: 0.5rem;
             box-sizing: border-box;
             margin-top: 3.5rem;
             text-align: center;
         }
 
-        #rating-popup .rating-controls>input, #rating-popup .rating-controls>a {
+        #rating-popup .rating-controls>input, #rating-popup .rating-controls>a, #welcome .rating-controls>input, #welcome .rating-controls>a {
             background: #000;
             color: #fff;
             text-decoration: none;
@@ -252,7 +243,7 @@
             cursor: pointer;
         }
 
-        #rating-popup .rating-controls>input:hover {
+        #rating-popup .rating-controls>input:hover, #welcome .rating-controls>input:hover {
             transition: 0.15s all ease;
             background: #222;
         }
@@ -340,7 +331,7 @@
         <div id="gameContainer" style="width: 400px; height: 300px; margin: auto"></div>
     </div>
 
-    <form class="rating-popup" id="rating-popup" sb-form="rating" method="post" action="http://rokity.com/webgl/rate.php" sb-bind="rating">
+    <form class="rating-popup" id="rating-popup" sb-form="rating" method="post" action="http://rokity.com/webgl/rate.php" sb-bind="rating" style="display:none;">
         <p>Game over! ☠︎</p>
         <p>How was the game? bla bla bla</p>
         <div class="rating-item">
@@ -414,7 +405,7 @@
                     <input type="range" min="1" max="5" value="1" sb-bind="slider2" name="fun">
                 </div>
             </div>
-            <input type="hidden" name="score" sb-bind="score_scaled">
+            <input type="hidden" name="score" sb-bind="score_scaled_final">
             <input type="hidden" name="user" sb-bind="user">
             <input type="hidden" name="id" sb-bind="gameid">
             <div class="rating-controls">
@@ -423,154 +414,146 @@
                 <a href="javascript:void(0)" onclick="play_new();">Play another level!</a>
             </div>
         </div>
-
-
-        <script type="text/javascript">
-
-            var level = undefined
-
-            sbecky_ready(function () {
-                init_rating()
-            });
-
-            function init_rating() {
-                var sliders = ["slider1", "slider2"]
-                for (var i in sliders) {
-                    if (sliders.hasOwnProperty(i)) {
-                        var _slider = sliders[i];
-                        (function(slider){
-                            var f = function(val) {
-                                var parent = sbecky_get(slider)[0].parentNode
-                                var stars = parent.getElementsByClassName("rating-star");
-                                for (var i in stars) {
-                                    if (stars.hasOwnProperty(i)) {
-                                        if (i < val) {
-                                            stars[i].style.fill = "gold";
-                                        }else{
-                                            stars[i].style.fill = "gray";
-                                        }
-                                    }
-                                }
-                            }
-                            sbecky_onchange(slider, f)
-                            sbecky_oninput(slider, f)
-                        })(_slider)
-                    }
-                }
-            }
-
-            sbecky_onsubmit("rating", function(){
-                if (sbecky.tmp == undefined)
-                    sbecky.tmp = sbecky.rating
-            })
-
-            sbecky_onresponse("rating", function(e){
-
-                // TODO: show thank you popup
-                console.log("response", e);
-
-                sbecky.slider1 = 1
-                sbecky.slider2 = 1
-
-                // document.getElementById("rating-popup").style.display = "none";
-                // gameInstance.SendMessage('Simulation', 'start_game')
-                // gameInstance.SendMessage('Simulation', 'remove_dead')
-            });
-
-            function play_new() {
-                hideme()
-                level = undefined
-            }
-
-            function play_again() {
-                hideme()
-                level = {
-                    "p_flat": sbecky.p_flat,
-                    "p_hole": sbecky.p_hole,
-                    "p_obstacle": sbecky.p_obstacle,
-                    "speed": sbecky.speed,
-                    "force": sbecky.force,
-                    "gravity": sbecky.gravity,
-                    "obst_height": sbecky.obst_height,
-                    "block_length": sbecky.block_length,
-                    "seed": sbecky.seed,
-                    "score": sbecky.score,
-                    "difficulty": sbecky.score_scaled,
-                    "difficulty_standard_deviation": sbecky.score_scaled_standard_deviation,
-                    "survivors": sbecky.players,
-                    "max_players": sbecky.max_players
-                }
-            }
-
-            function hideme() {
-
-                if (sbecky.tmp == undefined)
-                    sbecky.tmp = sbecky.rating
-
-                // document.getElementById("rating-popup").style.display = "none";
-                gameInstance.SendMessage('Simulation', 'start_game')
-                gameInstance.SendMessage('Simulation', 'remove_dead')
-                sbecky.rating = sbecky.tmp
-                init_rating()
-            }
-        </script>
     </form>
+
+    <div id="welcome">
+        <h1>welcome</h1>
+        <p>labber labber</p>
+        <p>press space to jump</p>
+        <div class="rating-controls">
+            <a href="javascript:void(0)" onclick="start_game(this);">Start game!</a>
+        </div>
+    </div>
 
     <script>
         gameInstance = UnityLoader.instantiate("gameContainer", "Build/play.json");
 
-        // var ctx = document.getElementById("chart").getContext('2d');
-        // var chart = new Chart(ctx, {
-        //     type: 'line',
-        //     data: {
-        //         labels: [],
-        //         datasets: [{
-        //             label: '# of alive player',
-        //             data: [],
-        //             backgroundColor: [
-        //                 'rgba(255, 80, 90, 0.6)'
-        //             ],
-        //             pointRadius: 0,
-        //             lineTension: 0
-        //         }]
-        //     },
-        //     options: {
-        //         scales: {
-        //             yAxes: [{
-        //                 ticks: {
-        //                     beginAtZero: true,
-        //                     fontSize: 14
-        //                 }
-        //             }],
-        //             xAxes: [{
-        //                 ticks: {
-        //                     fontSize: 14
-        //                 }
-        //             }]
-        //         },
-        //         animation: false
-        //     }
-        // });
+        var level = undefined
+        var should_start = false
+        var init_called = false
+        var init_should_start_game = false
+
+        sbecky_ready(function () {
+            init_rating()
+        });
+
+        function init_rating() {
+            var sliders = ["slider1", "slider2"]
+            for (var i in sliders) {
+                if (sliders.hasOwnProperty(i)) {
+                    var _slider = sliders[i];
+                    (function(slider){
+                        var f = function(val) {
+                            var parent = sbecky_get(slider)[0].parentNode
+                            var stars = parent.getElementsByClassName("rating-star");
+                            for (var i in stars) {
+                                if (stars.hasOwnProperty(i)) {
+                                    if (i < val) {
+                                        stars[i].style.fill = "gold";
+                                    }else{
+                                        stars[i].style.fill = "gray";
+                                    }
+                                }
+                            }
+                        }
+                        sbecky_onchange(slider, f)
+                        sbecky_oninput(slider, f)
+                    })(_slider)
+                }
+            }
+        }
+
+        sbecky_onsubmit("rating", function(){
+            if (sbecky.tmp == undefined)
+                sbecky.tmp = sbecky.rating
+        })
+
+        sbecky_onresponse("rating", function(e){
+
+            // TODO: show thank you popup
+            // console.log("rating.php response", e);
+
+            sbecky.slider1 = 1
+            sbecky.slider2 = 1
+
+            // document.getElementById("rating-popup").style.display = "none";
+            // gameInstance.SendMessage('Simulation', 'start_game')
+            // gameInstance.SendMessage('Simulation', 'remove_dead')
+        });
+
+        function play_new() {
+            level = undefined
+            hideme()
+        }
+
+        function play_again() {
+            level = {
+                "p_flat": sbecky.p_flat,
+                "p_hole": sbecky.p_hole,
+                "p_obstacle": sbecky.p_obstacle,
+                "speed": sbecky.speed,
+                "force": sbecky.force,
+                "gravity": sbecky.gravity,
+                "obst_height": sbecky.obst_height,
+                "block_length": sbecky.block_length,
+                "seed": sbecky.seed,
+                "score": sbecky.score,
+                "difficulty": sbecky.score_scaled,
+                "difficulty_standard_deviation": sbecky.score_scaled_standard_deviation,
+                "survivors": sbecky.players,
+                "max_players": sbecky.max_players
+            }
+            level = JSON.stringify(level)
+            hideme()
+        }
+
+        function hideme() {
+
+            if (sbecky.tmp == undefined)
+                sbecky.tmp = sbecky.rating
+
+            // document.getElementById("rating-popup").style.display = "none";
+            gameInstance.SendMessage('Simulation', 'start_game')
+            gameInstance.SendMessage('Simulation', 'remove_dead')
+            sbecky.rating = sbecky.tmp
+            init_rating()
+            get_level_and_start()
+        }
+
+        function start_game(button) {
+            if (init_called){
+                get_level_and_start()
+            } else {
+                init_should_start_game = true
+                button.innerHTML = "Get ready!"
+            }
+        }
 
         function init() {
-
+            init_called = true
             pause()
+            if(init_should_start_game)
+                get_level_and_start()
+        }
 
+        function get_level_and_start() {
             if (level != undefined) {
 
-                console.log(level);
+                // console.log(level);
 
                 setTimeout(function(){
                     importLevel(level)
                     save()
-                    play()
+                    play();
                     document.getElementById("rating-popup").style.display = "none";
+                    document.getElementById('welcome').style.display = 'none';
+                    normal()
                 }, 50)
             }else{
 
                 ajax("http://rokity.com/webgl/getplayed.php?game=true", "POST", {"game":"true"}, function(json){
 
-                    console.log(json);
+                    // console.log(json);
 
                     if(getCookie("player") == null) {
                         setCookie("player", Math.floor((Math.random() * Math.pow(2, 10)) + 1), 99)
@@ -581,8 +564,10 @@
                     setTimeout(function(){
                         importLevel(json)
                         save()
-                        play()
+                        play();
                         document.getElementById("rating-popup").style.display = "none";
+                        document.getElementById('welcome').style.display = 'none';
+                        normal()
                     }, 50)
 
                 }, function(err) {
@@ -591,11 +576,12 @@
                 })
 
             }
-
         }
 
         function end() {
             document.getElementById("rating-popup").style.display = "block";
+            sbecky.score_scaled_final = sbecky.score_scaled
+            console.log("final score: ", sbecky.score_scaled_final);
             pause()
         }
 
@@ -728,68 +714,6 @@
                 _sbecky_sould_call_change = true
             }
         }
-
-        // sbecky_change("speed", function(val) {
-        //     if (val.length > 0) {
-        //         // gameInstance.SendMessage('Simulation', 'setSpeed', ""+sbecky.speed);
-        //         custom(document.getElementById("custom-button"));
-        //         save()
-        //     }
-        // })
-        //
-        // sbecky_change("force", function(val) {
-        //     if (val.length > 0) {
-        //         // gameInstance.SendMessage('Simulation', 'setForce', ""+sbecky.force);
-        //         custom(document.getElementById("custom-button"));
-        //         save()
-        //     }
-        // })
-        //
-        // sbecky_change("gravity", function(val) {
-        //     if (val.length > 0) {
-        //         // gameInstance.SendMessage('Simulation', 'setGravity', ""+sbecky.gravity);
-        //         custom(document.getElementById("custom-button"));
-        //         save()
-        //     }
-        // })
-        //
-        // sbecky_change("block_length", function(val) {
-        //     if (val.length > 0) {
-        //         custom(document.getElementById("custom-button"));
-        //         save()
-        //     }
-        // })
-        //
-        // sbecky_change("max_players", function(val) {
-        //     if (val.length > 0) {
-        //         gameInstance.SendMessage('Simulation', 'setPlayers', "" + sbecky["max_players"]);
-        //         kill()
-        //     }
-        // })
-        //
-        // sbecky_change("obst_height", function(val) {
-        //     if (val.length > 0) {
-        //         custom(document.getElementById("custom-button"));
-        //         save()
-        //     }
-        // })
-        //
-        //
-        // sbecky_change("seed", function(to) {
-        //     if (to.length > 0) {
-        //         save()
-        //         custom(document.getElementById("custom-button"));
-        //         kill()
-        //     }
-        // })
-        //
-        // sbecky_change("sim_speed", function(to) {
-        //     if (to.length > 0 && should_set_time_slider) {
-        //         console.log("set", to);
-        //         gameInstance.SendMessage('Simulation', 'setSimulationSpeed', to)
-        //         sbecky.time = to
-        //     }
-        // })
 
         function set_p_sum() {
             sbecky.p_sum = parseFloat(sbecky.p_flat) + parseFloat(sbecky.p_hole) + parseFloat(sbecky.p_obstacle)
