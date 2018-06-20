@@ -31,102 +31,6 @@
             height: auto !important;
         }
 
-        #sidebar {
-            width: 29.4%;
-            float: right;
-            background: #fff;
-
-            border: 2pt solid #111;
-            /* padding: 0.25rem 0.5rem; */
-            /* border-radius: 4pt; */
-            box-sizing: border-box;
-        }
-
-        #sidebar label {
-            font-family: monospace;
-            height: 2rem;
-            line-height: 2rem;
-        }
-
-        #sidebar input,
-        #sidebar label {
-            /* width: 50%; */
-            display: inline-block;
-            /* background: #eee; */
-            box-sizing: border-box;
-            height: 2rem;
-            line-height: 2rem;
-            float: left;
-            margin: 0;
-        }
-
-        #sidebar label:nth-child(2) {
-            float: right;
-        }
-
-        #sidebar .line label:first-of-type span {
-            float: right;
-            margin-right: 1rem;
-        }
-
-        .slider {
-            border-bottom: 2pt solid #111;
-            padding: 0.5rem 0.65rem;
-            overflow-y: auto;
-            overflow-x: hidden;
-        }
-
-        #history {
-            box-sizing: border-box;
-            width: 70%;
-            float: left;
-        }
-
-        #history .item {
-            /* background: #f9f9f9; */
-            border: 2pt solid #111;
-            position: relative;
-            /* height: 19rem; */
-            overflow: hidden;
-            margin-top: 0.5rem;
-        }
-
-        #history .item>div:first-of-type {
-            /* height: 3rem;
-            line-height: 3rem; */
-            /* background: #fff; */
-            border-bottom: 2pt solid #111;
-            width: 100%;
-            display: block;
-            padding: 0 0.69rem;
-        }
-
-        #history .item>div a:first-of-type {
-            margin-left: 0.69rem;
-        }
-
-        #history .item>div:nth-of-type(2) {
-            display: block;
-            overflow: hidden;
-            position: relative;
-            height: 20rem;
-        }
-
-        #history .item pre {
-            width: 100%;
-            font-family: monospace;
-            background: none;
-            border: none;
-            padding: 0 0.3rem;
-        }
-
-        #history .hist-chart {
-            position: absolute;
-            height: 100%;
-            right: 0.69rem;
-            top: 0;
-        }
-
         .bar-controls {
             display: inline-block;
             padding-top: 0.5rem;
@@ -420,7 +324,7 @@
     <div id="welcome">
         <!-- <h1>welcome</h1> -->
         <p>Try to jump over holes and obstacles. Can you make it to the end?</p>
-        <p>Press the 'space' key on your keyboard to let the player jump.</p>
+        <p>Press 'space' to jump.</p>
         <div class="rating-controls">
             <a href="javascript:void(0)" onclick="start_game(this);" id="start-button">Loading game... </a>
         </div>
@@ -530,12 +434,6 @@
             // document.getElementById("rating-popup").style.display = "none";
             gameInstance.SendMessage('Simulation', 'start_game')
             gameInstance.SendMessage('Simulation', 'remove_dead')
-            bindings[0]["slider1"] = []
-            bindings[0]["slider2"] = []
-            bindings[0]["user"] = []
-            bindings[0]["score"] = []
-            sbecky.rating = sbecky.tmp
-            init_rating()
             get_level_and_start()
         }
 
@@ -570,8 +468,7 @@
                     importLevel(level)
                     save()
                     play();
-                    document.getElementById("rating-popup").style.display = "none";
-                    document.getElementById('welcome').style.display = 'none';
+                    start_done()
                     normal()
                 }, 50)
             }else{
@@ -582,8 +479,7 @@
                         importLevel(json)
                         save()
                         play();
-                        document.getElementById("rating-popup").style.display = "none";
-                        document.getElementById('welcome').style.display = 'none';
+                        start_done()
                         normal()
                     }, 50)
 
@@ -593,6 +489,21 @@
                 })
 
             }
+        }
+
+        function start_done() {
+            document.getElementById("rating-popup").style.display = "none";
+            document.getElementById('welcome').style.display = 'none';
+
+            bindings[0]["slider1"] = []
+            bindings[0]["slider2"] = []
+            bindings[0]["user"] = []
+            bindings[0]["score"] = []
+
+            if(sbecky.tmp != undefined)
+                sbecky.rating = sbecky.tmp
+
+            init_rating()
         }
 
         function end() {
