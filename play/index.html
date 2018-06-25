@@ -237,88 +237,90 @@
     </div>
 
     <form class="rating-popup" id="rating-popup" sb-form="rating" method="post" action="http://rokity.com/webgl/rate.php" sb-bind="rating" style="display:none;">
-        <p id="game-message">Game over!</p>
-        <p>How was the game?</p>
-        <div class="rating-item">
-            <label>Difficulty</label>
-            <div sb-form="rating" class="rating">
-                <div class="rating-line">
-                    <div class="rating-stars">
-                        <div class="rating-star">
-                            <svg viewBox="0 0 15 23" height="25" width="23" class="star rating" data-rating="2">
-                                <polygon points="9.9, 1.1, 3.3, 21.78, 19.8, 8.58, 0, 8.58, 16.5, 21.78" style="fill-rule:nonzero;"/>
-                            </svg>
-                        </div>
-                        <div class="rating-star">
-                            <svg viewBox="0 0 15 23" height="25" width="23" class="star rating" data-rating="2">
-                                <polygon points="9.9, 1.1, 3.3, 21.78, 19.8, 8.58, 0, 8.58, 16.5, 21.78" style="fill-rule:nonzero;"/>
-                            </svg>
-                        </div>
-                        <div class="rating-star">
-                            <svg viewBox="0 0 15 23" height="25" width="23" class="star rating" data-rating="2">
-                                <polygon points="9.9, 1.1, 3.3, 21.78, 19.8, 8.58, 0, 8.58, 16.5, 21.78" style="fill-rule:nonzero;"/>
-                            </svg>
-                        </div>
-                        <div class="rating-star">
-                            <svg viewBox="0 0 15 23" height="25" width="23" class="star rating" data-rating="2">
-                                <polygon points="9.9, 1.1, 3.3, 21.78, 19.8, 8.58, 0, 8.58, 16.5, 21.78" style="fill-rule:nonzero;"/>
-                            </svg>
-                        </div>
-                        <div class="rating-star">
-                            <svg viewBox="0 0 15 23" height="25" width="23" class="star rating" data-rating="2">
-                                <polygon points="9.9, 1.1, 3.3, 21.78, 19.8, 8.58, 0, 8.58, 16.5, 21.78" style="fill-rule:nonzero;"/>
-                            </svg>
-                        </div>
+        <div>
+            <p id="game-message">Game over!</p>
+            <p>How was the game?</p>
+            <div class="rating-item">
+                <label>Difficulty</label>
+                <div sb-form="rating" class="rating">
+                    <div class="rating-line">
+                        <div class="rating-stars">
+                            <div class="rating-star">
+                                <svg viewBox="0 0 15 23" height="25" width="23" class="star rating" data-rating="2">
+                                    <polygon points="9.9, 1.1, 3.3, 21.78, 19.8, 8.58, 0, 8.58, 16.5, 21.78" style="fill-rule:nonzero;"/>
+                                </svg>
+                            </div>
+                            <div class="rating-star">
+                                <svg viewBox="0 0 15 23" height="25" width="23" class="star rating" data-rating="2">
+                                    <polygon points="9.9, 1.1, 3.3, 21.78, 19.8, 8.58, 0, 8.58, 16.5, 21.78" style="fill-rule:nonzero;"/>
+                                </svg>
+                            </div>
+                            <div class="rating-star">
+                                <svg viewBox="0 0 15 23" height="25" width="23" class="star rating" data-rating="2">
+                                    <polygon points="9.9, 1.1, 3.3, 21.78, 19.8, 8.58, 0, 8.58, 16.5, 21.78" style="fill-rule:nonzero;"/>
+                                </svg>
+                            </div>
+                            <div class="rating-star">
+                                <svg viewBox="0 0 15 23" height="25" width="23" class="star rating" data-rating="2">
+                                    <polygon points="9.9, 1.1, 3.3, 21.78, 19.8, 8.58, 0, 8.58, 16.5, 21.78" style="fill-rule:nonzero;"/>
+                                </svg>
+                            </div>
+                            <div class="rating-star">
+                                <svg viewBox="0 0 15 23" height="25" width="23" class="star rating" data-rating="2">
+                                    <polygon points="9.9, 1.1, 3.3, 21.78, 19.8, 8.58, 0, 8.58, 16.5, 21.78" style="fill-rule:nonzero;"/>
+                                </svg>
+                            </div>
 
+                        </div>
+                        <input type="range" min="1" max="5" value="1" sb-bind="slider1" name="difficulty">
                     </div>
-                    <input type="range" min="1" max="5" value="1" sb-bind="slider1" name="difficulty">
                 </div>
             </div>
-        </div>
-        <div class="rating-item">
-            <label>Fun factor</label>
-            <div sb-form="rating" class="rating">
-                <div class="rating-line">
-                    <div class="rating-stars">
-                        <div class="rating-star">
-                            <svg viewBox="0 0 15 23" height="25" width="23" class="star rating" data-rating="2">
-                                <polygon points="9.9, 1.1, 3.3, 21.78, 19.8, 8.58, 0, 8.58, 16.5, 21.78" style="fill-rule:nonzero;"/>
-                            </svg>
-                        </div>
-                        <div class="rating-star">
-                            <svg viewBox="0 0 15 23" height="25" width="23" class="star rating" data-rating="2">
-                                <polygon points="9.9, 1.1, 3.3, 21.78, 19.8, 8.58, 0, 8.58, 16.5, 21.78" style="fill-rule:nonzero;"/>
-                            </svg>
-                        </div>
-                        <div class="rating-star">
-                            <svg viewBox="0 0 15 23" height="25" width="23" class="star rating" data-rating="2">
-                                <polygon points="9.9, 1.1, 3.3, 21.78, 19.8, 8.58, 0, 8.58, 16.5, 21.78" style="fill-rule:nonzero;"/>
-                            </svg>
-                        </div>
-                        <div class="rating-star">
-                            <svg viewBox="0 0 15 23" height="25" width="23" class="star rating" data-rating="2">
-                                <polygon points="9.9, 1.1, 3.3, 21.78, 19.8, 8.58, 0, 8.58, 16.5, 21.78" style="fill-rule:nonzero;"/>
-                            </svg>
-                        </div>
-                        <div class="rating-star">
-                            <svg viewBox="0 0 15 23" height="25" width="23" class="star rating" data-rating="2">
-                                <polygon points="9.9, 1.1, 3.3, 21.78, 19.8, 8.58, 0, 8.58, 16.5, 21.78" style="fill-rule:nonzero;"/>
-                            </svg>
-                        </div>
+            <div class="rating-item">
+                <label>Fun factor</label>
+                <div sb-form="rating" class="rating">
+                    <div class="rating-line">
+                        <div class="rating-stars">
+                            <div class="rating-star">
+                                <svg viewBox="0 0 15 23" height="25" width="23" class="star rating" data-rating="2">
+                                    <polygon points="9.9, 1.1, 3.3, 21.78, 19.8, 8.58, 0, 8.58, 16.5, 21.78" style="fill-rule:nonzero;"/>
+                                </svg>
+                            </div>
+                            <div class="rating-star">
+                                <svg viewBox="0 0 15 23" height="25" width="23" class="star rating" data-rating="2">
+                                    <polygon points="9.9, 1.1, 3.3, 21.78, 19.8, 8.58, 0, 8.58, 16.5, 21.78" style="fill-rule:nonzero;"/>
+                                </svg>
+                            </div>
+                            <div class="rating-star">
+                                <svg viewBox="0 0 15 23" height="25" width="23" class="star rating" data-rating="2">
+                                    <polygon points="9.9, 1.1, 3.3, 21.78, 19.8, 8.58, 0, 8.58, 16.5, 21.78" style="fill-rule:nonzero;"/>
+                                </svg>
+                            </div>
+                            <div class="rating-star">
+                                <svg viewBox="0 0 15 23" height="25" width="23" class="star rating" data-rating="2">
+                                    <polygon points="9.9, 1.1, 3.3, 21.78, 19.8, 8.58, 0, 8.58, 16.5, 21.78" style="fill-rule:nonzero;"/>
+                                </svg>
+                            </div>
+                            <div class="rating-star">
+                                <svg viewBox="0 0 15 23" height="25" width="23" class="star rating" data-rating="2">
+                                    <polygon points="9.9, 1.1, 3.3, 21.78, 19.8, 8.58, 0, 8.58, 16.5, 21.78" style="fill-rule:nonzero;"/>
+                                </svg>
+                            </div>
 
+                        </div>
+                        <input type="range" min="1" max="5" value="1" sb-bind="slider2" name="fun">
                     </div>
-                    <input type="range" min="1" max="5" value="1" sb-bind="slider2" name="fun">
                 </div>
             </div>
-        </div>
-        <input type="hidden" name="score" sb-bind="score_scaled_final">
-        <input type="hidden" name="user" sb-bind="user">
-        <input type="hidden" name="id" sb-bind="gameid">
-        <!-- <p>You can find all the results <a href="http://rokity.com/webgl">here</a>.</p> -->
-        <div class="rating-controls">
-            <input type="submit" name="" value="Rate game">
-            <a href="javascript:void(0)" onclick="play_again();">Play again!</a>
-            <a href="javascript:void(0)" onclick="play_new();">Try another level!</a>
+            <input type="" name="score" sb-bind="score_scaled_final">
+            <input type="" name="user" sb-bind="user">
+            <input type="" name="id" sb-bind="gameid">
+            <!-- <p>You can find all the results <a href="http://rokity.com/webgl">here</a>.</p> -->
+            <div class="rating-controls">
+                <input type="submit" name="" value="Rate game">
+                <a href="javascript:void(0)" onclick="play_again();">Play again!</a>
+                <a href="javascript:void(0)" onclick="play_new();">Try another level!</a>
+            </div>
         </div>
     </form>
 
@@ -505,13 +507,12 @@
 
             if(sbecky.tmp != undefined){
                 sbecky.rating = sbecky.tmp
-                _sbecky_register(sbecky_get("rating")[0])
             }
 
             init_rating()
 
-            sbecky.user = sbecky.user
-            sbecky.gameid = sbecky.gameid
+            // sbecky.user = sbecky.user
+            // sbecky.gameid = sbecky.gameid
         }
 
         function end() {
