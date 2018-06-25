@@ -312,9 +312,9 @@
                     </div>
                 </div>
             </div>
-            <input type="" name="score" sb-bind="score_scaled_final">
-            <input type="" name="user" sb-bind="user">
-            <input type="" name="id" sb-bind="gameid">
+            <input type="hidden" name="score" sb-bind="score_scaled_final">
+            <input type="hidden" name="user" sb-bind="user">
+            <input type="hidden" name="id" sb-bind="gameid">
             <!-- <p>You can find all the results <a href="http://rokity.com/webgl">here</a>.</p> -->
             <div class="rating-controls">
                 <input type="submit" name="" value="Rate game">
@@ -510,14 +510,13 @@
             }
 
             init_rating()
-
-            sbecky.user = sbecky.user
-            sbecky.gameid = sbecky.gameid
         }
 
         function end() {
             document.getElementById("rating-popup").style.display = "block";
             sbecky.score_scaled_final = 1-sbecky.score_scaled
+            sbecky.user = sbecky.user
+            sbecky.gameid = sbecky.gameid
             document.getElementById("game-message").innerHTML = (sbecky.score_scaled_final > 0.999) ? "Congrats! You made it." : "Game over!"
             console.log("final score: ", sbecky.score_scaled_final);
             pause()
