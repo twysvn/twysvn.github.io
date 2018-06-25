@@ -503,8 +503,10 @@
             //     bindings[0]["score"] = []
             // }
 
-            if(sbecky.tmp != undefined)
+            if(sbecky.tmp != undefined){
                 sbecky.rating = sbecky.tmp
+                _sbecky_register(sbecky_get("rating")[0])
+            }
 
             init_rating()
 
