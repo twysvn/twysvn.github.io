@@ -310,10 +310,10 @@
                     <input type="range" min="1" max="5" value="1" sb-bind="slider2" name="fun">
                 </div>
             </div>
-            <input type="hidden" name="score" sb-bind="score_scaled_final">
-            <input type="hidden" name="user" sb-bind="user">
-            <input type="hidden" name="id" sb-bind="gameid">
         </div>
+        <input type="hidden" name="score" sb-bind="score_scaled_final">
+        <input type="hidden" name="user" sb-bind="user">
+        <input type="hidden" name="id" sb-bind="gameid">
         <!-- <p>You can find all the results <a href="http://rokity.com/webgl">here</a>.</p> -->
         <div class="rating-controls">
             <input type="submit" name="" value="Rate game">
@@ -505,6 +505,9 @@
 
             if(sbecky.tmp != undefined)
                 sbecky.rating = sbecky.tmp
+
+            sbecky.user = sbecky.user
+            sbecky.gameid = sbecky.gameid
 
             init_rating()
         }
