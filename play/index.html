@@ -313,11 +313,12 @@
             <input type="hidden" name="score" sb-bind="score_scaled_final">
             <input type="hidden" name="user" sb-bind="user">
             <input type="hidden" name="id" sb-bind="gameid">
-            <div class="rating-controls">
-                <input type="submit" name="" value="Rate game">
-                <a href="javascript:void(0)" onclick="play_again();">Play again!</a>
-                <a href="javascript:void(0)" onclick="play_new();">Try another level!</a>
-            </div>
+        </div>
+        <!-- <p>You can find all the results <a href="http://rokity.com/webgl">here</a>.</p> -->
+        <div class="rating-controls">
+            <input type="submit" name="" value="Rate game">
+            <a href="javascript:void(0)" onclick="play_again();">Play again!</a>
+            <a href="javascript:void(0)" onclick="play_new();">Try another level!</a>
         </div>
     </form>
 
@@ -349,26 +350,29 @@
                     var _slider = sliders[i];
                     (function(slider) {
                         var f = function(val) {
-                            var parent = sbecky_get(slider)[0].parentNode
-                            var stars = parent.getElementsByClassName("rating-star");
-                            for (var i in stars) {
-                                if (stars.hasOwnProperty(i)) {
-                                    var color = "gold"
-                                    // if(slider == "slider1"){
-                                    //     if (i==0) color = "green";
-                                    //     else if (i==1) color = "lime";
-                                    //     else if (i==3) color = "orange";
-                                    //     else if (i==4) color = "red";
-                                    // }else{
-                                    //     if (i==4) color = "green";
-                                    //     else if (i==3) color = "lime";
-                                    //     else if (i==1) color = "orange";
-                                    //     else if (i==0) color = "red";
-                                    // }
-                                    if (i < val) {
-                                        stars[i].style.fill = color;
-                                    }else{
-                                        stars[i].style.fill = "gray";
+                            var s = sbecky_get(slider)
+                            if(s.length > 0 && s[0].parentNode) {
+                                var parent = sbecky_get(slider)[0].parentNode
+                                var stars = parent.getElementsByClassName("rating-star");
+                                for (var i in stars) {
+                                    if (stars.hasOwnProperty(i)) {
+                                        var color = "gold"
+                                        // if(slider == "slider1"){
+                                        //     if (i==0) color = "green";
+                                        //     else if (i==1) color = "lime";
+                                        //     else if (i==3) color = "orange";
+                                        //     else if (i==4) color = "red";
+                                        // }else{
+                                        //     if (i==4) color = "green";
+                                        //     else if (i==3) color = "lime";
+                                        //     else if (i==1) color = "orange";
+                                        //     else if (i==0) color = "red";
+                                        // }
+                                        if (i < val) {
+                                            stars[i].style.fill = color;
+                                        }else{
+                                            stars[i].style.fill = "gray";
+                                        }
                                     }
                                 }
                             }
@@ -387,9 +391,6 @@
         })
 
         sbecky_onresponse("rating", function(e){
-
-            // TODO: show thank you popup
-            // console.log("rating.php response", e);
 
             sbecky.slider1 = 1
             sbecky.slider2 = 1
@@ -468,7 +469,7 @@
                     importLevel(level)
                     save()
                     play();
-                    start_done()
+                    start_done(false)
                     normal()
                 }, 50)
             }else{
@@ -479,7 +480,7 @@
                         importLevel(json)
                         save()
                         play();
-                        start_done()
+                        start_done(false)
                         normal()
                     }, 50)
 
@@ -491,14 +492,16 @@
             }
         }
 
-        function start_done() {
+        function start_done(set = true) {
             document.getElementById("rating-popup").style.display = "none";
             document.getElementById('welcome').style.display = 'none';
 
-            bindings[0]["slider1"] = []
-            bindings[0]["slider2"] = []
-            bindings[0]["user"] = []
-            bindings[0]["score"] = []
+            if(set) {
+                bindings[0]["slider1"] = []
+                bindings[0]["slider2"] = []
+                bindings[0]["user"] = []
+                bindings[0]["score"] = []
+            }
 
             if(sbecky.tmp != undefined)
                 sbecky.rating = sbecky.tmp
