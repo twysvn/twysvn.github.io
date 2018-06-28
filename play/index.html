@@ -448,42 +448,27 @@
         }
 
         function init() {
-            init_called = true
             pause()
-            var button = document.getElementById("start-button")
-            button.innerHTML = "Start game!"
-            // if(init_should_start_game)
-            //     get_level_and_start()
-        }
-
-        function get_level_and_start() {
-
             if(getCookie("player") == null) {
                 setCookie("player", Math.floor((Math.random() * Math.pow(2, 10)) + 1), 99)
             }
             sbecky.user = getCookie("player")
 
             if (level != undefined) {
-
-                // console.log(level);
-
                 setTimeout(function(){
-                    importLevel(level)
-                    save()
-                    play();
-                    start_done(false)
-                    normal()
+                    var button = document.getElementById("start-button")
+                    button.innerHTML = "Start game!"
+                    init_called = true
                 }, 50)
             }else{
 
                 ajax("http://rokity.com/webgl/getplayed.php?game=true", "POST", {"game":"true"}, function(json){
 
                     setTimeout(function(){
-                        importLevel(json)
-                        save()
-                        play();
-                        start_done(false)
-                        normal()
+                        level = json
+                        var button = document.getElementById("start-button")
+                        button.innerHTML = "Start game!"
+                        init_called = true
                     }, 50)
 
                 }, function(err) {
@@ -492,6 +477,14 @@
                 })
 
             }
+        }
+
+        function get_level_and_start() {
+            importLevel(level)
+            save()
+            play();
+            start_done(false)
+            normal()
         }
 
         function start_done(set = true) {
