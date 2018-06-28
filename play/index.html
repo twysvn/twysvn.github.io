@@ -489,6 +489,28 @@
             }
             sbecky.user = getCookie("player")
 
+            if(getCookie("level") != null) {
+                var level = getCookie("level")
+                setCookie("level", null)
+
+                ajax("http://rokity.com/webgl/getplayed.php?game=true&level="+level, "POST", {"game":"true", "level": level}, function(json){
+
+                    setTimeout(function(){
+                        importLevel(json)
+                        save()
+                        play();
+                        start_done(false)
+                        normal()
+                    }, 50)
+
+                }, function(err) {
+                    console.log("play not called error:", err);
+                    document.innerHTML = "error loading game"
+                })
+
+                return
+            }
+
             if (level != undefined) {
 
                 // console.log(level);
