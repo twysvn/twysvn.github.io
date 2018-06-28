@@ -390,16 +390,12 @@
             console.log("submit data", data);
             if (sbecky.tmp == undefined)
                 sbecky.tmp = sbecky.rating
+            sbecky.rating = "<p>Loading...</p>"
         })
 
         sbecky_onresponse("rating", function(e){
-
             sbecky.slider1 = 1
             sbecky.slider2 = 1
-
-            // document.getElementById("rating-popup").style.display = "none";
-            // gameInstance.SendMessage('Simulation', 'start_game')
-            // gameInstance.SendMessage('Simulation', 'remove_dead')
         });
 
         function play_new() {
@@ -442,7 +438,7 @@
 
         function start_game(button) {
             if (init_called){
-                get_level_and_start()
+                initial_start()
                 button.setAttribute("onclick", "console.log('not cool man!')")
             }
         }
@@ -479,12 +475,49 @@
             }
         }
 
-        function get_level_and_start() {
+        function initial_start() {
             importLevel(level)
             save()
             play();
             start_done(false)
             normal()
+        }
+
+        function get_level_and_start() {
+            if(getCookie("player") == null) {
+                setCookie("player", Math.floor((Math.random() * Math.pow(2, 10)) + 1), 99)
+            }
+            sbecky.user = getCookie("player")
+
+            if (level != undefined) {
+
+                // console.log(level);
+
+                setTimeout(function(){
+                    importLevel(level)
+                    save()
+                    play();
+                    start_done(false)
+                    normal()
+                }, 50)
+            }else{
+
+                ajax("http://rokity.com/webgl/getplayed.php?game=true", "POST", {"game":"true"}, function(json){
+
+                    setTimeout(function(){
+                        importLevel(json)
+                        save()
+                        play();
+                        start_done(false)
+                        normal()
+                    }, 50)
+
+                }, function(err) {
+                    console.log("play not called error:", err);
+                    document.innerHTML = "error loading game"
+                })
+
+            }
         }
 
         function start_done(set = true) {
