@@ -418,7 +418,7 @@
         }
 
         function play_again() {
-            level = {
+            var tmp = {
                 "p_flat": sbecky.p_flat,
                 "p_hole": sbecky.p_hole,
                 "p_obstacle": sbecky.p_obstacle,
@@ -435,9 +435,14 @@
                 "max_players": sbecky.max_players,
                 "id": sbecky.gameid
             };
-            level = JSON.stringify(level);
-            console.log("set level", level, hideme);
+            level = JSON.stringify(tmp);
+            console.log("set level");
+            what()
             hideme();
+        }
+
+        function what() {
+            console.log("what");
         }
 
         function hideme() {
