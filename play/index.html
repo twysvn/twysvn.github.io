@@ -538,7 +538,7 @@
                 if (level != undefined) {
 
                     // console.log(level);
-                    console.log("replay");
+                    console.log("replay", level);
 
                     setTimeout(function(){
                         importLevel(level)
@@ -548,7 +548,7 @@
                         normal()
                     }, 50)
                 }else{
-                    console.log("get new");
+                    console.log("get new", level);
                     ajax("http://rokity.com/webgl/getplayed.php?game=true", "POST", {"game":"true"}, function(json){
 
                         setTimeout(function(){
