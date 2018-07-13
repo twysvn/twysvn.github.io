@@ -442,6 +442,10 @@
         function hideme(level) {
             if (sbecky.tmp == undefined)
                 sbecky.tmp = sbecky.rating;
+
+            gameInstance.SendMessage('Simulation', 'start_game');
+            gameInstance.SendMessage('Simulation', 'remove_dead');
+            
             get_level_and_start(level)
         }
 
@@ -507,8 +511,6 @@
 
                     setTimeout(function(){
                         importLevel(json);
-                        gameInstance.SendMessage('Simulation', 'start_game');
-                        gameInstance.SendMessage('Simulation', 'remove_dead');
                         save();
                         play();
                         start_done(false);
@@ -527,8 +529,6 @@
 
                     setTimeout(function(){
                         importLevel(level);
-                        gameInstance.SendMessage('Simulation', 'start_game');
-                        gameInstance.SendMessage('Simulation', 'remove_dead');
                         save();
                         play();
                         start_done(false);
