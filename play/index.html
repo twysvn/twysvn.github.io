@@ -445,20 +445,16 @@
                 "survivors": sbecky.players,
                 "max_players": sbecky.max_players,
                 "id": sbecky.gameid
-            }
-            level = JSON.stringify(level)
+            };
+            level = JSON.stringify(level);
             console.log("set level", level);
-            hideme()
+            hideme();
         }
 
         function hideme() {
             console.log("hideme");
             if (sbecky.tmp == undefined)
-                sbecky.tmp = sbecky.rating
-
-            // document.getElementById("rating-popup").style.display = "none";
-            // gameInstance.SendMessage('Simulation', 'start_game')
-            // gameInstance.SendMessage('Simulation', 'remove_dead')
+                sbecky.tmp = sbecky.rating;
             get_level_and_start()
         }
 
