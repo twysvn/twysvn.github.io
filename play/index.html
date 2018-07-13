@@ -360,10 +360,10 @@
     <script>
         gameInstance = UnityLoader.instantiate("gameContainer", "Build/play.json");
 
-        var level = undefined
-        var should_start = false
-        var init_called = false
-        var init_should_start_game = false
+        var level = undefined;
+        var should_start = false;
+        var init_called = false;
+        var init_should_start_game = false;
 
         sbecky_ready(function () {
             init_rating()
@@ -383,17 +383,6 @@
                                 for (var i in stars) {
                                     if (stars.hasOwnProperty(i)) {
                                         var color = "gold"
-                                        // if(slider == "slider1"){
-                                        //     if (i==0) color = "green";
-                                        //     else if (i==1) color = "lime";
-                                        //     else if (i==3) color = "orange";
-                                        //     else if (i==4) color = "red";
-                                        // }else{
-                                        //     if (i==4) color = "green";
-                                        //     else if (i==3) color = "lime";
-                                        //     else if (i==1) color = "orange";
-                                        //     else if (i==0) color = "red";
-                                        // }
                                         if (i < val) {
                                             stars[i].style.fill = color;
                                         }else{
@@ -405,7 +394,7 @@
                         }
                         sbecky_onchange(slider, f)
                         sbecky_oninput(slider, f)
-                    } )(_slider)
+                    } )(_slider);
                 }
             }
         }
@@ -413,19 +402,19 @@
         sbecky_onsubmit("rating", function(data){
             console.log("submit data", data);
             if (sbecky.tmp == undefined)
-                sbecky.tmp = sbecky.rating
-            sbecky.rating = "<p>Loading...</p>"
+                sbecky.tmp = sbecky.rating;
+            sbecky.rating = "<p>Loading...</p>";
         })
 
         sbecky_onresponse("rating", function(e){
-            sbecky.slider1 = 1
-            sbecky.slider2 = 1
+            sbecky.slider1 = 1;
+            sbecky.slider2 = 1;
         });
 
         function play_new() {
-            level = undefined
+            level = undefined;
             console.log("set level undefined");
-            hideme()
+            hideme();
         }
 
         function play_again() {
@@ -460,7 +449,7 @@
 
         function start_game(button) {
             if (init_called){
-                initial_start()
+                initial_start();
                 button.setAttribute("onclick", "console.log('not cool man!')")
             }
         }
@@ -470,71 +459,71 @@
             if(getCookie("player") == null) {
                 setCookie("player", Math.floor((Math.random() * Math.pow(2, 10)) + 1), 99)
             }
-            sbecky.user = getCookie("player")
+            sbecky.user = getCookie("player");
 
             if (level != undefined) {
                 setTimeout(function(){
-                    var button = document.getElementById("start-button")
-                    button.innerHTML = "Start game!"
-                    init_called = true
+                    var button = document.getElementById("start-button");
+                    button.innerHTML = "Start game!";
+                    init_called = true;
                 }, 50)
             }else{
 
                 ajax("http://rokity.com/webgl/getplayed.php?game=true", "POST", {"game":"true"}, function(json){
 
                     setTimeout(function(){
-                        level = json
-                        var button = document.getElementById("start-button")
-                        button.innerHTML = "Start game!"
-                        init_called = true
+                        level = json;
+                        var button = document.getElementById("start-button");
+                        button.innerHTML = "Start game!";
+                        init_called = true;
                     }, 50)
 
                 }, function(err) {
                     console.log("play not called error:", err);
-                    document.innerHTML = "error loading game"
+                    document.innerHTML = "error loading game";
                 })
 
             }
         }
 
         function initial_start() {
-            importLevel(level)
-            save()
+            importLevel(level);
+            save();
             play();
-            start_done(false)
-            normal()
+            start_done(false);
+            normal();
         }
 
         function get_level_and_start() {
             console.log("get_level_and_start");
             if(getCookie("player") == null) {
-                setCookie("player", Math.floor((Math.random() * Math.pow(2, 10)) + 1), 99)
+                setCookie("player", Math.floor((Math.random() * Math.pow(2, 10)) + 1), 99);
             }
-            sbecky.user = getCookie("player")
+            sbecky.user = getCookie("player");
 
             if(getCookie("level") != null) {
-                var level = getCookie("level")
+                var level = getCookie("level");
                 console.log("loading level "+level+" from cookies");
-                setCookie("level", null)
+                setCookie("level", null);
 
                 ajax("http://rokity.com/webgl/getplayed.php?game=true&level="+level, "POST", {"game":"true", "level": level}, function(json){
 
                     setTimeout(function(){
-                        importLevel(json)
-                        gameInstance.SendMessage('Simulation', 'start_game')
-                        gameInstance.SendMessage('Simulation', 'remove_dead')
-                        save()
+                        importLevel(json);
+                        gameInstance.SendMessage('Simulation', 'start_game');
+                        gameInstance.SendMessage('Simulation', 'remove_dead');
+                        save();
                         play();
-                        start_done(false)
-                        normal()
+                        start_done(false);
+                        normal();
                     }, 50)
 
                 }, function(err) {
                     console.log("play not called error:", err);
-                    document.innerHTML = "error loading game"
+                    document.innerHTML = "error loading game";
                 })
 
-                return
+                return;
             }else{
                 console.log("loading level from server/local");
 
@@ -544,29 +533,29 @@
                     console.log("replay", level);
 
                     setTimeout(function(){
-                        importLevel(level)
-                        gameInstance.SendMessage('Simulation', 'start_game')
-                        gameInstance.SendMessage('Simulation', 'remove_dead')
-                        save()
+                        importLevel(level);
+                        gameInstance.SendMessage('Simulation', 'start_game');
+                        gameInstance.SendMessage('Simulation', 'remove_dead');
+                        save();
                         play();
-                        start_done(false)
-                        normal()
+                        start_done(false);
+                        normal();
                     }, 50)
                 }else{
                     console.log("get new", level);
                     ajax("http://rokity.com/webgl/getplayed.php?game=true", "POST", {"game":"true"}, function(json){
 
                         setTimeout(function(){
-                            importLevel(json)
-                            save()
+                            importLevel(json);
+                            save();
                             play();
-                            start_done(false)
-                            normal()
+                            start_done(false);
+                            normal();
                         }, 50)
 
                     }, function(err) {
                         console.log("play not called error:", err);
-                        document.innerHTML = "error loading game"
+                        document.innerHTML = "error loading game";
                     })
 
                 }
@@ -587,12 +576,12 @@
             // }
 
             if(sbecky.tmp != undefined){
-                sbecky.rating = sbecky.tmp
-                sbecky.age = sbecky.age
-                sbecky.gender = sbecky.gender
+                sbecky.rating = sbecky.tmp;
+                sbecky.age = sbecky.age;
+                sbecky.gender = sbecky.gender;
             }
 
-            init_rating()
+            init_rating();
         }
 
         function end() {
