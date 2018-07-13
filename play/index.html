@@ -437,13 +437,13 @@
             };
             level = JSON.stringify(tmp);
             console.log("set level");
-            hideme();
+            hideme(level);
         }
 
-        function hideme() {
+        function hideme(level) {
             if (sbecky.tmp == undefined)
                 sbecky.tmp = sbecky.rating;
-            get_level_and_start()
+            get_level_and_start(level)
         }
 
         function start_game(button) {
@@ -493,7 +493,7 @@
             normal();
         }
 
-        function get_level_and_start() {
+        function get_level_and_start(level) {
             console.log("get_level_and_start", level);
             if(getCookie("player") == null) {
                 setCookie("player", Math.floor((Math.random() * Math.pow(2, 10)) + 1), 99);
