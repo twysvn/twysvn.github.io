@@ -510,6 +510,7 @@
         }
 
         function get_level_and_start() {
+            console.log("get_level_and_start");
             if(getCookie("player") == null) {
                 setCookie("player", Math.floor((Math.random() * Math.pow(2, 10)) + 1), 99)
             }
@@ -517,6 +518,7 @@
 
             if(getCookie("level") != null) {
                 var level = getCookie("level")
+                console.log("loading level "+level+" from cookies");
                 setCookie("level", null)
 
                 ajax("http://rokity.com/webgl/getplayed.php?game=true&level="+level, "POST", {"game":"true", "level": level}, function(json){
@@ -536,6 +538,7 @@
 
                 return
             }else{
+                console.log("loading level from server/local");
 
                 if (level != undefined) {
 
