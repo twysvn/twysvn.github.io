@@ -597,7 +597,9 @@
             sbecky.gameid = sbecky.gameid
             document.getElementById("game-message").innerHTML = (sbecky.score_scaled_final > 0.999) ? "Congrats! You made it." : "Game over!"
             console.log("final score: ", sbecky.score_scaled_final);
-            pause()
+            pause();
+            random();
+            pause();
         }
 
         // setCookie & getCookie taken from https://stackoverflow.com/a/24103596
@@ -696,11 +698,13 @@
         }
 
 
-        function play(el) {
-            // selectButton(el)
-            // bindings[0]["play_desc"][0].style.display = "block";
+        function play() {
             gameInstance.SendMessage('Simulation', 'playmode');
             kill();
+        }
+
+        function random() {
+            gameInstance.SendMessage('Simulation', 'enableRandom');
         }
 
         function importLevel(s) {
