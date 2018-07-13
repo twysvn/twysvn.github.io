@@ -414,7 +414,7 @@
         function play_new() {
             level = undefined;
             console.log("set level undefined");
-            hideme();
+            hideme(undefined);
         }
 
         function play_again() {
@@ -436,7 +436,6 @@
                 "id": sbecky.gameid
             };
             level = JSON.stringify(tmp);
-            console.log("set level");
             hideme(level);
         }
 
@@ -494,7 +493,6 @@
         }
 
         function get_level_and_start(level) {
-            console.log("get_level_and_start", level);
             if(getCookie("player") == null) {
                 setCookie("player", Math.floor((Math.random() * Math.pow(2, 10)) + 1), 99);
             }
@@ -509,8 +507,8 @@
 
                     setTimeout(function(){
                         importLevel(json);
-                        // gameInstance.SendMessage('Simulation', 'start_game');
-                        // gameInstance.SendMessage('Simulation', 'remove_dead');
+                        gameInstance.SendMessage('Simulation', 'start_game');
+                        gameInstance.SendMessage('Simulation', 'remove_dead');
                         save();
                         play();
                         start_done(false);
@@ -524,24 +522,19 @@
 
                 return;
             }else{
-                console.log("loading level from server/local", level);
 
                 if (level != undefined) {
 
-                    // console.log(level);
-                    console.log("replay", level);
-
                     setTimeout(function(){
                         importLevel(level);
-                        // gameInstance.SendMessage('Simulation', 'start_game');
-                        // gameInstance.SendMessage('Simulation', 'remove_dead');
+                        gameInstance.SendMessage('Simulation', 'start_game');
+                        gameInstance.SendMessage('Simulation', 'remove_dead');
                         save();
                         play();
                         start_done(false);
                         normal();
                     }, 50)
                 }else{
-                    console.log("get new", level);
                     ajax("http://rokity.com/webgl/getplayed.php?game=true", "POST", {"game":"true"}, function(json){
 
                         setTimeout(function(){
