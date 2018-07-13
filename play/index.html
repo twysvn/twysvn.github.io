@@ -437,16 +437,10 @@
             };
             level = JSON.stringify(tmp);
             console.log("set level");
-            what()
             hideme();
         }
 
-        function what() {
-            console.log("what");
-        }
-
         function hideme() {
-            console.log("hideme");
             if (sbecky.tmp == undefined)
                 sbecky.tmp = sbecky.rating;
             get_level_and_start()
@@ -500,7 +494,7 @@
         }
 
         function get_level_and_start() {
-            console.log("get_level_and_start");
+            console.log("get_level_and_start", level);
             if(getCookie("player") == null) {
                 setCookie("player", Math.floor((Math.random() * Math.pow(2, 10)) + 1), 99);
             }
@@ -515,8 +509,8 @@
 
                     setTimeout(function(){
                         importLevel(json);
-                        gameInstance.SendMessage('Simulation', 'start_game');
-                        gameInstance.SendMessage('Simulation', 'remove_dead');
+                        // gameInstance.SendMessage('Simulation', 'start_game');
+                        // gameInstance.SendMessage('Simulation', 'remove_dead');
                         save();
                         play();
                         start_done(false);
@@ -530,7 +524,7 @@
 
                 return;
             }else{
-                console.log("loading level from server/local");
+                console.log("loading level from server/local", level);
 
                 if (level != undefined) {
 
@@ -539,8 +533,8 @@
 
                     setTimeout(function(){
                         importLevel(level);
-                        gameInstance.SendMessage('Simulation', 'start_game');
-                        gameInstance.SendMessage('Simulation', 'remove_dead');
+                        // gameInstance.SendMessage('Simulation', 'start_game');
+                        // gameInstance.SendMessage('Simulation', 'remove_dead');
                         save();
                         play();
                         start_done(false);
