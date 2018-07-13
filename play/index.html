@@ -689,7 +689,7 @@
 
         function selectButton(el) {
             var ch = el.parentNode.children
-            for (let i = 0; i < ch.length; i++) {
+            for (var i = 0; i < ch.length; i++) {
                 const element = ch[i];
                 element.classList.remove("select")
             }
