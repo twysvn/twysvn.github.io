@@ -525,6 +525,8 @@
 
                     setTimeout(function(){
                         importLevel(json)
+                        gameInstance.SendMessage('Simulation', 'start_game')
+                        gameInstance.SendMessage('Simulation', 'remove_dead')
                         save()
                         play();
                         start_done(false)
@@ -547,6 +549,8 @@
 
                     setTimeout(function(){
                         importLevel(level)
+                        gameInstance.SendMessage('Simulation', 'start_game')
+                        gameInstance.SendMessage('Simulation', 'remove_dead')
                         save()
                         play();
                         start_done(false)
