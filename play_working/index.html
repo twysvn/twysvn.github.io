@@ -312,6 +312,29 @@
                     </div>
                 </div>
             </div>
+            <div class="rating-item">
+                <label>Age</label>
+                <div class="rating">
+                    <select class="" name="age" sb-bind="age">
+                        <option value="0"> &lt; 18</option>
+                        <option value="1">18-25</option>
+                        <option value="2">25-35</option>
+                        <option value="3">35-45</option>
+                        <option value="3">45-60</option>
+                        <option value="5">60+</option>
+                    </select>
+                </div>
+            </div>
+            <div class="rating-item">
+                <label>Gender</label>
+                <div class="rating">
+                    <select class="" name="gender" sb-bind="gender">
+                        <option value="0">female</option>
+                        <option value="1">male</option>
+                        <option value="2">other</option>
+                    </select>
+                </div>
+            </div>
             <input type="hidden" name="score" sb-bind="score_scaled_final">
             <input type="hidden" name="user" sb-bind="user">
             <input type="hidden" name="id" sb-bind="gameid">
@@ -555,6 +578,8 @@
 
             if(sbecky.tmp != undefined){
                 sbecky.rating = sbecky.tmp
+                sbecky.age = sbecky.age
+                sbecky.gender = sbecky.gender
             }
 
             init_rating()
