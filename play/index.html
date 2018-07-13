@@ -323,7 +323,7 @@
                         <option value="3">45-60</option>
                         <option value="5">60+</option>
                     </select> -->
-                    <input type="number" name="age" value="21">
+                    <input type="text" name="age" value="21" sb-bind="age">
                 </div>
             </div>
             <div class="rating-item">
@@ -533,37 +533,41 @@
                 })
 
                 return
-            }
-
-            if (level != undefined) {
-
-                // console.log(level);
-
-                setTimeout(function(){
-                    importLevel(level)
-                    save()
-                    play();
-                    start_done(false)
-                    normal()
-                }, 50)
             }else{
 
-                ajax("http://rokity.com/webgl/getplayed.php?game=true", "POST", {"game":"true"}, function(json){
+                if (level != undefined) {
+
+                    // console.log(level);
+                    console.log("replay");
 
                     setTimeout(function(){
-                        importLevel(json)
+                        importLevel(level)
                         save()
                         play();
                         start_done(false)
                         normal()
                     }, 50)
+                }else{
+                    console.log("get new");
+                    ajax("http://rokity.com/webgl/getplayed.php?game=true", "POST", {"game":"true"}, function(json){
 
-                }, function(err) {
-                    console.log("play not called error:", err);
-                    document.innerHTML = "error loading game"
-                })
+                        setTimeout(function(){
+                            importLevel(json)
+                            save()
+                            play();
+                            start_done(false)
+                            normal()
+                        }, 50)
+
+                    }, function(err) {
+                        console.log("play not called error:", err);
+                        document.innerHTML = "error loading game"
+                    })
+
+                }
 
             }
+
         }
 
         function start_done(set = true) {
