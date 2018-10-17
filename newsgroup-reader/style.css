@@ -16,7 +16,6 @@
 
 .screenshots {
   display: flex;
-  height: 24rem;
   overflow: hidden;
   flex-wrap: wrap;
   justify-content: center;
@@ -25,7 +24,8 @@
   .screenshots img {
     display: block;
     height: 100%;
-    padding: 0 1rem; }
+    padding: 0 1rem;
+    max-height: 26rem; }
 
 .privacy {
   margin: 1rem auto;
@@ -42,12 +42,14 @@
   padding: 1rem;
   padding-top: 0;
   text-align: justify;
-  max-width: 16rem;
+  max-width: 18rem;
   font-family: 'Source Sans Pro'; }
   .description h1 {
     display: block;
     background-color: #f0f0f0;
     padding: 0.4rem;
+    margin: 0;
+    margin-bottom: 1rem;
     border-radius: 0.2rem; }
 
 footer {
