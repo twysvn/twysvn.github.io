@@ -22,7 +22,7 @@
 
 .screenshots {
     display: flex;
-    height: 60vh;
+    height: 24rem;
     overflow: hidden;
     flex-wrap: wrap;
     justify-content: center;
@@ -58,7 +58,7 @@
     padding-top: 0;
     text-align: justify;
 
-    max-width: 20rem;
+    max-width: 16rem;
     font-family: 'Source Sans Pro';
 
     h1 {
@@ -71,7 +71,7 @@
 
 
 footer{
-    margin: 2rem;
+    margin: 4rem 0;
     display: block;
     text-align: center;
     font-family: 'Source Sans Pro';
