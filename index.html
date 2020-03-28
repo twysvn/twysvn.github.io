@@ -121,8 +121,8 @@
 			font-size: 1.5rem;
 			display: inline-block;
 
-			color: #000;
-			background: cyan;
+			color: #fff;
+			background: #FC1D86;
 
 			font-family: proxima-nova, sans-serif;
 			font-weight: 400;
@@ -136,9 +136,10 @@
 			transition: all 0.3s ease;
 			-moz-transition: all 0.3s ease;
 			-webkit-transition: all 0.3s ease;
-			color: #000;
+			/* color: #000; */
 			/* border: 1px solid #fff; */
-			background: cyan;
+			/* background: cyan; */
+			text-decoration: line-through;
 		}
 
 		.content {
@@ -326,10 +327,15 @@
 		var logo = document.getElementById("logo");
 		var val = Math.min(Math.max(1-scrollY/700, 0), 1);
 		var op = Math.min(Math.max(1-scrollY/300, 0), 1);
-		start.style.transform = "scale("+val+")";
-		start.style.opacity = ""+op+"";
-		logo.style.transform = "rotate("+(scrollY)+"deg)";
-		console.log(scrollY, val);
+		if (scrollY < 0) {
+			logo.style.transform = "rotate("+(0)+"deg)";
+			start.style.transform = "scale("+1+")";
+			start.style.opacity = ""+1+"";
+		}else{
+			logo.style.transform = "rotate("+(scrollY)+"deg)";
+			start.style.transform = "scale("+val+")";
+			start.style.opacity = ""+op+"";
+		}
 	}
 
 	(function(){
@@ -379,8 +385,8 @@
 				<div class="links">
 					<a href="orbit">Orbit</a>
 					<a href="webgl">Bakk</a>
-					<a href="https://github.com/twysvn/sbecky.js">sbecky.js</a>
-					<a href="http://whereismyweekend.mich312.com">Where is my Weekend?</a>
+					<a href="https://github.com/twysvn/sbecky.js" target="_blank">sbecky.js</a>
+					<a href="http://whereismyweekend.mich312.com" target="_blank">Where is my Weekend?</a>
 				</div>
 				<!-- <div><a href="https://github.com/twentysevenInc/cms">CMS</a></div> -->
 				<!--<a href="http://twysvn.com/trapdonalds">Trapdonalds</a-->
