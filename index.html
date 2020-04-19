@@ -13,9 +13,6 @@
 	<!-- Charset -->
 	<meta http-equiv="content-type" content="text/html; charset=utf-8">
 
-	<link href='http://fonts.googleapis.com/css?family=Open+Sans+Condensed:300,700' rel='stylesheet' type='text/css'>
-	<link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:200,300,400,600,700,900' rel='stylesheet' type='text/css'>
-
 	<!-- Typekit -->
 	<link rel="stylesheet" href="https://use.typekit.net/rwl6qof.css">
 
@@ -79,7 +76,7 @@
 			display: flex;
 			justify-content: center;
 			align-items: center;
-			height: 70vh;
+			height: 60vh;
 
 			position: fixed;
 			top: 0;
@@ -143,10 +140,12 @@
 		}
 
 		.content {
-			max-width: 750px;
+			/* max-width: 750px; */
+			max-width: 950px;
 			width: 100%;
 			/* background: #eee; */
 			position: relative;
+			columns: 2 300px;
 		}
 
 		.content figure {
@@ -160,11 +159,12 @@
 
 		.content img {
 			display: block;
-			max-width: 100%;
+			/* max-width: 100%; */
+			width: 100%;
 			height: auto;
 			max-height: 80vh;
 
-			box-shadow: 0px 20px 40px -20px rgba(0,0,0,0.4);
+			/* box-shadow: 0px 20px 40px -20px rgba(0,0,0,0.4); */
 			border-radius: 4px;
 		}
 
@@ -180,6 +180,7 @@
 			margin-top: -0.9em;
 			color: #fff;
 			text-shadow: 0 3px 10px rgba(0,0,0,0.2);
+			display: none;
 		}
 
 		.content p {
@@ -394,7 +395,7 @@
 				<!-- <a href="http://twysvn.com/beeramyde">Beeramyde</a> -->
 			</div>
 		</div>
-		<div style="margin-top: 70vh;"></div>
+		<div style="margin-top: 60vh;"></div>
 		<div class="center">
 			<div class="content">
 				<!-- <h2>Photography</h2>
