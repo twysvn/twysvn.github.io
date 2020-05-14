@@ -149,16 +149,38 @@
 			width: 100%;
 			/* background: #eee; */
 			position: relative;
-			columns: 2 300px;
+			display: block;
 		}
 
-		.content figure {
+		.two-rows {
+			columns: 2 300px;
+			margin-bottom: 0.5rem;
+		}
+		.one-row {
+			columns: 1 600px;
+			/* margin-bottom: 0.5rem; */
+		}
+
+		.one-row img {
+			width: auto;
+		}
+
+		.content figure, .content > a {
 			display: flex;
 			justify-content: center;
 			align-items: center;
 			flex-direction: column;
 
 			margin: 1rem 0;
+			overflow: hidden!important;
+			position: relative;
+		}
+
+		.content figure:first-of-type {
+			margin-top: 0;
+		}
+		.content figure:last-of-type {
+			margin-bottom: 0;
 		}
 
 		.content img {
@@ -170,6 +192,14 @@
 
 			/* box-shadow: 0px 20px 40px -20px rgba(0,0,0,0.4); */
 			border-radius: 4px;
+		}
+
+		.content figure .image-left {
+			position: absolute;
+			left: 5%;
+			top: 15%;
+			width: auto!important;
+			height: 100%;
 		}
 
 		.content figcaption {
@@ -196,12 +226,14 @@
 
 		footer{
 			display: block;
-			position: absolute;
-			bottom: 0;
+			/* position: absolute;
+			bottom: 0; */
 			text-align: center;
 			font-family: 'Source Sans Pro';
-			height: 10%;
+			/* height: 10%; */
 			width: 100%;
+			padding: 2rem 0;
+			/* border: 1px solid red; */
 		}
 
 		footer a{
@@ -401,7 +433,15 @@
 		</div>
 		<div style="margin-top: 60vh;"></div>
 		<div class="center">
-			<div class="content">
+			<div class="content one-row">
+				<a href="/orbit">
+					<figure>
+						<img src="img/projects/orbit.png" alt="">
+						<img class="image-left" src="img/projects/orbit-screens.png" alt="">
+					</figure>
+				</a>
+			</div>
+			<div class="content two-rows">
 				<!-- <h2>Photography</h2>
 				<p>We also do creative photography.</p> -->
 				<figure>
@@ -415,11 +455,6 @@
 				</figure>
 
 				<figure>
-					<img src="img/projects/Spielberg.jpg" alt="">
-					<figcaption>Project Spielberg.</figcaption>
-				</figure>
-
-				<figure>
 					<img src="img/projects/ExactVodka.jpg" alt="">
 					<figcaption>Exact Vodka.</figcaption>
 				</figure>
@@ -428,13 +463,29 @@
 					<img src="img/projects/Fire.jpg" alt="">
 					<figcaption>Fire.</figcaption>
 				</figure>
+			</div>
 
+			<div class="content one-row">
+				<figure>
+					<img src="img/projects/Spielberg.jpg" alt="">
+					<figcaption>Project Spielberg.</figcaption>
+				</figure>
+				<figure>
+					<img src="img/projects/dialekte.png" alt="">
+					<figcaption>Südtirols Dialekte.</figcaption>
+				</figure>
+				<a href="whereismyweekend.mich312.com">
+					<figure>
+						<img src="img/projects/whereismyweekend.png" alt="">
+						<figcaption>Where is my weekend.</figcaption>
+					</figure>
+				</a>
 			</div>
 		</div>
 	</div>
 
 	<footer>
-		<!-- <a href="http://twysvn.com" class="verticalCenter">Designed with 🦄 by twentyseven</a> -->
+		<a href="http://twysvn.com" class="verticalCenter">Designed with 🦄 by twentyseven</a>
 	</footer>
 </body>
 </html>
