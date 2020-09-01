@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="en-us">
+
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Unity WebGL Player | %UNITY_WEB_NAME%</title>
+    <script src="sbecky.js" charset="utf-8"></script>
+    <script src="%UNITY_WEBGL_LOADER_URL%"></script>
+    <script src="Chart.min.js" charset="utf-8"></script>
+
+    <style media="screen" id="style">
+        * {
+            font-family: monospace;
+        }
+        body {
+            background: #f9f9f9;
+        }
+        #gamewrapper {
+            width: 70%;
+            position: relative;
+            height: 100%;
+            float: left;
+            box-sizing: border-box;
+        }
+        #gameContainer {
+            background: #aaa;
+            width: 100%!important;
+            height: auto!important;
+        }
+        #gameContainer canvas {
+            width: 100%!important;
+            height: auto!important;
+        }
+        #sidebar {
+            width: 29.4%;
+            float: right;
+            background: #fff;
+
+            border:  2pt solid #111;
+            /* padding: 0.25rem 0.5rem; */
+            /* border-radius: 4pt; */
+
+            box-sizing: border-box;
+        }
+        #sidebar label {
+            font-family: monospace;
+            height: 2rem;
+            line-height: 2rem;
+        }
+        #sidebar input, #sidebar label {
+            /* width: 50%; */
+            display: inline-block;
+            /* background: #eee; */
+            box-sizing: border-box;
+            height: 2rem;
+            line-height: 2rem;
+            float: left;
+            margin: 0;
+        }
+        #sidebar label:nth-child(2) {
+            float: right;
+        }
+        #sidebar .line label:first-of-type span {
+            float: right;
+            margin-right: 1rem;
+        }
+        .slider {
+            border-bottom: 2pt solid #111;
+            padding: 0.5rem 0.65rem;
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+        #history {
+            box-sizing: border-box;
+            width: 70%;
+            float: left;
+        }
+        #history .item {
+            /* background: #f9f9f9; */
+            border: 2pt solid #111;
+            position: relative;
+            /* height: 19rem; */
+            overflow: hidden;
+            margin-top: 0.5rem;
+        }
+        #history .item > div:first-of-type {
+            /* height: 3rem;
+            line-height: 3rem; */
+            /* background: #fff; */
+            border-bottom: 2pt solid #111;
+            width: 100%;
+            display: block;
+            padding: 0 0.69rem;
+        }
+        #history .item > div a:first-of-type {
+            margin-left: 0.69rem;
+        }
+
+        #history .item > div:nth-of-type(2){
+            display: block;
+            overflow: hidden;
+            position: relative;
+            height: 20rem;
+        }
+
+        #history .item pre {
+            width: 100%;
+            font-family: monospace;
+            background: none;
+            border: none;
+            padding: 0 0.3rem;
+        }
+
+        #history .hist-chart {
+            position: absolute;
+            height: 100%;
+            right: 0.69rem;
+            top: 0;
+        }
+        .bar-controls {
+            display: inline-block;
+            padding-top: 0.5rem;
+        }
+        .controls {
+            border-bottom: 2pt solid #111;
+            padding: 0.5rem 0.65rem;
+        }
+        .controls .desc {
+            color: #bbb;
+            font-size: 12px;
+            display: none;
+        }
+        a {
+            display: inline-block;
+            background: #ccc;
+            padding: 0.5rem 0.67rem;
+            margin: 0.25rem 0;
+            text-decoration: none;
+            color: #000;
+            /* border-radius: 99rem; */
+        }
+
+        a:hover {
+            transition: 0.2s all ease;
+            background: #ccc;
+            /* margin-top: -5px;
+            margin-bottom: 5px; */
+        }
+        .select {
+            background: rgba(255, 80, 90, 0.6)!important;
+        }
+        .select:hover {
+            background: rgba(255, 80, 90, 0.8)!important;
+        }
+        .header {
+            margin-top: -0.5rem;
+        }
+        .header h2 {
+            height: 1rem;
+            font-size: 1rem;
+            color: inherit;
+            font-weight: normal;
+            color: #111;
+            text-transform: uppercase;
+            margin-bottom: 0.75rem;
+        }
+        .line>*:nth-child(1) {
+            width: 60%;
+        }
+        .line>*:nth-child(2) {
+            width: 40%;
+        }
+        .line, .speed{
+            overflow: hidden;
+        }
+        .speed input[type="range"] {
+            width: 100%;
+        }
+    </style>
+
+  </head>
+
+  <body>
+      <div class="wrapper">
+          <div id="gamewrapper">
+              <div id="gameContainer" style="width: %UNITY_WIDTH%px; height: %UNITY_HEIGHT%px; margin: auto"></div>
+          </div>
+          <div id="sidebar">
+            <div class="controls">
+                <div class="header">
+                    <h2>Simulation mode</h2>
+                </div>
+                <a href="javascript:void(0)" onclick="random(this)" class="select" id="random-button">Random param.</a>
+                <a href="javascript:void(0)" onclick="custom(this)" id="custom-button">Custom param.</a>
+                <a href="javascript:void(0)" onclick="play(this)" id="play-button">Play</a>
+                <a href="javascript:void(0)" onclick="paramtest(this)" id="play-button">ParamTest</a>
+                <p sb-bind="play_desc" class="desc">Press 'Space' to jump.</p>
+                <p sb-bind="paramtest_desc" class="desc">(1) Set levels = [{...}, {...}]<br />(2) Override change_test_parameter = function(i){...} (i = [0..&lt;50])</p>
+            </div>
+              <div class="slider">
+                    <div class="line">
+                            <!-- <input type="range" name="" value="" sb-bind="p_flat" min="" max="" step="0."> -->
+                            <label for="">P(flat):<span sb-bind="p_flat"></span></label>
+                            <input type="range" name="" value="" sb-bind="p_flat" min="0" max="1" step="0.1" value="0.4">
+                        </div>
+
+                        <div class="line">
+                            <!-- <input type="range" name="" value="" sb-bind="p_hole" min="" max="" step="0."> -->
+                            <label for="">P(hole):<span sb-bind="p_hole"></span></label>
+                            <input type="range" name="" value="" sb-bind="p_hole" min="0" max="1" step="0.1" value="0.3">
+
+                        </div>
+
+                        <div class="line">
+                            <!-- <input type="range" name="" value="" sb-bind="p_obstacle" min="" max="" step="0."> -->
+                            <label for="">P(obstacle):<span sb-bind="p_obstacle"></span></label>
+                            <input type="range" name="" value="" sb-bind="p_obstacle" min="0" max="1" step="0.1" value="0.3">
+
+                        </div>
+
+                        <div class="line">
+                            <!-- <input type="range" name="" value="" sb-bind="p_obstacle" min="" max="" step="0."> -->
+                            <label for="">P(f)+P(h)+P(o)</label>
+                            <label for="" sb-bind="p_sum"></label>
+                        </div>
+
+                        <div class="line">
+                            <label for="">Speed: <span sb-bind="speed"></span></label>
+                            <input type="range" name="" value="" sb-bind="speed" min="5" max="20" step="0.1" value="5">
+                        </div>
+
+                        <div class="line">
+                            <label for="">Force: <span sb-bind="force"></span></label>
+                            <input type="range" name="" value="" sb-bind="force" min="4" max="20" step="0.1" value="4">
+                        </div>
+
+                        <div class="line">
+                            <label for="">Gravity: <span sb-bind="gravity"></span></label>
+                            <input type="range" name="" value="" sb-bind="gravity" min="0.6" max="3.6" step="0.1" value="1">
+                        </div>
+
+                        <div class="line">
+                            <label for="">Obst.height: <span sb-bind="obst_height"></span></label>
+                            <input type="range" name="" value="" sb-bind="obst_height" min="1" max="10" step="1" value="1">
+                        </div>
+
+                        <div class="line">
+                            <label for="">Block length: <span sb-bind="block_length"></span></label>
+                            <input type="range" name="" value="" sb-bind="block_length" min="1" max="25" step="1" value="5">
+                        </div>
+
+                        <div class="line">
+                            <label for="">Seed: <span sb-bind="seed">0</span></label>
+                            <input type="text" name="" value="" sb-bind="seed">
+                        </div>
+
+                        <div class="line">
+                            <label for="">Score:</label>
+                            <label for=""><span sb-bind="score"></span></label>
+                        </div>
+
+                        <div class="line">
+                            <label for="">Difficulty:</label>
+                            <label for=""><span sb-bind="score_scaled_label"></span></label>
+                        </div>
+
+                        <div class="line">
+                            <label for="">Players:</label>
+                            <label for=""><span sb-bind="players"></span>/<span sb-bind="max_players"></span></label>
+                        </div>
+
+                        <div class="line">
+                            <label for="">Max Players: <span sb-bind="max_players"></span></label>
+                            <input type="range" sb-bind="max_players" min="1" max="100" step="1" value="100">
+                        </div>
+              </div>
+              <div class="controls">
+                <!-- <a href="javascript:void(0)" onclick="save()">Save Parameters</a> -->
+                <a href="javascript:void(0)" onclick="kill()">Generate new level</a>
+                <a href="javascript:void(0)" onclick="importLevel()">Import Level</a>
+              </div>
+              <div class="controls speed">
+                <div class="header">
+                    <h2>Simulation speed (<span sb-bind="time"></span>x)</h2>
+                </div>
+                <input type="range" sb-bind="sim_speed" min="0" max="8" step="0.1" value="1">
+                <a href="javascript:void(0)" onclick="slower()">Slower</a>
+                <a href="javascript:void(0)" onclick="normal()">Normal speed</a>
+                <a href="javascript:void(0)" onclick="pause()">Pause</a>
+                <a href="javascript:void(0)" onclick="faster()">Faster</a>
+              </div>
+              <canvas id="chart" width="100" height="100"></canvas>
+          </div>
+          <!-- <div style="clear:both;"></div> -->
+          <div class="bar-controls">
+              <a href="javascript:void(0)" onclick="document.getElementById('history').innerHTML = ''">Delete all</a>
+              <a href="javascript:void(0)" onclick="exportAll(this)" download="history.html">Export all as HTML</a>
+              <!-- <a href="javascript:void(0)" onclick="alert('todo')" download="history.txt">Export all as JSON</a> -->
+          </div>
+          <div id="history"></div>
+      </div>
+
+      <script>
+
+        gameInstance = UnityLoader.instantiate("gameContainer", "%UNITY_WEBGL_BUILD_URL%");
+
+        levels = [
+            {"p_flat":"0.50","p_hole":"0.40","p_obstacle":"0.10","speed":"7.04","force":"13.52","gravity":"2.93","obst_height":2,"block_length":5,"seed":74550225,"score":30,"difficulty":"0.71","difficulty_standard_deviation":"0.20","survivors":4,"max_players":100,"id":1886},
+            {"p_flat":"0.40","p_hole":"0.10","p_obstacle":"0.50","speed":"19.66","force":"9.71","gravity":"1.20","obst_height":2,"block_length":25,"seed":61607552,"score":30,"difficulty":"0.16","difficulty_standard_deviation":"0.00","survivors":97,"max_players":100,"id":1525},
+            {"p_flat":"0.80","p_hole":"0.20","p_obstacle":"0.00","speed":"6.11","force":"13.42","gravity":"2.30","obst_height":2,"block_length":5,"seed":56279982,"score":30,"difficulty":"0.10","difficulty_standard_deviation":"0.17","survivors":62,"max_players":100,"id":1274},
+            {"p_flat":"0.30","p_hole":"0.10","p_obstacle":"0.60","speed":"13.29","force":"9.67","gravity":"2.52","obst_height":1,"block_length":7,"seed":17919569,"score":30,"difficulty":"0.42","difficulty_standard_deviation":"0.41","survivors":49,"max_players":100,"id":1978},
+            {"p_flat":"0.40","p_hole":"0.10","p_obstacle":"0.50","speed":"5.61","force":"10.18","gravity":"2.66","obst_height":1,"block_length":2,"seed":104855536,"score":28,"difficulty":"0.78","difficulty_standard_deviation":"0.14","survivors":0,"max_players":100,"id":2016},
+            {"p_flat":"0.50","p_hole":"0.30","p_obstacle":"0.20","speed":"13.17","force":"11.82","gravity":"3.42","obst_height":1,"block_length":7,"seed":57376246,"score":30,"difficulty":"0.73","difficulty_standard_deviation":"0.14","survivors":1,"max_players":100,"id":2343},
+            {"p_flat":"0.70","p_hole":"0.10","p_obstacle":"0.20","speed":"7.42","force":"13.92","gravity":"3.29","obst_height":2,"block_length":5,"seed":37932441,"score":30,"difficulty":"0.52","difficulty_standard_deviation":"0.35","survivors":15,"max_players":100,"id":1322},
+            {"p_flat":"0.80","p_hole":"0.00","p_obstacle":"0.20","speed":"15.26","force":"7.74","gravity":"2.79","obst_height":1,"block_length":4,"seed":80157898,"score":26,"difficulty":"0.74","difficulty_standard_deviation":"0.14","survivors":0,"max_players":100,"id":1082},
+            {"p_flat":"0.70","p_hole":"0.30","p_obstacle":"0.00","speed":"8.02","force":"11.39","gravity":"2.61","obst_height":1,"block_length":5,"seed":17854972,"score":30,"difficulty":"0.34","difficulty_standard_deviation":"0.24","survivors":28,"max_players":100,"id":2366},
+            {"p_flat":"0.10","p_hole":"0.60","p_obstacle":"0.30","speed":"18.16","force":"13.93","gravity":"1.43","obst_height":2,"block_length":26,"seed":89507136,"score":30,"difficulty":"0.00","difficulty_standard_deviation":"0.00","survivors":100,"max_players":100,"id":1751},
+            {"p_flat":"0.80","p_hole":"0.10","p_obstacle":"0.10","speed":"7.65","force":"11.04","gravity":"3.02","obst_height":1,"block_length":3,"seed":4312813,"score":30,"difficulty":"0.25","difficulty_standard_deviation":"0.28","survivors":47,"max_players":100,"id":2403},
+            {"p_flat":"0.40","p_hole":"0.40","p_obstacle":"0.20","speed":"18.53","force":"11.03","gravity":"3.35","obst_height":1,"block_length":3,"seed":111607856,"score":14,"difficulty":"0.82","difficulty_standard_deviation":"0.10","survivors":0,"max_players":100,"id":2487},
+            {"p_flat":"0.60","p_hole":"0.30","p_obstacle":"0.10","speed":"19.60","force":"8.07","gravity":"2.22","obst_height":1,"block_length":13,"seed":79423902,"score":29,"difficulty":"0.77","difficulty_standard_deviation":"0.22","survivors":0,"max_players":100,"id":2186},
+            {"p_flat":"0.70","p_hole":"0.30","p_obstacle":"0.00","speed":"13.57","force":"14.81","gravity":"2.17","obst_height":3,"block_length":5,"seed":95152089,"score":25,"difficulty":"0.76","difficulty_standard_deviation":"0.20","survivors":0,"max_players":100,"id":1212},
+            {"p_flat":"0.70","p_hole":"0.20","p_obstacle":"0.10","speed":"16.20","force":"12.23","gravity":"3.08","obst_height":1,"block_length":8,"seed":27701511,"score":30,"difficulty":"0.06","difficulty_standard_deviation":"0.17","survivors":77,"max_players":100,"id":1879},
+            {"p_flat":"0.50","p_hole":"0.20","p_obstacle":"0.30","speed":"8.92","force":"16.76","gravity":"1.78","obst_height":7,"block_length":7,"seed":27335530,"score":18,"difficulty":"0.75","difficulty_standard_deviation":"0.10","survivors":0,"max_players":100,"id":2558},
+            {"p_flat":"0.40","p_hole":"0.50","p_obstacle":"0.10","speed":"13.29","force":"10.63","gravity":"3.47","obst_height":1,"block_length":7,"seed":103314911,"score":18,"difficulty":"0.81","difficulty_standard_deviation":"0.10","survivors":0,"max_players":100,"id":2782},
+            {"p_flat":"0.60","p_hole":"0.10","p_obstacle":"0.30","speed":"6.51","force":"15.10","gravity":"2.48","obst_height":2,"block_length":6,"seed":97456587,"score":30,"difficulty":"0.31","difficulty_standard_deviation":"0.32","survivors":38,"max_players":100,"id":1288},
+            {"p_flat":"0.20","p_hole":"0.20","p_obstacle":"0.60","speed":"6.93","force":"17.94","gravity":"1.74","obst_height":4,"block_length":9,"seed":7071263,"score":30,"difficulty":"0.00","difficulty_standard_deviation":"0.00","survivors":100,"max_players":100,"id":1341},
+            {"p_flat":"0.30","p_hole":"0.50","p_obstacle":"0.20","speed":"5.56","force":"15.84","gravity":"1.25","obst_height":3,"block_length":2,"seed":11643810,"score":29,"difficulty":"0.85","difficulty_standard_deviation":"0.10","survivors":0,"max_players":100,"id":2386},
+            {"p_flat":"0.10","p_hole":"0.70","p_obstacle":"0.20","speed":"5.01","force":"11.15","gravity":"1.84","obst_height":1,"block_length":2,"seed":32319835,"score":13,"difficulty":"0.83","difficulty_standard_deviation":"0.10","survivors":0,"max_players":100,"id":2615},
+            {"p_flat":"0.40","p_hole":"0.30","p_obstacle":"0.30","speed":"5.02","force":"7.20","gravity":"2.03","obst_height":1,"block_length":2,"seed":96468533,"score":30,"difficulty":"0.72","difficulty_standard_deviation":"0.17","survivors":2,"max_players":100,"id":2737},
+            {"p_flat":"0.00","p_hole":"0.60","p_obstacle":"0.40","speed":"9.53","force":"7.96","gravity":"1.87","obst_height":1,"block_length":6,"seed":49859622,"score":30,"difficulty":"0.60","difficulty_standard_deviation":"0.22","survivors":2,"max_players":100,"id":2091},
+            {"p_flat":"0.70","p_hole":"0.00","p_obstacle":"0.30","speed":"7.22","force":"5.93","gravity":"1.48","obst_height":1,"block_length":4,"seed":90035759,"score":30,"difficulty":"0.39","difficulty_standard_deviation":"0.28","survivors":28,"max_players":100,"id":2456},
+            {"p_flat":"0.70","p_hole":"0.20","p_obstacle":"0.10","speed":"17.95","force":"14.85","gravity":"1.83","obst_height":4,"block_length":10,"seed":46709037,"score":30,"difficulty":"0.37","difficulty_standard_deviation":"0.28","survivors":38,"max_players":100,"id":2147},
+            {"p_flat":"0.50","p_hole":"0.40","p_obstacle":"0.10","speed":"9.69","force":"7.41","gravity":"1.50","obst_height":1,"block_length":2,"seed":102322015,"score":29,"difficulty":"0.59","difficulty_standard_deviation":"0.10","survivors":0,"max_players":100,"id":2352},
+            {"p_flat":"0.80","p_hole":"0.10","p_obstacle":"0.10","speed":"5.64","force":"19.76","gravity":"2.67","obst_height":4,"block_length":2,"seed":101995149,"score":30,"difficulty":"0.36","difficulty_standard_deviation":"0.30","survivors":42,"max_players":100,"id":1775},
+            {"p_flat":"0.70","p_hole":"0.20","p_obstacle":"0.10","speed":"5.88","force":"9.26","gravity":"3.15","obst_height":1,"block_length":2,"seed":82149092,"score":18,"difficulty":"0.79","difficulty_standard_deviation":"0.14","survivors":0,"max_players":100,"id":1310},
+            {"p_flat":"0.60","p_hole":"0.20","p_obstacle":"0.20","speed":"11.21","force":"14.33","gravity":"2.37","obst_height":1,"block_length":11,"seed":97929199,"score":30,"difficulty":"0.30","difficulty_standard_deviation":"0.22","survivors":33,"max_players":100,"id":1757},
+            {"p_flat":"0.10","p_hole":"0.80","p_obstacle":"0.10","speed":"8.18","force":"13.90","gravity":"1.42","obst_height":4,"block_length":5,"seed":13181959,"score":12,"difficulty":"0.77","difficulty_standard_deviation":"0.10","survivors":0,"max_players":100,"id":1388},
+            {"p_flat":"0.00","p_hole":"0.60","p_obstacle":"0.40","speed":"9.53","force":"7.96","gravity":"1.87","obst_height":1,"block_length":6,"seed":49859622,"score":30,"difficulty":"0.60","difficulty_standard_deviation":"0.22","survivors":2,"max_players":100,"id":2091},
+            {"p_flat":"0.40","p_hole":"0.40","p_obstacle":"0.20","speed":"10.25","force":"18.08","gravity":"2.84","obst_height":1,"block_length":3,"seed":27447337,"score":29,"difficulty":"0.77","difficulty_standard_deviation":"0.22","survivors":0,"max_players":100,"id":2294},
+            {"p_flat":"0.80","p_hole":"0.10","p_obstacle":"0.10","speed":"12.89","force":"19.15","gravity":"2.12","obst_height":3,"block_length":2,"seed":87347740,"score":21,"difficulty":"0.45","difficulty_standard_deviation":"0.10","survivors":0,"max_players":100,"id":2156},
+            {"p_flat":"0.50","p_hole":"0.40","p_obstacle":"0.10","speed":"12.76","force":"19.23","gravity":"2.74","obst_height":1,"block_length":15,"seed":85747711,"score":30,"difficulty":"0.43","difficulty_standard_deviation":"0.24","survivors":15,"max_players":100,"id":1665},
+            {"p_flat":"0.50","p_hole":"0.10","p_obstacle":"0.40","speed":"13.59","force":"12.94","gravity":"0.95","obst_height":1,"block_length":7,"seed":83068375,"score":30,"difficulty":"0.43","difficulty_standard_deviation":"0.17","survivors":15,"max_players":100,"id":1743},
+            {"p_flat":"0.60","p_hole":"0.30","p_obstacle":"0.10","speed":"6.02","force":"16.44","gravity":"2.46","obst_height":4,"block_length":3,"seed":66135724,"score":15,"difficulty":"0.68","difficulty_standard_deviation":"0.17","survivors":0,"max_players":100,"id":2816},
+            {"p_flat":"0.30","p_hole":"0.60","p_obstacle":"0.10","speed":"7.66","force":"17.21","gravity":"1.20","obst_height":5,"block_length":14,"seed":94883887,"score":30,"difficulty":"0.00","difficulty_standard_deviation":"0.00","survivors":100,"max_players":100,"id":1404},
+            {"p_flat":"0.70","p_hole":"0.00","p_obstacle":"0.30","speed":"5.62","force":"8.18","gravity":"1.87","obst_height":1,"block_length":3,"seed":34739784,"score":30,"difficulty":"0.60","difficulty_standard_deviation":"0.28","survivors":9,"max_players":100,"id":1276},
+            {"p_flat":"0.20","p_hole":"0.20","p_obstacle":"0.60","speed":"7.32","force":"10.20","gravity":"2.39","obst_height":1,"block_length":5,"seed":68044415,"score":30,"difficulty":"0.44","difficulty_standard_deviation":"0.24","survivors":13,"max_players":100,"id":2485},
+            {"p_flat":"0.10","p_hole":"0.10","p_obstacle":"0.80","speed":"13.14","force":"13.88","gravity":"2.20","obst_height":1,"block_length":7,"seed":36355367,"score":24,"difficulty":"0.65","difficulty_standard_deviation":"0.20","survivors":0,"max_players":100,"id":2804},
+            {"p_flat":"0.40","p_hole":"0.00","p_obstacle":"0.60","speed":"17.64","force":"15.43","gravity":"1.47","obst_height":2,"block_length":9,"seed":30083073,"score":30,"difficulty":"0.47","difficulty_standard_deviation":"0.22","survivors":7,"max_players":100,"id":2000},
+            {"p_flat":"0.40","p_hole":"0.30","p_obstacle":"0.30","speed":"7.48","force":"10.48","gravity":"2.83","obst_height":1,"block_length":4,"seed":85677339,"score":30,"difficulty":"0.66","difficulty_standard_deviation":"0.22","survivors":2,"max_players":100,"id":2831},
+            {"p_flat":"0.80","p_hole":"0.10","p_obstacle":"0.10","speed":"17.18","force":"13.21","gravity":"2.06","obst_height":1,"block_length":11,"seed":106124806,"score":30,"difficulty":"0.00","difficulty_standard_deviation":"0.00","survivors":100,"max_players":100,"id":1290},
+            {"p_flat":"0.20","p_hole":"0.60","p_obstacle":"0.20","speed":"7.84","force":"18.99","gravity":"2.74","obst_height":1,"block_length":2,"seed":59863064,"score":11,"difficulty":"0.81","difficulty_standard_deviation":"0.10","survivors":0,"max_players":100,"id":1102},
+            {"p_flat":"0.20","p_hole":"0.60","p_obstacle":"0.20","speed":"9.30","force":"11.71","gravity":"1.62","obst_height":2,"block_length":6,"seed":57803507,"score":19,"difficulty":"0.53","difficulty_standard_deviation":"0.14","survivors":0,"max_players":100,"id":2721},
+            {"p_flat":"0.50","p_hole":"0.50","p_obstacle":"0.00","speed":"17.36","force":"8.52","gravity":"1.12","obst_height":2,"block_length":22,"seed":71113920,"score":30,"difficulty":"0.29","difficulty_standard_deviation":"0.20","survivors":21,"max_players":100,"id":2585},
+            {"p_flat":"0.70","p_hole":"0.10","p_obstacle":"0.20","speed":"5.20","force":"10.94","gravity":"3.38","obst_height":1,"block_length":2,"seed":44499392,"score":30,"difficulty":"0.42","difficulty_standard_deviation":"0.20","survivors":9,"max_players":100,"id":1227},
+            {"p_flat":"0.20","p_hole":"0.50","p_obstacle":"0.30","speed":"10.75","force":"11.22","gravity":"2.15","obst_height":1,"block_length":9,"seed":84920711,"score":30,"difficulty":"0.52","difficulty_standard_deviation":"0.22","survivors":6,"max_players":100,"id":2646},
+            {"p_flat":"0.70","p_hole":"0.20","p_obstacle":"0.10","speed":"19.61","force":"18.64","gravity":"1.69","obst_height":9,"block_length":5,"seed":26272383,"score":23,"difficulty":"0.69","difficulty_standard_deviation":"0.20","survivors":0,"max_players":100,"id":1599},
+            {"p_flat":"0.50","p_hole":"0.20","p_obstacle":"0.30","speed":"17.28","force":"17.97","gravity":"1.75","obst_height":3,"block_length":5,"seed":69299480,"score":9,"difficulty":"0.81","difficulty_standard_deviation":"0.10","survivors":0,"max_players":100,"id":1405}
+        ]
+
+        level_index = 0;
+        level_data = [[]] // [level, sample_rate, dict]
+
+        var ctx = document.getElementById("chart").getContext('2d');
+        var chart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: '# of alive player',
+                    data: [],
+                    backgroundColor: [
+                        'rgba(255, 80, 90, 0.6)'
+                    ],
+                    pointRadius: 0,
+                    lineTension:0
+                }]
+            },
+            options: {
+                scales: {
+                    yAxes: [{
+                        ticks: {
+                            beginAtZero:true,
+                            fontSize: 14
+                        }
+                    }],
+                    xAxes: [{
+                        ticks: {
+                            fontSize: 14
+                        }
+                    }]
+                },
+                animation: false
+            }
+        });
+
+        function init() { }
+
+        function end() {
+            kill()
+        }
+
+        function change_test_parameter(i) {
+            var start = 5
+            var end = 60
+            var sampling_rate = 15
+            var value = start+(end-start)/(sampling_rate-1)*i
+            gameInstance.SendMessage('Simulation', 'set_endposition', value)
+            return value
+        }
+
+        function updateChart(data) {
+            // chart.data.labels.pop();
+            // chart.data.datasets.forEach((dataset) => {
+            //     dataset.data.pop();
+            // });
+
+            var label = [];
+            for (var i = 0; i <= data.length; i++) {
+                label.push(i);
+            }
+
+            chart.data.labels = label;
+            chart.data.datasets.forEach((dataset) => {
+                dataset.data = data;
+            });
+            chart.update();
+        }
+
+        function save() {
+            var s = sbecky.p_flat+";"+sbecky.p_hole+";"+sbecky.p_obstacle+";"+sbecky.obst_height
+                    +";"+sbecky.speed+";"+sbecky.force+";"+sbecky.gravity+";"+sbecky.block_length
+                    +";"+sbecky.seed+";"+sbecky.players
+            gameInstance.SendMessage('Simulation', 'setParams', s)
+        }
+
+        function set(id){
+            custom(document.getElementById("custom-button"));
+            gameInstance.SendMessage('Simulation', 'setParams', sbecky["hist_"+id])
+            kill()
+        }
+
+        function remove(id, el) {
+            el.parentNode.parentNode.parentNode.removeChild(el.parentNode.parentNode);
+        }
+
+        function clip(el) {
+            var pre = el.parentNode.parentNode.children[1].children[0];
+            pre.select();
+            document.execCommand("Copy");
+        }
+
+        function setSeed(value) {
+            custom(document.getElementById("custom-button"));
+            save()
+            gameInstance.SendMessage('Simulation', 'setSeed', ""+value)
+            kill()
+        }
+
+        function kill() {
+            gameInstance.SendMessage('Simulation', 'restart')
+        }
+
+        function slower() {
+            gameInstance.SendMessage('Simulation', 'slower')
+        }
+
+        function normal() {
+            gameInstance.SendMessage('Simulation', 'resetTime')
+        }
+
+        function pause() {
+            gameInstance.SendMessage('Simulation', 'pause')
+        }
+
+        function faster() {
+            gameInstance.SendMessage('Simulation', 'faster')
+        }
+
+        function setSimulationSpeed(val) {
+            gameInstance.SendMessage('Simulation', 'setSimulationSpeed', val + "")
+        }
+
+        function selectButton(el) {
+            var ch = el.parentNode.children
+            for (let i = 0; i < ch.length; i++) {
+                const element = ch[i];
+                element.classList.remove("select")
+            }
+            el.classList.add("select")
+        }
+
+        function random(el) {
+            selectButton(el)
+            bindings[0]["play_desc"][0].style.display = "none";
+            bindings[0]["paramtest_desc"][0].style.display = "none";
+            gameInstance.SendMessage('Simulation', 'enableRandom');
+            kill();
+        }
+
+        function custom(el) {
+            selectButton(el)
+            bindings[0]["play_desc"][0].style.display = "none";
+            bindings[0]["paramtest_desc"][0].style.display = "none";
+            gameInstance.SendMessage('Simulation', 'disableRandom');
+            kill();
+        }
+
+        function play(el) {
+            selectButton(el)
+            bindings[0]["play_desc"][0].style.display = "block";
+            bindings[0]["paramtest_desc"][0].style.display = "none";
+            gameInstance.SendMessage('Simulation', 'playmode');
+            kill();
+        }
+
+        function paramtest(el) {
+            selectButton(el)
+            bindings[0]["play_desc"][0].style.display = "none";
+            bindings[0]["paramtest_desc"][0].style.display = "block";
+            gameInstance.SendMessage('Simulation', 'testmode');
+            level_index = 0;
+
+            level_data = [];
+            for (var i = 0; i < levels.length; i++) {
+                level_data.push([])
+            }
+
+            kill();
+        }
+
+        function importLevel() {
+            var s = prompt("Please paste the level json", "");
+            importLevelString(s)
+            custom(document.getElementById("custom-button"));
+        }
+
+        function importLevelString(s){
+            if (s != null && s != "") {
+                var json = JSON.parse(s);
+
+                _sbecky_sould_call_change = false
+                sbecky.p_flat = json["p_flat"]
+                sbecky.p_hole = json["p_hole"]
+                sbecky.p_obstacle = json["p_obstacle"]
+                sbecky.speed = json["speed"]
+                sbecky.force = json["force"]
+                sbecky.gravity = json["gravity"]
+                sbecky.obst_height = json["obst_height"]
+                sbecky.block_length = json["block_length"]
+                sbecky.seed = json["seed"]
+                sbecky.max_players = json["max_players"]
+                _sbecky_sould_call_change = true
+
+                save()
+                kill()
+            }
+        }
+
+        sbecky_change("speed", function(val){
+            if (val.length > 0) {
+                // gameInstance.SendMessage('Simulation', 'setSpeed', ""+sbecky.speed);
+                custom(document.getElementById("custom-button"));
+                save()
+            }
+        })
+
+        sbecky_change("force", function(val){
+            if (val.length > 0) {
+                // gameInstance.SendMessage('Simulation', 'setForce', ""+sbecky.force);
+                custom(document.getElementById("custom-button"));
+                save()
+            }
+        })
+
+        sbecky_change("gravity", function(val){
+            if (val.length > 0) {
+                // gameInstance.SendMessage('Simulation', 'setGravity', ""+sbecky.gravity);
+                custom(document.getElementById("custom-button"));
+                save()
+            }
+        })
+
+        sbecky_change("block_length", function(val){
+            if (val.length > 0) {
+                custom(document.getElementById("custom-button"));
+                save()
+            }
+        })
+
+        sbecky_change("max_players", function(val){
+            if (val.length > 0) {
+                gameInstance.SendMessage('Simulation', 'setPlayers', ""+sbecky["max_players"]);
+                kill()
+            }
+        })
+
+        sbecky_change("obst_height", function(val){
+            if (val.length > 0) {
+                custom(document.getElementById("custom-button"));
+                save()
+            }
+        })
+
+
+        sbecky_change("seed", function(to){
+            if (to.length > 0) {
+                save()
+                custom(document.getElementById("custom-button"));
+                kill()
+            }
+        })
+
+        sbecky_change("sim_speed", function(to){
+            if(to.length > 0 && should_set_time_slider) {
+                console.log("set", to);
+                gameInstance.SendMessage('Simulation', 'setSimulationSpeed', to)
+                sbecky.time = to
+            }
+        })
+
+        function set_p_sum(){
+            sbecky.p_sum = parseFloat(sbecky.p_flat) + parseFloat(sbecky.p_hole) + parseFloat(sbecky.p_obstacle)
+            if(sbecky.p_sum > 0.99999 && sbecky.p_sum < 1.00001) {
+                bindings[0]["p_sum"][0].style.color = "black";
+                bindings[0]["p_sum"][0].style.backgroundColor = "white";
+                sbecky.p_sum = sbecky.p_sum.toPrecision(2);
+                if(should_set_p){
+                    gameInstance.SendMessage('Simulation', 'setProbabilities', sbecky.p_flat+";"+sbecky.p_hole+";"+sbecky.p_obstacle);
+                    custom(document.getElementById("custom-button"));
+                    kill()
+                }
+            }else{
+                sbecky.p_sum = sbecky.p_sum.toPrecision(2);
+                bindings[0]["p_sum"][0].style.color = "white";
+                bindings[0]["p_sum"][0].style.backgroundColor = "red";
+            }
+        }
+
+        sbecky_change("p_flat", function(to){
+            set_p_sum()
+        })
+
+        sbecky_change("p_hole", function(to){
+            set_p_sum()
+        })
+
+        sbecky_change("p_obstacle", function(to){
+            set_p_sum()
+        })
+
+        function exportAll(a) {
+            var c = document.getElementById("history").outerHTML;
+
+            var style = document.getElementById("style").outerHTML;
+            var file = "<html><head>"+style+"</head><body>"+c+"</body></html>"
+            file = btoa(file)
+            a.href = "data:application/octet-stream;charset=utf-16le;base64," + file
+        }
+    </script>
+  </body>
+
+</html>
