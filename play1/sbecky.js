@@ -36,6 +36,8 @@ var _internal_vars = 0
 var sbecky ={}
 var scope = []
 
+var _sbecky_scroll_trigger = []
+
 var _sbecky_is_ready = false;
 
 // private config variables
@@ -66,6 +68,7 @@ function _sbecky_on_change(variable){
                         dom.removeAttribute("sb-active")
                     }
                 } else if (dom.getAttribute("sb-ajax") != undefined && dom.getAttribute("items") != undefined) {
+                    // sb-ajax + items means append content
                     if (value.length > 0){
                         var wrapper = document.createElement(name);
                         wrapper.innerHTML = value;
@@ -77,6 +80,8 @@ function _sbecky_on_change(variable){
                         // dom.innerHTML += value
                     }
                 } else {
+                    // normal set
+                    _sbecky_unbind(dom)
                     dom.innerHTML = value
                 }
                 for (var c of dom.children) {
@@ -95,7 +100,8 @@ function _sbecky_on_change(variable){
 function _sbecky_ajax_onclick_wrapper(el) {
     return function() {
         _sbecky_call_onclick(el.getAttribute("sb-bind"))
-        load(el, _sbecky_call_onresponse, _sbecky_call_onresponse_error)
+        sbecky_load(el.getAttribute("sb-bind"))
+        // load(el, _sbecky_call_onresponse, _sbecky_call_onresponse_error)
         return false;
     }
 }
@@ -179,7 +185,6 @@ function _sbecky_register_buttons(list) {
             var name = list[i].getAttribute("sb-button")
             if(ajax_bindings[index].hasOwnProperty(name)){
                 var b = ajax_bindings[index][name]
-                console.log(b.parentNode);
                 list[i].addEventListener('click', _sbecky_ajax_onclick_wrapper(b), false);
             }else{
                 // buttons[index][i].setAttribute("href", "javascript:void(0)");
@@ -200,31 +205,39 @@ function _sbecky_register_forms(list){
             list[i].setAttribute("sb-form", name);
             list[i].addEventListener("submit", function(e) {
                 e.preventDefault();
+
                 var type = this.getAttribute("method");
                 var url = this.getAttribute("action");
-
                 var data = this.serialize();
                 data.append("sb-form", this.getAttribute("sb-form"));
-                var self = this;
-                _sbecky_call_onsubmit(name, e)
-                _sbecky_form_ajax(url, type, data, function(d){
-                    // Todo: validate
-                    var n = self.getAttribute("sb-form");
-                    _sbecky_call_onresponse(n, d);
-                    sbecky[n] = d;
-                }, function(d){
-                    // Todo: error, validate
-                    var n = self.getAttribute("sb-form");
-                    _sbecky_call_onresponse_error(n, d);
-                    sbecky[n] = d;
-                });
+
+                _sbecky_add_placeholder(name, 1)
+
+                _sbecky_call_onsubmit(name, e);
+                (function (self) {
+                    _sbecky_form_ajax(url, type, data, function(d){
+                        // Todo: validate
+
+                        _sbecky_remove_placeholder(self)
+
+                        var n = self.getAttribute("sb-form");
+                        _sbecky_call_onresponse(n, d);
+                        sbecky[n] = d;
+                    }, function(d){
+                        // Todo: error, validate
+
+                        if(!_sbecky_add_error_placeholder(n))
+                            sbecky[n] = d;// legacy support
+                        var n = self.getAttribute("sb-form");
+                        _sbecky_call_onresponse_error(n, d);
+                    });
+                })(this);
             }, false);
         }
     }
 }
 
 function _sbecky_form_ajax(url, type, data, success, error) {
-
     var xhttp = new XMLHttpRequest();
     xhttp.onreadystatechange = function() {
         if (this.readyState === 4) {
@@ -235,9 +248,8 @@ function _sbecky_form_ajax(url, type, data, success, error) {
             }
         }
     };
-
     xhttp.open(type, url, true);
-    // xhttp.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+    xhttp.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
     xhttp.send(data);
 }
 
@@ -261,31 +273,89 @@ function _sbecky_search(data, query) {
     return list
 }
 
+function _sbecky_search_all(data) {
+
+    var keywords = [
+            "[sb-placeholder]",
+            "[sb-error]",
+            "[sb-button]",
+            "[sb-bind]",
+            "[sb-ajax]",
+            "[sb-form]",
+            "[sb-id]"]
+    var ret = {}
+    for (kw of keywords) {
+        ret[kw] = _sbecky_search(data, kw)
+    }
+    return ret
+}
+
+function _sbecky_unbind(data) {
+    var all = _sbecky_search_all(data)
+
+    console.log("sbecky: unbind", all)
+
+    // placeholder
+    // for(var item of all["[sb-placeholder]"]) {
+    //     placeholder[0][item.getAttribute("sb-placeholder")] = undefined
+    // }
+
+    // errors?
+    // for(var item of all["[sb-error]"]) {
+    //     placeholder[0][item.getAttribute("sb-error")] = undefined
+    // }
+
+    for(var item of all["[sb-button]"]) {
+        buttons[0][item.getAttribute("sb-button")] = undefined
+    }
+
+    for(var item of all["[sb-bind]"]) {
+        var index = bindings[0][item.getAttribute("sb-bind")].indexOf(item)
+        if(index > -1) {
+            bindings[0][item.getAttribute("sb-bind")].splice(index);
+        }
+    }
+
+    for(var item of all["[sb-form]"]) {
+        forms[0][item.getAttribute("sb-form")] = undefined
+    }
+
+    for(var item of all["[sb-ajax]"]) {
+        ajax_bindings[0][item.getAttribute("sb-ajax")] = undefined
+    }
+}
+
 function _sbecky_search_and_register(data) {
     var new_bindings = []
 
+    var all = _sbecky_search_all(data)
+
     // load placeholder from dom
-    var list = _sbecky_search(data, "[sb-placeholder]")
+    // var list = _sbecky_search(data, "[sb-placeholder]")
+    var list = all["[sb-placeholder]"]
     for (var item of list) {
         placeholder[0][item.getAttribute("sb-placeholder")] = item.outerHTML
         item.parentNode.removeChild(item);
     }
 
     // errors
-    list = _sbecky_search(data, "[sb-error]")
+    // list = _sbecky_search(data, "[sb-error]")
+    list = all["[sb-error]"]
     for (item of list) {
         errors[0][item.getAttribute("sb-error")] = item.outerHTML
         item.parentNode.removeChild(item);
     }
 
     // buttons
-    list = _sbecky_search(data, "[sb-button]")
+    // list = _sbecky_search(data, "[sb-button]")
+    list = all["[sb-button]"]
     for (item of list) {
         buttons[0][item.getAttribute("sb-button")] = item
     }
 
     // binding
-    list = _sbecky_search(data, "[sb-bind]")
+    // list = _sbecky_search(data, "[sb-bind]")
+    list = all["[sb-bind]"]
     for (item of list) {
         if (bindings[0][item.getAttribute("sb-bind")] == undefined)
             bindings[0][item.getAttribute("sb-bind")] = [item]
@@ -297,6 +367,7 @@ function _sbecky_search_and_register(data) {
     }
 
     // if sb-bind is missing map internally
+    // list = _sbecky_search(data, "[sb-ajax]")
     list = _sbecky_search(data, "[sb-ajax]")
     for (item of list) {
         var name = item.getAttribute("sb-bind")
@@ -315,11 +386,13 @@ function _sbecky_search_and_register(data) {
         _sbecky_sb_ajax(item)
     }
 
-    list = _sbecky_search(data, "[sb-button]")
+    // list = _sbecky_search(data, "[sb-button]")
+    list = all["[sb-button]"]
     _sbecky_register_buttons(list)
 
     // forms
-    list = _sbecky_search(data, "[sb-form]")
+    // list = _sbecky_search(data, "[sb-form]")
+    list = all["[sb-form]"]
     for (item of list) {
         forms[0][item.getAttribute("sb-form")] = item
     }
@@ -347,16 +420,59 @@ function _sbecky_search_and_register(data) {
             fixedScript.async = false;
             script.parentNode.replaceChild(fixedScript, script);
         }
+    }else{
+        // list = _sbecky_search(data, "[sb-id]")
+        list = all["[sb-id]"]
+        for(item of list)
+            console.log("sb-id found. did you mean sb-bind?", item);
     }
 }
 
 
-function _sbecky_poll(item, params, time = 1000) {
+function _sbecky_poll(item, time = 1000) {
     setTimeout(function functionName() {
-        _sbecky_ajax_wrapper(item, params, function () {
-            _sbecky_poll(item, params, time)
+        _sbecky_ajax_wrapper(item, undefined, function () {
+            _sbecky_poll(item, time)
         })
     }, time);
+}
+
+function _sbecky_add_placeholder(name, items=0) {
+    if (placeholder[0][name] != undefined){
+        if (params["items"] != undefined){
+            for (var i=0; i < items; i++) {
+                sbecky[name] = placeholder[0][name]
+            }
+            return true
+        }else{
+            sbecky[name] = placeholder[0][name]
+            bindings[0][name].innerHTML = placeholder[0][name]
+            return true
+        }
+    }
+    return false
+}
+
+function _sbecky_remove_placeholder(el) {
+    var list = _sbecky_search(el, "[sb-placeholder]")
+    for (var item of list) {
+        item.parentNode.removeChild(item);
+    }
+}
+
+function _sbecky_add_error_placeholder(name){
+    if (errors[0][name] != null) {
+        sbecky[name] = errors[0][name]
+        return true
+    }
+    return false
+}
+
+function _sbecky_remove_error_placeholder(el) {
+    var list = _sbecky_search(el, "[sb-error]")
+    for (var item of list) {
+        item.parentNode.removeChild(item);
+    }
 }
 
 function _sbecky_sb_ajax(item) {
@@ -364,16 +480,8 @@ function _sbecky_sb_ajax(item) {
     var params = getParameters(item)
 
     // add placeholder
-    if (placeholder[0][name] != undefined){
-        if (params["items"] != undefined){
-            for (var i=0; i < params["items"]; i++) {
-                sbecky[name] = placeholder[0][name]
-            }
-        }else{
-            sbecky[name] = placeholder[0][name]
-            bindings[0][name].innerHTML = placeholder[0][name]
-        }
-    }
+    _sbecky_add_placeholder(name, params["items"])
+
     // only do on initial item
     if (ajax_bindings[0][name] == undefined) {
         ajax_bindings[0][name] = item
@@ -383,17 +491,21 @@ function _sbecky_sb_ajax(item) {
                 var event = item.getAttribute("sb-trigger-on")
 
                 if (event == "none") {
-                }else if (event == "poll" ||event == "short-poll") {
+                }else if (event == "poll" || event == "short-poll") {
                     var time = 1000;
                     if (event == "short-poll") {
                         time = 10;
                     }else if(item.hasAttribute("poll-interval")){
                         time = parseInt(item.getAttribute("poll-interval"));
                     }
-                    _sbecky_poll(item, params, time)
+                    _sbecky_poll(item, time)
                     _sbecky_ajax_wrapper(item, params)
                 }else if(event == "scroll-end"){
                     // TODO: scroll-end implementiern
+
+                    _sbecky_scroll_trigger.push(item)
+                    _sbecky_ajax_wrapper(item)
+
                 }else{
                     item.addEventListener(event, function(e) {
                         // TODO: max 1 reqquest per second?
@@ -413,6 +525,22 @@ function _sbecky_sb_ajax(item) {
     }
 }
 
+window.addEventListener("scroll", function(){
+    var doc = document.documentElement;
+    if(doc){
+
+        var scroll_offset_bottom = (window.pageYOffset || doc.scrollTop)  - (doc.clientTop || 0) + window.innerHeight;
+
+        for (el of _sbecky_scroll_trigger) {
+            var end_pos = el.getBoundingClientRect().top + document.documentElement.scrollTop + el.offsetHeight
+            if (scroll_offset_bottom >= end_pos) {
+                _sbecky_ajax_wrapper(el)
+            }
+        }
+
+    }
+})
+
 function sbecky_load(variable) {
     if (ajax_bindings[0][variable] != undefined) {
         _sbecky_ajax_wrapper(ajax_bindings[0][variable])
@@ -421,13 +549,25 @@ function sbecky_load(variable) {
     }
 }
 
-function _sbecky_ajax_wrapper(it, params=undefined, finished=undefined) {
+var is_loading = [];
+function remove_is_loading(name) {
+    var index = is_loading.indexOf(name);
+    if (index > -1) {
+        is_loading.splice(index, 1);
+    }
+}
 
+function _sbecky_ajax_wrapper(it, params=undefined, finished=undefined, errorfinished=undefined) {
     if(params == undefined)
         params = getParameters(it)
 
     var name = it.getAttribute("sb-bind")
     // var ids = _sbecky_search(it, "[sb-id]")
+
+    // prevend loading more often
+    if(is_loading.indexOf(name) >= 0)
+        return;
+    is_loading.push(name)
 
     if (buttons[0][name] != undefined) {
         buttons[0][name].style.display = "none";
@@ -438,10 +578,11 @@ function _sbecky_ajax_wrapper(it, params=undefined, finished=undefined) {
         (function (n, d) {
             ajax(d.getAttribute("sb-ajax"), "POST", params, function(response) {
                 // remove placeholder
-                var list = _sbecky_search(d, "[sb-placeholder]")
-                for (var item of list) {
-                    item.parentNode.removeChild(it);
-                }
+                // var list = _sbecky_search(d, "[sb-placeholder]")
+                // for (var item of list) {
+                //     item.parentNode.removeChild(item);
+                // }
+                _sbecky_remove_placeholder(d)
 
                 if (buttons[0][name] != undefined && buttons[0][name].style.display == "none") {
                     buttons[0][name].style.display = "inline-block";
@@ -454,13 +595,17 @@ function _sbecky_ajax_wrapper(it, params=undefined, finished=undefined) {
                 //
                 // })
                 if (finished != undefined) {
-                    finished();
+                    finished(response);
                 }
+                remove_is_loading(n)
                 _sbecky_call_onresponse(n, response)
             }, function(e) {
-                if (errors[0][n] != null) {
-                    sbecky[n] = errors[0][n]
+                _sbecky_remove_placeholder(bindings[0][n][0])
+                _sbecky_add_error_placeholder(n)
+                if (errorfinished != undefined) {
+                    errorfinished(e);
                 }
+                remove_is_loading(n)
                 _sbecky_call_onresponse_error(n, e)
             });
         })(name, it /* do kannt ah data kemmen */);
@@ -469,7 +614,8 @@ function _sbecky_ajax_wrapper(it, params=undefined, finished=undefined) {
     }
 }
 
-// used to load more elements with sbecky ajax
+// used to load more elements with sbecky ajax (only load more part)
+//      load more + normal ajax konn di sbecky_load(el)
 function load(elem, succ=undefined, err=undefined) {
     var parent = elem
 
@@ -506,10 +652,11 @@ function load(elem, succ=undefined, err=undefined) {
                     buttons[0][name].style.display = "inline-block";
                 }
 
-                var list = _sbecky_search(d, "[sb-placeholder]")
-                for (var it of list) {
-                    it.parentNode.removeChild(it);
-                }
+                // var list = _sbecky_search(d, "[sb-placeholder]")
+                // for (var it of list) {
+                //     it.parentNode.removeChild(it);
+                // }
+                _sbecky_remove_placeholder(d)
 
                 // remove button if no sb-id in response
                 if (response.indexOf("sb-id") == -1) {
@@ -524,10 +671,12 @@ function load(elem, succ=undefined, err=undefined) {
                 }
 
                 if(succ) succ(n, response)
+                remove_is_loading(n)
                 _sbecky_call_onresponse(n, response)
             }, function(err) {
                 //TODO error handling
                 if(err) err(n, err)
+                remove_is_loading(n)
                 _sbecky_call_onresponse_error(n, err)
             })
         })(name, parent, params);
@@ -722,7 +871,7 @@ function ajax(url, type, params={}, success, error) {
     };
 
     xhttp.open(type, url, true);
-    // xhttp.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+    xhttp.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
     xhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
     xhttp.send(Object.keys(params).map(function(k) {
         return encodeURIComponent(k) + '=' + encodeURIComponent(params[k])
@@ -730,13 +879,16 @@ function ajax(url, type, params={}, success, error) {
 }
 
 // get request
-function get(url, success, error = function(){}) {
+function get(url, data, success, error = function(){}) {
+    url += "?" + Object.keys(data).map(function(k) {
+        return encodeURIComponent(k) + '=' + encodeURIComponent(data[k])
+    }).join('&');
     ajax(url, "GET", {}, success, error)
 }
 
 // post request
-function post(url, success, error = function(){}) {
-    ajax(url, "POST", {}, success, error)
+function post(url, data, success, error = function(){}) {
+    ajax(url, "POST", data, success, error)
 }
 
 // converts html attributes to parameter dict
@@ -885,6 +1037,7 @@ function createDOM(string) {
 // normal serialize
 HTMLElement.prototype.serialize = function() {
     var data = new FormData(this);
+    wat = data
     var finput = this.getElementsByTagName("input")
     var j=0
     for (var i in finput) {
@@ -912,9 +1065,6 @@ HTMLElement.prototype.serialize = function() {
     return data
 }
 
-function _serialize_dom(el){
-
-}
 
 HTMLElement.prototype.serialize_dom = function() {
 
@@ -929,7 +1079,6 @@ HTMLElement.prototype.serialize_dom = function() {
             data.append(name, value);
         }
     }
-
     var finput = this.getElementsByTagName("input")
     var j=0
     for (var i in finput) {
