@@ -11,34 +11,34 @@
             padding: 0;
             background-color: #f8f8f8;
         }
-
+    
         h1 {
             text-align: center;
             color: #333;
             margin: 20px;
         }
-
+    
         .container {
             max-width: 800px;
             margin: 0 auto;
             padding: 20px;
         }
-
+    
         .section {
             margin-bottom: 20px;
         }
-
+    
         .section h2 {
             margin-bottom: 10px;
             color: #4CAF50;
         }
-
+    
         .ingredients {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
             gap: 10px;
         }
-
+    
         .ingredient {
             display: flex;
             align-items: center;
@@ -49,17 +49,17 @@
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
-
+    
         .ingredient:hover {
             transform: scale(1.05);
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
         }
-
+    
         .ingredient input[type="checkbox"] {
             margin-right: 10px;
             transform: scale(1.2);
         }
-
+    
         #create-button {
             width: 100%;
             padding: 15px;
@@ -72,11 +72,11 @@
             cursor: pointer;
             margin-top: 20px;
         }
-
+    
         #create-button:hover {
             background-color: #45a049;
         }
-
+    
         #result, #closest-match, #all-pizzas {
             margin-top: 20px;
             padding: 20px;
@@ -85,21 +85,21 @@
             border-radius: 5px;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
-
+    
         #pizza-container {
             position: relative;
             width: 300px;
             height: 300px;
             margin: 0 auto;
         }
-
+    
         .ingredient-layer {
             position: absolute;
             top: 0;
             left: 0;
             transition: opacity 0.5s ease;
         }
-
+    
         /* Pizza Item Styling */
         .pizza-item {
             padding: 15px;
@@ -109,41 +109,99 @@
             cursor: pointer;
             background-color: #fff;
             border-radius: 5px;
-
-            h3 {
-                margin: 0;
-                /* color: #4CAF50; */
-            }
-
-            p {
-                margin: 0;
-                color: #333;
-            }
         }
-
+    
+        .pizza-item h3 {
+            margin: 0;
+        }
+    
+        .pizza-item p {
+            margin: 0;
+            color: #333;
+        }
+    
         /* Hover animation for pizza items */
         .pizza-item:hover {
             transform: translateY(-5px);
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
         }
-
+    
         /* Highlight Styling for Closest Pizza */
         .highlight {
             border: 2px solid #47b2ff;
             background-color: #e1f6ff;
         }
-
+    
         @media (max-width: 600px) {
             h1 {
                 font-size: 1.5em;
             }
-
+    
             #create-button {
                 font-size: 16px;
                 padding: 12px;
             }
         }
+    
+        /* Dark Mode Styles */
+        @media (prefers-color-scheme: dark) {
+            body {
+                background-color: #121212;
+                color: #e0e0e0;
+            }
+    
+            h1 {
+                color: #ffffff;
+            }
+    
+            .section h2 {
+                color: #80e27e;
+            }
+    
+            .ingredient {
+                background: #1e1e1e;
+                border: 1px solid #333;
+                box-shadow: 0 2px 4px rgba(255, 255, 255, 0.1);
+            }
+    
+            .ingredient:hover {
+                box-shadow: 0 4px 8px rgba(255, 255, 255, 0.2);
+            }
+    
+            #create-button {
+                background-color: #357a38;
+            }
+    
+            #create-button:hover {
+                background-color: #2e7031;
+            }
+    
+            #result, #closest-match, #all-pizzas {
+                background: #1e1e1e;
+                border: 1px solid #333;
+                box-shadow: 0 2px 4px rgba(255, 255, 255, 0.1);
+            }
+    
+            .pizza-item {
+                background-color: #1e1e1e;
+                border: 1px solid #333;
+            }
+    
+            .pizza-item p {
+                color: #e0e0e0;
+            }
+    
+            .pizza-item:hover {
+                box-shadow: 0 5px 15px rgba(255, 255, 255, 0.1);
+            }
+    
+            .highlight {
+                border: 2px solid #47b2ff;
+                background-color: #003d66;
+            }
+        }
     </style>
+    
 </head>
 <body>
 
@@ -171,352 +229,390 @@
 </div>
 
 <script>
-    // Pizza configuration
-    const pizzaCenter = { x: 150, y: 150 };
-    const pizzaRadius = 120; // Tomatensauce radius to confine ingredients
+ // Pizza configuration
+const pizzaCenter = { x: 150, y: 150 };
+const pizzaRadius = 120; // Tomatensauce radius to confine ingredients
 
-    // Ingredient definitions
-    const ingredients = [
-        {
-            id: 'mozzarella-fior-di-latte-layer',
-            elementType: 'circle',
-            attributes: { r: 15, fill: 'white' },
-            count: 12
-        },
-        {
-            id: 'buffelmozzarella-layer',
-            elementType: 'circle',
-            attributes: { r: 15, fill: '#f8f8f2' },
-            count: 10
-        },
-        {
-            id: 'gorgonzola-layer',
-            elementType: 'circle',
-            attributes: { r: 12, fill: '#7f8c8d', opacity: 0.7 },
-            count: 8
-        },
-        {
-            id: 'parmesan-layer',
-            elementType: 'polygon',
-            attributes: { fill: '#f1c40f' },
-            count: 30,
-            customGenerator: generateParmesan
-        },
-        {
-            id: 'schinken-layer',
-            elementType: 'ellipse',
-            attributes: { rx: 25, ry: 12, fill: '#e9967a' },
-            count: 8,
-            rotation: true
-        },
-        {
-            id: 'speck-layer',
-            elementType: 'rect',
-            attributes: { width: 50, height: 10, fill: '#cd853f' },
-            count: 8,
-            rotation: true
-        },
-        {
-            id: 'tonno-layer',
-            elementType: 'polygon',
-            attributes: { fill: '#b0c4de' },
-            count: 12,
-            customGenerator: generateTonno
-        },
-        {
-            id: 'scharfe-salami-layer',
-            elementType: 'circle',
-            attributes: { r: 12, fill: '#a52a2a' },
-            count: 10
-        },
-        {
-            id: 'mais-layer',
-            elementType: 'circle',
-            attributes: { r: 3, fill: '#ffd700' },
-            count: 70
-        },
-        {
-            id: 'artischocken-layer',
-            elementType: 'ellipse',
-            attributes: { rx: 20, ry: 10, fill: '#a2c523' },
-            count: 8,
-            rotation: true
-        },
-        {
-            id: 'pilze-layer',
-            elementType: 'path',
-            attributes: { fill: '#deb887' },
-            count: 12,
-            customGenerator: generatePilze
-        },
-        {
-            id: 'peperonata-layer',
-            elementType: 'ellipse',
-            attributes: { rx: 15, ry: 25, fill: '#ffcc00' },
-            count: 8,
-            rotation: true
-        },
-        {
-            id: 'spinat-layer',
-            elementType: 'path',
-            attributes: { fill: '#2E8B57' },
-            count: 15,
-            customGenerator: generateSpinach
-        },
-        {
-            id: 'zwiebel-layer',
-            elementType: 'circle',
-            attributes: { r: 15, stroke: '#d2b48c', 'stroke-width': 3, fill: 'none' },
-            count: 8
-        },
-        {
-            id: 'oliven-layer',
-            elementType: 'ellipse',
-            attributes: { rx: 8, ry: 12, fill: '#556b2f' },
-            count: 10
-        },
-        {
-            id: 'taggiasca-oliven-layer',
-            elementType: 'circle',
-            attributes: { r: 7, fill: '#6a5acd' },
-            count: 10
-        },
-        {
-            id: 'riesen-kapern-layer',
-            elementType: 'ellipse',
-            attributes: { rx: 5, ry: 10, fill: '#6b8e23' },
-            count: 10
-        },
-        {
-            id: 'lombardi-layer',
-            elementType: 'path',
-            attributes: { fill: '#ff4500' },
-            count: 8,
-            customGenerator: generateLombardi
-        },
-        {
-            id: 'knoblauch-layer',
-            elementType: 'path',
-            attributes: { fill: '#fffacd' },
-            count: 12,
-            customGenerator: generateKnoblauch
-        },
-        {
-            id: 'basilikum-layer',
-            elementType: 'path',
-            attributes: { fill: '#008000' },
-            count: 12,
-            customGenerator: generateBasilikum
-        },
-        {
-            id: 'spiegelei-layer',
-            elementType: 'group',
-            attributes: {},
-            count: 2,
-            customGenerator: generateSpiegelei
-        },
-        {
-            id: 'gekochtes-ei-layer',
-            elementType: 'group',
-            attributes: {},
-            count: 2,
-            customGenerator: generateGekochtesEi
-        }
-    ];
+// Ingredient definitions
+const ingredients = [
+    {
+        id: 'mozzarella-fior-di-latte-layer',
+        elementType: 'circle',
+        attributes: { r: 15, fill: 'white' },
+        count: 12
+    },
+    {
+        id: 'buffelmozzarella-layer',
+        elementType: 'circle',
+        attributes: { r: 15, fill: '#f8f8f2' },
+        count: 10
+    },
+    {
+        id: 'gorgonzola-layer',
+        elementType: 'circle',
+        attributes: { r: 12, fill: '#7f8c8d', opacity: 0.7 },
+        count: 8
+    },
+    {
+        id: 'parmesan-layer',
+        elementType: 'polygon',
+        attributes: { fill: '#f1c40f' },
+        count: 30,
+        customGenerator: generateParmesan
+    },
+    {
+        id: 'schinken-layer',
+        elementType: 'ellipse',
+        attributes: { rx: 25, ry: 12, fill: '#e9967a' },
+        count: 8,
+        rotation: true
+    },
+    {
+        id: 'speck-layer',
+        elementType: 'rect',
+        attributes: { width: 50, height: 10, fill: '#cd853f' },
+        count: 8,
+        rotation: true
+    },
+    {
+        id: 'tonno-layer',
+        elementType: 'polygon',
+        attributes: { fill: '#b0c4de' },
+        count: 12,
+        customGenerator: generateTonno
+    },
+    {
+        id: 'scharfe-salami-layer',
+        elementType: 'circle',
+        attributes: { r: 12, fill: '#a52a2a' },
+        count: 10
+    },
+    {
+        id: 'mais-layer',
+        elementType: 'circle',
+        attributes: { r: 3, fill: '#ffd700' },
+        count: 70
+    },
+    {
+        id: 'artischocken-layer',
+        elementType: 'ellipse',
+        attributes: { rx: 20, ry: 10, fill: '#a2c523' },
+        count: 8,
+        rotation: true
+    },
+    {
+        id: 'pilze-layer',
+        elementType: 'path',
+        attributes: { fill: '#deb887' },
+        count: 12,
+        customGenerator: generatePilze
+    },
+    {
+        id: 'peperonata-layer',
+        elementType: 'ellipse',
+        attributes: { rx: 15, ry: 25, fill: '#ffcc00' },
+        count: 8,
+        rotation: true
+    },
+    {
+        id: 'spinat-layer',
+        elementType: 'path',
+        attributes: { fill: '#2E8B57' },
+        count: 15,
+        customGenerator: generateSpinach
+    },
+    {
+        id: 'zwiebel-layer',
+        elementType: 'circle',
+        attributes: { r: 15, stroke: '#d2b48c', 'stroke-width': 3, fill: 'none' },
+        count: 8
+    },
+    {
+        id: 'oliven-layer',
+        elementType: 'ellipse',
+        attributes: { rx: 8, ry: 12, fill: '#556b2f' },
+        count: 10
+    },
+    {
+        id: 'taggiasca-oliven-layer',
+        elementType: 'circle',
+        attributes: { r: 7, fill: '#6a5acd' },
+        count: 10
+    },
+    {
+        id: 'riesen-kapern-layer',
+        elementType: 'ellipse',
+        attributes: { rx: 5, ry: 10, fill: '#6b8e23' },
+        count: 10
+    },
+    {
+        id: 'lombardi-layer',
+        elementType: 'path',
+        attributes: { fill: '#ff4500' },
+        count: 8,
+        customGenerator: generateLombardi
+    },
+    {
+        id: 'knoblauch-layer',
+        elementType: 'path',
+        attributes: { fill: '#fffacd' },
+        count: 12,
+        customGenerator: generateKnoblauch
+    },
+    {
+        id: 'basilikum-layer',
+        elementType: 'path',
+        attributes: { fill: '#008000' },
+        count: 12,
+        customGenerator: generateBasilikum
+    },
+    {
+        id: 'spiegelei-layer',
+        elementType: 'group',
+        attributes: {},
+        count: 2,
+        customGenerator: generateSpiegelei
+    },
+    {
+        id: 'gekochtes-ei-layer',
+        elementType: 'group',
+        attributes: {},
+        count: 2,
+        customGenerator: generateGekochtesEi
+    }
+];
 
-    // Function to generate ingredients
-    function generateIngredients() {
-        ingredients.forEach(ingredient => {
-            const svgNS = 'http://www.w3.org/2000/svg';
-            const svg = document.createElementNS(svgNS, 'svg');
-            svg.setAttribute('viewBox', '0 0 300 300');
-            svg.setAttribute('class', 'ingredient-layer');
-            svg.setAttribute('id', ingredient.id);
-            svg.style.position = 'absolute';
-            svg.style.top = '0';
-            svg.style.left = '0';
-            svg.style.opacity = '0';
+// Function to generate ingredients
+function generateIngredients() {
+    ingredients.forEach((ingredient, layerIndex) => {
+        const svgNS = 'http://www.w3.org/2000/svg';
+        const svg = document.createElementNS(svgNS, 'svg');
+        svg.setAttribute('viewBox', '0 0 300 300');
+        svg.setAttribute('class', 'ingredient-layer');
+        svg.setAttribute('id', ingredient.id);
+        svg.style.position = 'absolute';
+        svg.style.top = '0';
+        svg.style.left = '0';
+        svg.style.opacity = '0';
 
-            for (let i = 0; i < ingredient.count; i++) {
-                let element;
-                let position = getRandomPositionInCircle();
-                if (ingredient.count < 2) {
-                    position = getPositionNearCenter();
-                }
-                if (ingredient.customGenerator) {
-                    element = ingredient.customGenerator(ingredient.attributes, position);
-                } else {
-                    element = document.createElementNS(svgNS, ingredient.elementType);
-                    setElementAttributes(element, ingredient.attributes, position);
-
-                    if (ingredient.rotation) {
-                        const rotation = Math.random() * 360;
-                        element.setAttribute('transform', `rotate(${rotation} ${position.x} ${position.y})`);
-                    }
-                }
-                svg.appendChild(element);
+        for (let i = 0; i < ingredient.count; i++) {
+            let element;
+            let position = getRandomPositionInCircle();
+            if (ingredient.count < 2) {
+                position = getPositionNearCenter();
             }
+            if (ingredient.customGenerator) {
+                element = ingredient.customGenerator(ingredient.attributes, position);
+            } else {
+                element = document.createElementNS(svgNS, ingredient.elementType);
+                setElementAttributes(element, ingredient.attributes, position);
 
-            document.getElementById('pizza-container').appendChild(svg);
-        });
-    }
-
-    // Helper function to set attributes and position
-    function setElementAttributes(element, attributes, position) {
-        for (const attr in attributes) {
-            element.setAttribute(attr, attributes[attr]);
-        }
-        if (position) {
-            if (element.tagName === 'circle' || element.tagName === 'ellipse') {
-                element.setAttribute('cx', position.x);
-                element.setAttribute('cy', position.y);
-            } else if (element.tagName === 'rect') {
-                element.setAttribute('x', position.x - attributes.width / 2);
-                element.setAttribute('y', position.y - attributes.height / 2);
+                if (ingredient.rotation) {
+                    const rotation = Math.random() * 360;
+                    element.setAttribute('transform', `rotate(${rotation} ${position.x} ${position.y})`);
+                }
             }
+            svg.appendChild(element);
+        }
+
+        document.getElementById('pizza-container').appendChild(svg);
+    });
+}
+
+// Helper function to set attributes and position
+function setElementAttributes(element, attributes, position) {
+    for (const attr in attributes) {
+        element.setAttribute(attr, attributes[attr]);
+    }
+    if (position) {
+        if (element.tagName === 'circle' || element.tagName === 'ellipse') {
+            element.setAttribute('cx', position.x);
+            element.setAttribute('cy', position.y);
+        } else if (element.tagName === 'rect') {
+            element.setAttribute('x', position.x - attributes.width / 2);
+            element.setAttribute('y', position.y - attributes.height / 2);
         }
     }
+}
 
-    // Generate a random position within the Tomatensauce circle
-    function getRandomPositionInCircle() {
-        let angle = Math.random() * 2 * Math.PI;
-        let radius = pizzaRadius * Math.sqrt(Math.random());
-        let x = pizzaCenter.x + radius * Math.cos(angle);
-        let y = pizzaCenter.y + radius * Math.sin(angle);
-        return { x, y };
-    }
+// Generate a random position within the Tomatensauce circle
+function getRandomPositionInCircle() {
+    let angle = Math.random() * 2 * Math.PI;
+    let radius = pizzaRadius * Math.sqrt(Math.random());
+    let x = pizzaCenter.x + radius * Math.cos(angle);
+    let y = pizzaCenter.y + radius * Math.sin(angle);
+    return { x, y };
+}
 
-    // Function to get position near the center
-    function getPositionNearCenter() {
-        const maxOffset = pizzaRadius / 4; // Closer to the center
-        let angle = Math.random() * 2 * Math.PI;
-        let radius = maxOffset * Math.sqrt(Math.random());
-        let x = pizzaCenter.x + radius * Math.cos(angle);
-        let y = pizzaCenter.y + radius * Math.sin(angle);
-        return { x, y };
-    }
+// Function to get position near the center
+function getPositionNearCenter() {
+    const maxOffset = pizzaRadius / 4; // Closer to the center
+    let angle = Math.random() * 2 * Math.PI;
+    let radius = maxOffset * Math.sqrt(Math.random());
+    let x = pizzaCenter.x + radius * Math.cos(angle);
+    let y = pizzaCenter.y + radius * Math.sin(angle);
+    return { x, y };
+}
 
-    // Custom generator functions
-    function generateParmesan(attributes, position) {
-        const svgNS = 'http://www.w3.org/2000/svg';
-        const polygon = document.createElementNS(svgNS, 'polygon');
-        const size = 6;
-        const points = [
-            `${position.x},${position.y - size / 2}`,
-            `${position.x + size / 2},${position.y + size / 2}`,
-            `${position.x - size / 2},${position.y + size / 2}`
-        ].join(' ');
-        polygon.setAttribute('points', points);
-        setElementAttributes(polygon, attributes);
-        return polygon;
-    }
+// Custom generator functions
+function generateParmesan(attributes, position) {
+    const svgNS = 'http://www.w3.org/2000/svg';
+    const polygon = document.createElementNS(svgNS, 'polygon');
+    const size = 6;
+    const points = [
+        `${position.x},${position.y - size / 2}`,
+        `${position.x + size / 2},${position.y + size / 2}`,
+        `${position.x - size / 2},${position.y + size / 2}`
+    ].join(' ');
+    polygon.setAttribute('points', points);
+    setElementAttributes(polygon, attributes);
+    return polygon;
+}
 
-    function generateTonno(attributes, position) {
-        const svgNS = 'http://www.w3.org/2000/svg';
-        const polygon = document.createElementNS(svgNS, 'polygon');
-        const size = 10;
-        const points = [
-            `${position.x},${position.y - size}`,
-            `${position.x - size},${position.y + size}`,
-            `${position.x + size},${position.y + size}`
-        ].join(' ');
-        polygon.setAttribute('points', points);
-        setElementAttributes(polygon, attributes);
-        return polygon;
-    }
+function generateTonno(attributes, position) {
+    const svgNS = 'http://www.w3.org/2000/svg';
+    const polygon = document.createElementNS(svgNS, 'polygon');
+    const size = 10;
+    const points = [
+        `${position.x},${position.y - size}`,
+        `${position.x - size},${position.y + size}`,
+        `${position.x + size},${position.y + size}`
+    ].join(' ');
+    polygon.setAttribute('points', points);
+    setElementAttributes(polygon, attributes);
+    return polygon;
+}
 
-    function generatePilze(attributes, position) {
-        const svgNS = 'http://www.w3.org/2000/svg';
-        const path = document.createElementNS(svgNS, 'path');
-        const width = 20;
-        const height = 10;
-        const x = position.x;
-        const y = position.y;
-        const d = `M${x - width / 2} ${y} C${x - width / 2 + 5} ${y - height} ${x + width / 2 - 5} ${y - height} ${x + width / 2} ${y} L${x + width / 2} ${y + height} L${x - width / 2} ${y + height} Z`;
-        path.setAttribute('d', d);
-        setElementAttributes(path, attributes);
-        return path;
-    }
+function generatePilze(attributes, position) {
+    const svgNS = 'http://www.w3.org/2000/svg';
+    const path = document.createElementNS(svgNS, 'path');
+    const width = 20;
+    const height = 10;
+    const x = position.x;
+    const y = position.y;
+    const d = `M${x - width / 2} ${y} C${x - width / 2 + 5} ${y - height} ${x + width / 2 - 5} ${y - height} ${x + width / 2} ${y} L${x + width / 2} ${y + height} L${x - width / 2} ${y + height} Z`;
+    path.setAttribute('d', d);
+    setElementAttributes(path, attributes);
+    return path;
+}
 
-    function generateSpinach(attributes, position) {
-        const svgNS = 'http://www.w3.org/2000/svg';
-        const path = document.createElementNS(svgNS, 'path');
-        const size = 10;
-        const d = `M${position.x - size},${position.y} Q${position.x},${position.y - size} ${position.x + size},${position.y} T${position.x - size},${position.y}`;
-        path.setAttribute('d', d);
-        setElementAttributes(path, attributes);
-        return path;
-    }
+function generateSpinach(attributes, position) {
+    const svgNS = 'http://www.w3.org/2000/svg';
+    const path = document.createElementNS(svgNS, 'path');
+    const size = 10;
+    const d = `M${position.x - size},${position.y} Q${position.x},${position.y - size} ${position.x + size},${position.y} T${position.x - size},${position.y}`;
+    path.setAttribute('d', d);
+    setElementAttributes(path, attributes);
+    return path;
+}
 
-    function generateLombardi(attributes, position) {
-        const svgNS = 'http://www.w3.org/2000/svg';
-        const path = document.createElementNS(svgNS, 'path');
-        const size = 10;
-        const d = `M${position.x},${position.y} L${position.x + size},${position.y - size * 2} L${position.x + size * 2},${position.y} Z`;
-        path.setAttribute('d', d);
-        setElementAttributes(path, attributes);
-        return path;
-    }
+function generateLombardi(attributes, position) {
+    const svgNS = 'http://www.w3.org/2000/svg';
+    const path = document.createElementNS(svgNS, 'path');
+    const size = 10;
+    const d = `M${position.x},${position.y} L${position.x + size},${position.y - size * 2} L${position.x + size * 2},${position.y} Z`;
+    path.setAttribute('d', d);
+    setElementAttributes(path, attributes);
+    return path;
+}
 
-    function generateKnoblauch(attributes, position) {
-        const svgNS = 'http://www.w3.org/2000/svg';
-        const path = document.createElementNS(svgNS, 'path');
-        const size = 6;
-        const d = `M${position.x},${position.y} Q${position.x - size},${position.y - size} ${position.x},${position.y - size * 2} Q${position.x + size},${position.y - size} ${position.x},${position.y}`;
-        path.setAttribute('d', d);
-        setElementAttributes(path, attributes);
-        return path;
-    }
+function generateKnoblauch(attributes, position) {
+    const svgNS = 'http://www.w3.org/2000/svg';
+    const path = document.createElementNS(svgNS, 'path');
+    const size = 6;
+    const d = `M${position.x},${position.y} Q${position.x - size},${position.y - size} ${position.x},${position.y - size * 2} Q${position.x + size},${position.y - size} ${position.x},${position.y}`;
+    path.setAttribute('d', d);
+    setElementAttributes(path, attributes);
+    return path;
+}
 
-    function generateBasilikum(attributes, position) {
-        const svgNS = 'http://www.w3.org/2000/svg';
-        const path = document.createElementNS(svgNS, 'path');
-        const size = 5;
-        const d = `M${position.x},${position.y} Q${position.x - size},${position.y - size} ${position.x},${position.y - size * 2} Q${position.x + size},${position.y - size} ${position.x},${position.y}`;
-        path.setAttribute('d', d);
-        setElementAttributes(path, attributes);
-        return path;
-    }
+function generateBasilikum(attributes, position) {
+    const svgNS = 'http://www.w3.org/2000/svg';
+    const path = document.createElementNS(svgNS, 'path');
+    const size = 5;
+    const d = `M${position.x},${position.y} Q${position.x - size},${position.y - size} ${position.x},${position.y - size * 2} Q${position.x + size},${position.y - size} ${position.x},${position.y}`;
+    path.setAttribute('d', d);
+    setElementAttributes(path, attributes);
+    return path;
+}
 
-    function generateSpiegelei(attributes, position) {
-        const svgNS = 'http://www.w3.org/2000/svg';
-        const group = document.createElementNS(svgNS, 'g');
-        const white = document.createElementNS(svgNS, 'circle');
-        const yolk = document.createElementNS(svgNS, 'circle');
-        white.setAttribute('cx', position.x);
-        white.setAttribute('cy', position.y);
-        white.setAttribute('r', 20);
-        white.setAttribute('fill', 'white');
-        yolk.setAttribute('cx', position.x);
-        yolk.setAttribute('cy', position.y);
-        yolk.setAttribute('r', 10);
-        yolk.setAttribute('fill', 'yellow');
-        group.appendChild(white);
-        group.appendChild(yolk);
-        return group;
-    }
+function generateSpiegelei(attributes, position) {
+    const svgNS = 'http://www.w3.org/2000/svg';
+    const group = document.createElementNS(svgNS, 'g');
+    const white = document.createElementNS(svgNS, 'circle');
+    const yolk = document.createElementNS(svgNS, 'circle');
+    white.setAttribute('cx', position.x);
+    white.setAttribute('cy', position.y);
+    white.setAttribute('r', 20);
+    white.setAttribute('fill', 'white');
+    yolk.setAttribute('cx', position.x);
+    yolk.setAttribute('cy', position.y);
+    yolk.setAttribute('r', 10);
+    yolk.setAttribute('fill', 'yellow');
+    group.appendChild(white);
+    group.appendChild(yolk);
+    return group;
+}
 
-    function generateGekochtesEi(attributes, position) {
-        const svgNS = 'http://www.w3.org/2000/svg';
-        const group = document.createElementNS(svgNS, 'g');
-        const egg = document.createElementNS(svgNS, 'ellipse');
-        const yolk = document.createElementNS(svgNS, 'circle');
-        egg.setAttribute('cx', position.x);
-        egg.setAttribute('cy', position.y);
-        egg.setAttribute('rx', 15);
-        egg.setAttribute('ry', 25);
-        egg.setAttribute('fill', 'white');
-        yolk.setAttribute('cx', position.x);
-        yolk.setAttribute('cy', position.y);
-        yolk.setAttribute('r', 8);
-        yolk.setAttribute('fill', '#FFD700');
-        group.appendChild(egg);
-        group.appendChild(yolk);
-        return group;
-    }
+function generateGekochtesEi(attributes, position) {
+    const svgNS = 'http://www.w3.org/2000/svg';
+    const group = document.createElementNS(svgNS, 'g');
+    const egg = document.createElementNS(svgNS, 'ellipse');
+    const yolk = document.createElementNS(svgNS, 'circle');
+    egg.setAttribute('cx', position.x);
+    egg.setAttribute('cy', position.y);
+    egg.setAttribute('rx', 15);
+    egg.setAttribute('ry', 25);
+    egg.setAttribute('fill', 'white');
+    yolk.setAttribute('cx', position.x);
+    yolk.setAttribute('cy', position.y);
+    yolk.setAttribute('r', 8);
+    yolk.setAttribute('fill', '#FFD700');
+    group.appendChild(egg);
+    group.appendChild(yolk);
+    return group;
+}
 
-    // Generate the ingredients
-    generateIngredients();
+// Generate the ingredients
+generateIngredients();
+
+// Add 3D perspective effect on hover and layer split animation
+const pizzaContainer = document.getElementById('pizza-container');
+
+// Set up initial styles
+pizzaContainer.style.transition = 'transform 0.5s';
+pizzaContainer.style.transformStyle = 'preserve-3d';
+
+const layers = document.querySelectorAll('.ingredient-layer');
+
+// Set initial transform style and transition for layers
+layers.forEach((layer) => {
+    layer.style.transformStyle = 'preserve-3d';
+    layer.style.transition = 'transform 0.5s';
+});
+
+function splitLayers() {
+    layers.forEach((layer, index) => {
+        const offset = index * 10; // Adjust the offset as needed
+        layer.style.transform = `translateZ(${offset}px)`;
+    });
+}
+
+function resetLayers() {
+    layers.forEach((layer) => {
+        layer.style.transform = `translateZ(0px)`;
+    });
+}
+
+pizzaContainer.addEventListener('mouseenter', () => {
+    pizzaContainer.style.transform = 'perspective(800px) rotateX(60deg) translateZ(-100px)';
+    splitLayers();
+});
+
+pizzaContainer.addEventListener('mouseleave', () => {
+    pizzaContainer.style.transform = 'perspective(800px) rotateX(0deg)';
+    resetLayers();
+});
 
 </script>
 
