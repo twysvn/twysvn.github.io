@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Your Custom Pizza</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f8f8f8;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .section {
+            margin-bottom: 20px;
+        }
+
+        .section h2 {
+            margin-bottom: 10px;
+            color: #4CAF50;
+        }
+
+        .ingredients {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 10px;
+        }
+
+        .ingredient {
+            display: flex;
+            align-items: center;
+            background: #fff;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .ingredient:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .ingredient input[type="checkbox"] {
+            margin-right: 10px;
+            transform: scale(1.2);
+        }
+
+        #create-button {
+            width: 100%;
+            padding: 15px;
+            background-color: #4CAF50;
+            color: white;
+            font-size: 18px;
+            font-weight: bold;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+
+        #create-button:hover {
+            background-color: #45a049;
+        }
+
+        #result, #closest-match {
+            margin-top: 20px;
+            padding: 20px;
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        #pizza-container {
+            position: relative;
+            width: 300px;
+            height: 300px;
+            margin: 0 auto;
+        }
+
+        .ingredient-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 1.5em;
+            }
+
+            #create-button {
+                font-size: 16px;
+                padding: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<h1>Create Your Custom Pizza</h1>
+<div class="container">
+    <!-- Pizza visualization container -->
+    <div id="pizza-container">
+        <!-- Base pizza layer (crust) -->
+        <svg viewBox="0 0 300 300" class="ingredient-layer" style="display: block;">
+            <circle cx="150" cy="150" r="140" fill="#f4a460" stroke="#d2691e" stroke-width="5"></circle>
+        </svg>
+
+        <!-- Ingredient SVG layers -->
+        <!-- Tomatensauce -->
+        <svg viewBox="0 0 300 300" id="tomatensauce-layer" class="ingredient-layer" style="opacity: 0;">
+            <circle cx="150" cy="150" r="120" fill="#e34234" opacity="0.8"></circle>
+        </svg>
+
+        <!-- Mozzarella fior di latte -->
+        <svg viewBox="0 0 300 300" id="mozzarella-fior-di-latte-layer" class="ingredient-layer" style="opacity: 0;">
+            <circle cx="120" cy="120" r="15" fill="white" />
+            <circle cx="180" cy="130" r="15" fill="white" />
+            <circle cx="140" cy="180" r="15" fill="white" />
+            <circle cx="160" cy="160" r="15" fill="white" />
+        </svg>
+
+        <!-- Büffelmozzarella -->
+        <svg viewBox="0 0 300 300" id="buffelmozzarella-layer" class="ingredient-layer" style="opacity: 0;">
+            <circle cx="130" cy="100" r="15" fill="#f8f8f2" />
+            <circle cx="190" cy="180" r="15" fill="#f8f8f2" />
+        </svg>
+
+        <!-- Gorgonzola -->
+        <svg viewBox="0 0 300 300" id="gorgonzola-layer" class="ingredient-layer" style="opacity: 0;">
+            <circle cx="150" cy="150" r="30" fill="#7f8c8d" opacity="0.7" />
+        </svg>
+
+        <!-- Parmesan -->
+        <svg viewBox="0 0 300 300" id="parmesan-layer" class="ingredient-layer" style="opacity: 0;">
+            <polygon points="150,100 160,110 140,110" fill="#f1c40f" />
+            <polygon points="150,120 160,130 140,130" fill="#f1c40f" />
+            <polygon points="150,140 160,150 140,150" fill="#f1c40f" />
+        </svg>
+
+        <!-- Schinken -->
+        <svg viewBox="0 0 300 300" id="schinken-layer" class="ingredient-layer" style="opacity: 0;">
+            <ellipse cx="120" cy="150" rx="20" ry="10" fill="#e9967a" />
+            <ellipse cx="180" cy="170" rx="20" ry="10" fill="#e9967a" />
+        </svg>
+
+        <!-- Speck -->
+        <svg viewBox="0 0 300 300" id="speck-layer" class="ingredient-layer" style="opacity: 0;">
+            <rect x="130" y="130" width="40" height="10" fill="#cd853f" />
+            <rect x="150" y="160" width="40" height="10" fill="#cd853f" />
+        </svg>
+
+        <!-- Tonno -->
+        <svg viewBox="0 0 300 300" id="tonno-layer" class="ingredient-layer" style="opacity: 0;">
+            <polygon points="150,120 140,140 160,140" fill="#b0c4de" />
+            <polygon points="150,160 140,180 160,180" fill="#b0c4de" />
+        </svg>
+
+        <!-- Scharfe Salami -->
+        <svg viewBox="0 0 300 300" id="scharfe-salami-layer" class="ingredient-layer" style="opacity: 0;">
+            <circle cx="120" cy="90" r="10" fill="#a52a2a" />
+            <circle cx="190" cy="120" r="10" fill="#a52a2a" />
+            <circle cx="160" cy="200" r="10" fill="#a52a2a" />
+            <circle cx="90" cy="180" r="10" fill="#a52a2a" />
+        </svg>
+
+        <!-- Mais -->
+        <svg viewBox="0 0 300 300" id="mais-layer" class="ingredient-layer" style="opacity: 0;">
+            <circle cx="140" cy="160" r="5" fill="#ffd700" />
+            <circle cx="160" cy="140" r="5" fill="#ffd700" />
+            <circle cx="150" cy="150" r="5" fill="#ffd700" />
+        </svg>
+
+        <!-- Artischocken -->
+        <svg viewBox="0 0 300 300" id="artischocken-layer" class="ingredient-layer" style="opacity: 0;">
+            <ellipse cx="150" cy="120" rx="20" ry="10" fill="#a2c523" />
+        </svg>
+
+        <!-- Pilze -->
+        <svg viewBox="0 0 300 300" id="pilze-layer" class="ingredient-layer" style="opacity: 0;">
+            <path d="M130 160 Q150 140 170 160 T210 160 Q190 180 170 160 T130 160" fill="#deb887" />
+        </svg>
+
+        <!-- Peperonata -->
+        <svg viewBox="0 0 300 300" id="peperonata-layer" class="ingredient-layer" style="opacity: 0;">
+            <ellipse cx="130" cy="130" rx="15" ry="25" fill="#ffcc00" />
+            <ellipse cx="170" cy="130" rx="15" ry="25" fill="#ffcc00" />
+        </svg>
+
+        <!-- Spinat -->
+        <svg viewBox="0 0 300 300" id="spinat-layer" class="ingredient-layer" style="opacity: 0;">
+            <ellipse cx="150" cy="150" rx="30" ry="10" fill="#2E8B57" />
+        </svg>
+
+        <!-- Zwiebel -->
+        <svg viewBox="0 0 300 300" id="zwiebel-layer" class="ingredient-layer" style="opacity: 0;">
+            <circle cx="180" cy="150" r="15" fill="#d2b48c" />
+            <circle cx="120" cy="170" r="15" fill="#d2b48c" />
+        </svg>
+
+        <!-- Oliven -->
+        <svg viewBox="0 0 300 300" id="oliven-layer" class="ingredient-layer" style="opacity: 0;">
+            <ellipse cx="140" cy="140" rx="10" ry="15" fill="#556b2f" />
+            <ellipse cx="160" cy="180" rx="10" ry="15" fill="#556b2f" />
+            <ellipse cx="120" cy="160" rx="10" ry="15" fill="#556b2f" />
+        </svg>
+
+        <!-- Taggiasca Oliven -->
+        <svg viewBox="0 0 300 300" id="taggiasca-oliven-layer" class="ingredient-layer" style="opacity: 0;">
+            <circle cx="130" cy="130" r="7" fill="#6a5acd" />
+            <circle cx="170" cy="140" r="7" fill="#6a5acd" />
+            <circle cx="150" cy="160" r="7" fill="#6a5acd" />
+        </svg>
+
+        <!-- Riesen Kapern -->
+        <svg viewBox="0 0 300 300" id="riesen-kapern-layer" class="ingredient-layer" style="opacity: 0;">
+            <ellipse cx="150" cy="150" rx="5" ry="10" fill="#6b8e23" />
+            <ellipse cx="160" cy="140" rx="5" ry="10" fill="#6b8e23" />
+            <ellipse cx="140" cy="160" rx="5" ry="10" fill="#6b8e23" />
+        </svg>
+
+        <!-- Lombardi -->
+        <svg viewBox="0 0 300 300" id="lombardi-layer" class="ingredient-layer" style="opacity: 0;">
+            <path d="M150 150 L160 130 L170 150 Z" fill="#ff4500" />
+        </svg>
+
+        <!-- Knoblauch -->
+        <svg viewBox="0 0 300 300" id="knoblauch-layer" class="ingredient-layer" style="opacity: 0;">
+            <path d="M150 140 Q140 130 150 120 Q160 130 150 140" fill="#fffacd" />
+        </svg>
+
+        <!-- Basilikum -->
+        <svg viewBox="0 0 300 300" id="basilikum-layer" class="ingredient-layer" style="opacity: 0;">
+            <path d="M150 140 Q145 135 150 130 Q155 135 150 140" fill="#008000" />
+        </svg>
+
+        <!-- Spiegelei -->
+        <svg viewBox="0 0 300 300" id="spiegelei-layer" class="ingredient-layer" style="opacity: 0;">
+            <circle cx="150" cy="150" r="20" fill="white" />
+            <circle cx="150" cy="150" r="10" fill="yellow" />
+        </svg>
+
+        <!-- Gekochtes Ei -->
+        <svg viewBox="0 0 300 300" id="gekochtes-ei-layer" class="ingredient-layer" style="opacity: 0;">
+            <ellipse cx="150" cy="150" rx="15" ry="25" fill="#fff" />
+            <circle cx="150" cy="150" r="8" fill="#FFD700" />
+        </svg>
+    </div>
+
+    <!-- Sections for selecting ingredients -->
+    <div id="ingredients-container"></div>
+
+    <div id="result"></div>
+    <div id="closest-match"></div>
+</div>
+
+<script>
+    const pizzas = {
+        "Pizza Marinara": ["Tomatensauce", "Knoblauch"],
+        "Pizza Margherita": ["Tomatensauce", "Mozzarella fior di latte"],
+        "Scharfe Salami": ["Tomatensauce", "Mozzarella fior di latte", "Scharfe Salami"],
+        "Pizza Schinken": ["Tomatensauce", "Mozzarella fior di latte", "Schinken"],
+        "Tunfisch Mais": ["Tomatensauce", "Mozzarella fior di latte", "Tonno", "Mais"],
+        "Pizza Gorgonzola": ["Tomatensauce", "Mozzarella fior di latte", "Gorgonzola"],
+        "Pizza Napoletana": ["Tomatensauce", "Büffelmozzarella", "Parmesan", "Basilikum"],
+        "Pizza Siciliana": ["Tomatensauce", "Mozzarella fior di latte", "Scharfe Salami", "Peperonata", "Knoblauch"],
+        "Pizza 4 Stagioni": ["Tomatensauce", "Mozzarella fior di latte", "Schinken", "Pilze", "Artischocken", "Oliven"],
+
+        "Pizza Diavolo": ["Tomatensauce", "Mozzarella fior di latte", "Scharfe Salami", "Oliven", "Lombardi", "Peperonata"],
+        "Pizza Capricciosa": ["Tomatensauce", "Mozzarella fior di latte", "Schinken", "Pilze", "Artischocken"],
+        "Pizza Calabrese": ["Tomatensauce", "Büffelmozzarella", "Riesen Kapern", "Taggiasca Oliven", "Knoblauch", "Scharfe Salami"],
+        "Pizza Mesico": ["Tomatensauce", "Mozzarella fior di latte", "Scharfe Salami", "Lombardi", "Mais", "Peperonata"],
+        "Pizza Englisch": ["Tomatensauce", "Mozzarella fior di latte", "Speck", "Peperonata", "Zwiebel", "Spiegelei"],
+        "Fire and Ice": ["Tomatensauce", "Mozzarella fior di latte", "Spinat", "Gekochtes Ei", "Scharfe Salami", "Knoblauch", "Zwiebel"]
+    };
+
+    const ingredientCategories = {
+        "Choose Your Sauce": ["Tomatensauce"],
+        "Choose Your Cheese": ["Mozzarella fior di latte", "Büffelmozzarella", "Gorgonzola"],
+        "Choose Your Proteins": ["Schinken", "Speck", "Tonno", "Scharfe Salami"],
+        "Choose Your Vegetables": ["Mais", "Artischocken", "Pilze", "Peperonata", "Spinat", "Zwiebel", "Oliven", "Taggiasca Oliven", "Riesen Kapern", "Lombardi"],
+        "Choose Your Other Toppings": ["Knoblauch", "Basilikum", "Parmesan", "Spiegelei", "Gekochtes Ei"]
+    };
+
+    function generateLayerId(ingredient) {
+        return ingredient.toLowerCase()
+            .normalize('NFD').replace(/[\u0300-\u036f]/g, '') // remove diacritics
+            .replace(/ /g, '-') + '-layer';
+    }
+
+    function generateIngredientList() {
+        const container = document.getElementById('ingredients-container');
+        container.innerHTML = '';
+
+        for (const [category, ingredients] of Object.entries(ingredientCategories)) {
+            const section = document.createElement('div');
+            section.classList.add('section');
+
+            const heading = document.createElement('h2');
+            heading.textContent = category;
+            section.appendChild(heading);
+
+            const ingredientsDiv = document.createElement('div');
+            ingredientsDiv.classList.add('ingredients');
+
+            ingredients.forEach(ingredient => {
+                const label = document.createElement('label');
+                label.classList.add('ingredient');
+
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.value = ingredient;
+
+                const layerId = generateLayerId(ingredient);
+
+                checkbox.addEventListener('change', () => {
+                    toggleIngredient(layerId, checkbox.checked);
+                    updatePizza();  // Update pizza in real time
+                });
+
+                label.appendChild(checkbox);
+                label.appendChild(document.createTextNode(ingredient));
+                ingredientsDiv.appendChild(label);
+            });
+
+            section.appendChild(ingredientsDiv);
+            container.appendChild(section);
+        }
+    }
+
+    function toggleIngredient(layerId, isChecked) {
+        const layer = document.getElementById(layerId);
+        if (layer) {
+            layer.style.opacity = isChecked ? '1' : '0';
+        }
+    }
+
+    function updatePizza() {
+        const selectedIngredients = Array.from(document.querySelectorAll('input[type="checkbox"]:checked')).map(cb => cb.value);
+        const customName = generatePizzaName(selectedIngredients);
+        document.getElementById("result").innerHTML = `<h2>${customName}</h2><p>${selectedIngredients.join(", ")}</p>`;
+        findClosestPizza(selectedIngredients);
+    }
+
+    function generatePizzaName(ingredients) {
+        const baseNames = {
+            "Tomatensauce": "Inferno",
+            "Mozzarella fior di latte": "Mozzarella",
+            "Büffelmozzarella": "Buffalo",
+            "Scharfe Salami": "Spicy",
+            "Speck": "Smoky",
+            "Tonno": "Tuna",
+            "Pilze": "Mushroom",
+            "Spinat": "Spinach",
+            "Gorgonzola": "Gorgonzola",
+            "Parmesan": "Parmesan",
+            "Schinken": "Ham",
+            "Prosciutto Cotto": "Prosciutto",
+            "Mais": "Corn",
+            "Artischocken": "Artichoke",
+            "Zwiebel": "Onion",
+            "Oliven": "Olive",
+            "Riesen Kapern": "Capers",
+            "Lombardi": "Pepper"
+        };
+
+        let nameParts = ingredients.map(ingredient => baseNames[ingredient] || "Custom").sort();
+        return nameParts.length > 0 ? nameParts.join(" ") + " Pizza" : "Custom Pizza";
+    }
+
+    function toggleIngredient(layerId, isChecked) {
+        const layer = document.getElementById(layerId);
+        if (layer) {
+            layer.style.opacity = isChecked ? '1' : '0';
+        }
+    }
+
+    function findClosestPizza(selectedIngredients) {
+        let closestPizza = null;
+        let maxMatches = 0;
+        let additionalIngredients = [];
+        let missingIngredients = [];
+
+        for (const [pizza, ingredients] of Object.entries(pizzas)) {
+            const matches = selectedIngredients.filter(ingredient => ingredients.includes(ingredient)).length;
+            if (matches > maxMatches) {
+                maxMatches = matches;
+                closestPizza = pizza;
+                additionalIngredients = ingredients.filter(ingredient => !selectedIngredients.includes(ingredient));
+                missingIngredients = selectedIngredients.filter(ingredient => !ingredients.includes(ingredient));
+            }
+        }
+
+        if (closestPizza) {
+            document.getElementById("closest-match").innerHTML = `
+                <h2>Closest Pizza: ${closestPizza}</h2>
+                <p>Additional ingredients needed: ${missingIngredients.join(", ") || "None"}</p>
+                <p>Ingredients to remove: ${additionalIngredients.join(", ") || "None"}</p>
+            `;
+        } else {
+            document.getElementById("closest-match").innerHTML = "<p>No close matches found.</p>";
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', generateIngredientList);
+</script>
+
+</body>
+</html>
