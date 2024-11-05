@@ -77,7 +77,7 @@
             background-color: #45a049;
         }
 
-        #result, #closest-match {
+        #result, #closest-match, #all-pizzas {
             margin-top: 20px;
             padding: 20px;
             background: #fff;
@@ -100,6 +100,39 @@
             transition: opacity 0.5s ease;
         }
 
+        /* Pizza Item Styling */
+        .pizza-item {
+            padding: 15px;
+            border: 1px solid #ddd;
+            margin: 10px 0;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            background-color: #fff;
+            border-radius: 5px;
+
+            h3 {
+                margin: 0;
+                /* color: #4CAF50; */
+            }
+
+            p {
+                margin: 0;
+                color: #333;
+            }
+        }
+
+        /* Hover animation for pizza items */
+        .pizza-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Highlight Styling for Closest Pizza */
+        .highlight {
+            border: 2px solid #47b2ff;
+            background-color: #e1f6ff;
+        }
+
         @media (max-width: 600px) {
             h1 {
                 font-size: 1.5em;
@@ -118,255 +151,15 @@
 <div class="container">
     <!-- Pizza visualization container -->
     <div id="pizza-container">
-        <!-- Base pizza layer (crust) -->
+        <!-- Base Layer -->
         <svg viewBox="0 0 300 300" class="ingredient-layer" style="display: block;">
             <circle cx="150" cy="150" r="140" fill="#f4a460" stroke="#d2691e" stroke-width="5"></circle>
         </svg>
 
-        <!-- Ingredient SVG layers -->
         <!-- Tomatensauce -->
         <svg viewBox="0 0 300 300" id="tomatensauce-layer" class="ingredient-layer" style="opacity: 0;">
             <circle cx="150" cy="150" r="120" fill="#e34234" opacity="0.8"></circle>
         </svg>
-
-        <!-- Mozzarella fior di latte -->
-        <svg viewBox="0 0 300 300" id="mozzarella-fior-di-latte-layer" class="ingredient-layer" style="opacity: 0;">
-            <!-- First ring of mozzarella circles -->
-            <circle cx="210" cy="150" r="15" fill="white" />
-            <circle cx="180" cy="202" r="15" fill="white" />
-            <circle cx="120" cy="202" r="15" fill="white" />
-            <circle cx="90"  cy="150" r="15" fill="white" />
-            <circle cx="120" cy="98"  r="15" fill="white" />
-            <circle cx="180" cy="98"  r="15" fill="white" />
-
-            <!-- Second ring of mozzarella circles -->
-            <circle cx="236.6" cy="200" r="15" fill="white" />
-            <circle cx="150"   cy="250" r="15" fill="white" />
-            <circle cx="63.4"  cy="200" r="15" fill="white" />
-            <circle cx="63.4"  cy="100" r="15" fill="white" />
-            <circle cx="150"   cy="50"  r="15" fill="white" />
-            <circle cx="236.6" cy="100" r="15" fill="white" />
-        </svg>
-
-
-        <!-- Büffelmozzarella -->
-        <svg viewBox="0 0 300 300" id="buffelmozzarella-layer" class="ingredient-layer" style="opacity: 0;">
-            <!-- Evenly distribute mozzarella circles -->
-            <circle cx="150" cy="90" r="15" fill="#f8f8f2" />
-            <circle cx="200" cy="110" r="15" fill="#f8f8f2" />
-            <circle cx="210" cy="160" r="15" fill="#f8f8f2" />
-            <circle cx="180" cy="210" r="15" fill="#f8f8f2" />
-            <circle cx="120" cy="210" r="15" fill="#f8f8f2" />
-            <circle cx="90"  cy="160" r="15" fill="#f8f8f2" />
-            <circle cx="100" cy="110" r="15" fill="#f8f8f2" />
-        </svg>
-
-
-        <!-- Gorgonzola -->
-        <svg viewBox="0 0 300 300" id="gorgonzola-layer" class="ingredient-layer" style="opacity: 0;">
-            <!-- Smaller chunks of gorgonzola -->
-            <circle cx="130" cy="120" r="12" fill="#7f8c8d" opacity="0.7" />
-            <circle cx="170" cy="130" r="12" fill="#7f8c8d" opacity="0.7" />
-            <circle cx="140" cy="180" r="12" fill="#7f8c8d" opacity="0.7" />
-            <circle cx="180" cy="170" r="12" fill="#7f8c8d" opacity="0.7" />
-        </svg>
-
-
-        <!-- Parmesan -->
-        <svg viewBox="0 0 300 300" id="parmesan-layer" class="ingredient-layer" style="opacity: 0;">
-            <!-- Grated parmesan scattered -->
-            <polygon points="130,110 135,115 125,115" fill="#f1c40f" />
-            <polygon points="170,130 175,135 165,135" fill="#f1c40f" />
-            <polygon points="150,160 155,165 145,165" fill="#f1c40f" />
-            <polygon points="120,180 125,185 115,185" fill="#f1c40f" />
-            <polygon points="180,190 185,195 175,195" fill="#f1c40f" />
-        </svg>
-
-
-        <!-- Schinken -->
-        <svg viewBox="0 0 300 300" id="schinken-layer" class="ingredient-layer" style="opacity: 0;">
-            <!-- More ham slices -->
-            <ellipse cx="110" cy="130" rx="25" ry="12" fill="#e9967a" />
-            <ellipse cx="190" cy="120" rx="25" ry="12" fill="#e9967a" />
-            <ellipse cx="150" cy="180" rx="25" ry="12" fill="#e9967a" />
-            <ellipse cx="130" cy="210" rx="25" ry="12" fill="#e9967a" />
-        </svg>
-
-
-        <!-- Speck -->
-        <svg viewBox="0 0 300 300" id="speck-layer" class="ingredient-layer" style="opacity: 0;">
-            <!-- Additional bacon strips with rotation -->
-            <rect x="110" y="100" width="50" height="10" fill="#cd853f" transform="rotate(15 135 105)" />
-            <rect x="180" y="120" width="50" height="10" fill="#cd853f" transform="rotate(-10 205 125)" />
-            <rect x="90" y="180" width="50" height="10" fill="#cd853f" transform="rotate(-15 115 185)" />
-            <rect x="160" y="200" width="50" height="10" fill="#cd853f" transform="rotate(10 185 205)" />
-        </svg>
-
-        <!-- Tonno -->
-        <svg viewBox="0 0 300 300" id="tonno-layer" class="ingredient-layer" style="opacity: 0;">
-            <!-- More tuna chunks -->
-            <polygon points="130,110 120,130 140,130" fill="#b0c4de" />
-            <polygon points="170,140 160,160 180,160" fill="#b0c4de" />
-            <polygon points="150,190 140,210 160,210" fill="#b0c4de" />
-            <polygon points="110,170 100,190 120,190" fill="#b0c4de" />
-        </svg>
-
-
-        <!-- Scharfe Salami -->
-        <svg viewBox="0 0 300 300" id="scharfe-salami-layer" class="ingredient-layer" style="opacity: 0;">
-            <!-- Increased salami slices -->
-            <circle cx="150" cy="80" r="12" fill="#a52a2a" />
-            <circle cx="210" cy="110" r="12" fill="#a52a2a" />
-            <circle cx="220" cy="170" r="12" fill="#a52a2a" />
-            <circle cx="150" cy="220" r="12" fill="#a52a2a" />
-            <circle cx="80" cy="170" r="12" fill="#a52a2a" />
-            <circle cx="90" cy="110" r="12" fill="#a52a2a" />
-        </svg>
-
-
-        <!-- Mais -->
-        <svg viewBox="0 0 300 300" id="mais-layer" class="ingredient-layer" style="opacity: 0;">
-            <!-- Scattered corn kernels -->
-            <circle cx="130" cy="120" r="4" fill="#ffd700" />
-            <circle cx="170" cy="130" r="4" fill="#ffd700" />
-            <circle cx="120" cy="160" r="4" fill="#ffd700" />
-            <circle cx="180" cy="170" r="4" fill="#ffd700" />
-            <circle cx="150" cy="190" r="4" fill="#ffd700" />
-            <circle cx="160" cy="110" r="4" fill="#ffd700" />
-            <circle cx="140" cy="140" r="4" fill="#ffd700" />
-            <circle cx="150" cy="150" r="4" fill="#ffd700" />
-        </svg>
-
-
-        <!-- Artischocken -->
-        <svg viewBox="0 0 300 300" id="artischocken-layer" class="ingredient-layer" style="opacity: 0;">
-            <!-- More artichoke pieces -->
-            <ellipse cx="130" cy="110" rx="20" ry="10" fill="#a2c523" />
-            <ellipse cx="170" cy="130" rx="20" ry="10" fill="#a2c523" />
-            <ellipse cx="140" cy="170" rx="20" ry="10" fill="#a2c523" />
-            <ellipse cx="180" cy="190" rx="20" ry="10" fill="#a2c523" />
-        </svg>
-
-
-        <!-- Pilze -->
-        <svg viewBox="0 0 300 300" id="pilze-layer" class="ingredient-layer" style="opacity: 0;">
-            <!-- Multiple mushroom shapes -->
-            <path d="M120 130 C125 120 135 120 140 130 L140 140 L120 140 Z" fill="#deb887" />
-            <path d="M160 110 C165 100 175 100 180 110 L180 120 L160 120 Z" fill="#deb887" />
-            <path d="M200 150 C205 140 215 140 220 150 L220 160 L200 160 Z" fill="#deb887" />
-            <path d="M130 190 C135 180 145 180 150 190 L150 200 L130 200 Z" fill="#deb887" />
-        </svg>
-
-
-        <!-- Peperonata -->
-        <svg viewBox="0 0 300 300" id="peperonata-layer" class="ingredient-layer" style="opacity: 0;">
-            <!-- Additional pepper slices -->
-            <ellipse cx="110" cy="110" rx="15" ry="25" fill="#ffcc00" transform="rotate(-20 110 110)" />
-            <ellipse cx="190" cy="120" rx="15" ry="25" fill="#ffcc00" transform="rotate(15 190 120)" />
-            <ellipse cx="140" cy="180" rx="15" ry="25" fill="#ffcc00" transform="rotate(-10 140 180)" />
-            <ellipse cx="170" cy="200" rx="15" ry="25" fill="#ffcc00" transform="rotate(10 170 200)" />
-        </svg>
-
-
-        <!-- Spinat -->
-        <svg viewBox="0 0 300 300" id="spinat-layer" class="ingredient-layer" style="opacity: 0;">
-            <!-- Multiple spinach leaves -->
-            <path d="M130 140 Q135 130 140 140 T150 140 Q145 150 140 140 T130 140" fill="#2E8B57" />
-            <path d="M160 120 Q165 110 170 120 T180 120 Q175 130 170 120 T160 120" fill="#2E8B57" />
-            <path d="M190 160 Q195 150 200 160 T210 160 Q205 170 200 160 T190 160" fill="#2E8B57" />
-            <path d="M120 180 Q125 170 130 180 T140 180 Q135 190 130 180 T120 180" fill="#2E8B57" />
-        </svg>
-
-
-        <!-- Zwiebel -->
-        <svg viewBox="0 0 300 300" id="zwiebel-layer" class="ingredient-layer" style="opacity: 0;">
-            <!-- Onion rings -->
-            <circle cx="150" cy="110" r="15" stroke="#d2b48c" stroke-width="3" fill="none" />
-            <circle cx="200" cy="150" r="15" stroke="#d2b48c" stroke-width="3" fill="none" />
-            <circle cx="100" cy="160" r="15" stroke="#d2b48c" stroke-width="3" fill="none" />
-            <circle cx="150" cy="200" r="15" stroke="#d2b48c" stroke-width="3" fill="none" />
-        </svg>
-
-
-        <!-- Oliven -->
-        <svg viewBox="0 0 300 300" id="oliven-layer" class="ingredient-layer" style="opacity: 0;">
-            <!-- Additional olives -->
-            <ellipse cx="110" cy="120" rx="8" ry="12" fill="#556b2f" />
-            <ellipse cx="190" cy="130" rx="8" ry="12" fill="#556b2f" />
-            <ellipse cx="130" cy="190" rx="8" ry="12" fill="#556b2f" />
-            <ellipse cx="170" cy="210" rx="8" ry="12" fill="#556b2f" />
-            <ellipse cx="150" cy="150" rx="8" ry="12" fill="#556b2f" />
-        </svg>
-
-
-        <!-- Taggiasca Oliven -->
-        <svg viewBox="0 0 300 300" id="taggiasca-oliven-layer" class="ingredient-layer" style="opacity: 0;">
-            <!-- More Taggiasca olives -->
-            <circle cx="120" cy="110" r="7" fill="#6a5acd" />
-            <circle cx="180" cy="120" r="7" fill="#6a5acd" />
-            <circle cx="110" cy="180" r="7" fill="#6a5acd" />
-            <circle cx="190" cy="170" r="7" fill="#6a5acd" />
-            <circle cx="150" cy="200" r="7" fill="#6a5acd" />
-        </svg>
-
-
-        <!-- Riesen Kapern -->
-        <svg viewBox="0 0 300 300" id="riesen-kapern-layer" class="ingredient-layer" style="opacity: 0;">
-            <!-- Increased capers -->
-            <ellipse cx="130" cy="120" rx="5" ry="10" fill="#6b8e23" />
-            <ellipse cx="170" cy="130" rx="5" ry="10" fill="#6b8e23" />
-            <ellipse cx="120" cy="170" rx="5" ry="10" fill="#6b8e23" />
-            <ellipse cx="180" cy="180" rx="5" ry="10" fill="#6b8e23" />
-            <ellipse cx="150" cy="150" rx="5" ry="10" fill="#6b8e23" />
-        </svg>
-
-
-        <!-- Lombardi -->
-        <svg viewBox="0 0 300 300" id="lombardi-layer" class="ingredient-layer" style="opacity: 0;">
-            <!-- More chili peppers -->
-            <path d="M130 140 L140 120 L150 140 Z" fill="#ff4500" />
-            <path d="M170 130 L180 110 L190 130 Z" fill="#ff4500" />
-            <path d="M150 180 L160 160 L170 180 Z" fill="#ff4500" />
-        </svg>
-
-
-        <!-- Knoblauch -->
-        <svg viewBox="0 0 300 300" id="knoblauch-layer" class="ingredient-layer" style="opacity: 0;">
-            <!-- Additional garlic cloves -->
-            <path d="M120 130 Q110 120 120 110 Q130 120 120 130" fill="#fffacd" />
-            <path d="M180 140 Q170 130 180 120 Q190 130 180 140" fill="#fffacd" />
-            <path d="M150 180 Q140 170 150 160 Q160 170 150 180" fill="#fffacd" />
-        </svg>
-
-
-        <!-- Basilikum -->
-        <svg viewBox="0 0 300 300" id="basilikum-layer" class="ingredient-layer" style="opacity: 0;">
-            <!-- More basil leaves -->
-            <path d="M130 120 Q125 115 130 110 Q135 115 130 120" fill="#008000" />
-            <path d="M170 110 Q165 105 170 100 Q175 105 170 110" fill="#008000" />
-            <path d="M140 180 Q135 175 140 170 Q145 175 140 180" fill="#008000" />
-            <path d="M180 190 Q175 185 180 180 Q185 185 180 190" fill="#008000" />
-        </svg>
-
-        <!-- Spiegelei -->
-        <svg viewBox="0 0 300 300" id="spiegelei-layer" class="ingredient-layer" style="opacity: 0;">
-            <!-- Two fried eggs -->
-            <circle cx="120" cy="130" r="20" fill="white" />
-            <circle cx="120" cy="130" r="10" fill="yellow" />
-            <circle cx="180" cy="170" r="20" fill="white" />
-            <circle cx="180" cy="170" r="10" fill="yellow" />
-        </svg>
-
-
-        <!-- Gekochtes Ei -->
-        <svg viewBox="0 0 300 300" id="gekochtes-ei-layer" class="ingredient-layer" style="opacity: 0;">
-            <!-- Slices of boiled egg -->
-            <ellipse cx="130" cy="120" rx="15" ry="25" fill="#fff" />
-            <circle cx="130" cy="120" r="8" fill="#FFD700" />
-            <ellipse cx="170" cy="180" rx="15" ry="25" fill="#fff" />
-            <circle cx="170" cy="180" r="8" fill="#FFD700" />
-        </svg>
-
     </div>
 
     <!-- Sections for selecting ingredients -->
@@ -374,7 +167,358 @@
 
     <div id="result"></div>
     <div id="closest-match"></div>
+    <div id="all-pizzas"></div>
 </div>
+
+<script>
+    // Pizza configuration
+    const pizzaCenter = { x: 150, y: 150 };
+    const pizzaRadius = 120; // Tomatensauce radius to confine ingredients
+
+    // Ingredient definitions
+    const ingredients = [
+        {
+            id: 'mozzarella-fior-di-latte-layer',
+            elementType: 'circle',
+            attributes: { r: 15, fill: 'white' },
+            count: 12
+        },
+        {
+            id: 'buffelmozzarella-layer',
+            elementType: 'circle',
+            attributes: { r: 15, fill: '#f8f8f2' },
+            count: 10
+        },
+        {
+            id: 'gorgonzola-layer',
+            elementType: 'circle',
+            attributes: { r: 12, fill: '#7f8c8d', opacity: 0.7 },
+            count: 8
+        },
+        {
+            id: 'parmesan-layer',
+            elementType: 'polygon',
+            attributes: { fill: '#f1c40f' },
+            count: 30,
+            customGenerator: generateParmesan
+        },
+        {
+            id: 'schinken-layer',
+            elementType: 'ellipse',
+            attributes: { rx: 25, ry: 12, fill: '#e9967a' },
+            count: 8,
+            rotation: true
+        },
+        {
+            id: 'speck-layer',
+            elementType: 'rect',
+            attributes: { width: 50, height: 10, fill: '#cd853f' },
+            count: 8,
+            rotation: true
+        },
+        {
+            id: 'tonno-layer',
+            elementType: 'polygon',
+            attributes: { fill: '#b0c4de' },
+            count: 12,
+            customGenerator: generateTonno
+        },
+        {
+            id: 'scharfe-salami-layer',
+            elementType: 'circle',
+            attributes: { r: 12, fill: '#a52a2a' },
+            count: 10
+        },
+        {
+            id: 'mais-layer',
+            elementType: 'circle',
+            attributes: { r: 3, fill: '#ffd700' },
+            count: 70
+        },
+        {
+            id: 'artischocken-layer',
+            elementType: 'ellipse',
+            attributes: { rx: 20, ry: 10, fill: '#a2c523' },
+            count: 8,
+            rotation: true
+        },
+        {
+            id: 'pilze-layer',
+            elementType: 'path',
+            attributes: { fill: '#deb887' },
+            count: 12,
+            customGenerator: generatePilze
+        },
+        {
+            id: 'peperonata-layer',
+            elementType: 'ellipse',
+            attributes: { rx: 15, ry: 25, fill: '#ffcc00' },
+            count: 8,
+            rotation: true
+        },
+        {
+            id: 'spinat-layer',
+            elementType: 'path',
+            attributes: { fill: '#2E8B57' },
+            count: 15,
+            customGenerator: generateSpinach
+        },
+        {
+            id: 'zwiebel-layer',
+            elementType: 'circle',
+            attributes: { r: 15, stroke: '#d2b48c', 'stroke-width': 3, fill: 'none' },
+            count: 8
+        },
+        {
+            id: 'oliven-layer',
+            elementType: 'ellipse',
+            attributes: { rx: 8, ry: 12, fill: '#556b2f' },
+            count: 10
+        },
+        {
+            id: 'taggiasca-oliven-layer',
+            elementType: 'circle',
+            attributes: { r: 7, fill: '#6a5acd' },
+            count: 10
+        },
+        {
+            id: 'riesen-kapern-layer',
+            elementType: 'ellipse',
+            attributes: { rx: 5, ry: 10, fill: '#6b8e23' },
+            count: 10
+        },
+        {
+            id: 'lombardi-layer',
+            elementType: 'path',
+            attributes: { fill: '#ff4500' },
+            count: 8,
+            customGenerator: generateLombardi
+        },
+        {
+            id: 'knoblauch-layer',
+            elementType: 'path',
+            attributes: { fill: '#fffacd' },
+            count: 12,
+            customGenerator: generateKnoblauch
+        },
+        {
+            id: 'basilikum-layer',
+            elementType: 'path',
+            attributes: { fill: '#008000' },
+            count: 12,
+            customGenerator: generateBasilikum
+        },
+        {
+            id: 'spiegelei-layer',
+            elementType: 'group',
+            attributes: {},
+            count: 2,
+            customGenerator: generateSpiegelei
+        },
+        {
+            id: 'gekochtes-ei-layer',
+            elementType: 'group',
+            attributes: {},
+            count: 2,
+            customGenerator: generateGekochtesEi
+        }
+    ];
+
+    // Function to generate ingredients
+    function generateIngredients() {
+        ingredients.forEach(ingredient => {
+            const svgNS = 'http://www.w3.org/2000/svg';
+            const svg = document.createElementNS(svgNS, 'svg');
+            svg.setAttribute('viewBox', '0 0 300 300');
+            svg.setAttribute('class', 'ingredient-layer');
+            svg.setAttribute('id', ingredient.id);
+            svg.style.position = 'absolute';
+            svg.style.top = '0';
+            svg.style.left = '0';
+            svg.style.opacity = '0';
+
+            for (let i = 0; i < ingredient.count; i++) {
+                let element;
+                let position = getRandomPositionInCircle();
+                if (ingredient.count < 2) {
+                    position = getPositionNearCenter();
+                }
+                if (ingredient.customGenerator) {
+                    element = ingredient.customGenerator(ingredient.attributes, position);
+                } else {
+                    element = document.createElementNS(svgNS, ingredient.elementType);
+                    setElementAttributes(element, ingredient.attributes, position);
+
+                    if (ingredient.rotation) {
+                        const rotation = Math.random() * 360;
+                        element.setAttribute('transform', `rotate(${rotation} ${position.x} ${position.y})`);
+                    }
+                }
+                svg.appendChild(element);
+            }
+
+            document.getElementById('pizza-container').appendChild(svg);
+        });
+    }
+
+    // Helper function to set attributes and position
+    function setElementAttributes(element, attributes, position) {
+        for (const attr in attributes) {
+            element.setAttribute(attr, attributes[attr]);
+        }
+        if (position) {
+            if (element.tagName === 'circle' || element.tagName === 'ellipse') {
+                element.setAttribute('cx', position.x);
+                element.setAttribute('cy', position.y);
+            } else if (element.tagName === 'rect') {
+                element.setAttribute('x', position.x - attributes.width / 2);
+                element.setAttribute('y', position.y - attributes.height / 2);
+            }
+        }
+    }
+
+    // Generate a random position within the Tomatensauce circle
+    function getRandomPositionInCircle() {
+        let angle = Math.random() * 2 * Math.PI;
+        let radius = pizzaRadius * Math.sqrt(Math.random());
+        let x = pizzaCenter.x + radius * Math.cos(angle);
+        let y = pizzaCenter.y + radius * Math.sin(angle);
+        return { x, y };
+    }
+
+    // Function to get position near the center
+    function getPositionNearCenter() {
+        const maxOffset = pizzaRadius / 4; // Closer to the center
+        let angle = Math.random() * 2 * Math.PI;
+        let radius = maxOffset * Math.sqrt(Math.random());
+        let x = pizzaCenter.x + radius * Math.cos(angle);
+        let y = pizzaCenter.y + radius * Math.sin(angle);
+        return { x, y };
+    }
+
+    // Custom generator functions
+    function generateParmesan(attributes, position) {
+        const svgNS = 'http://www.w3.org/2000/svg';
+        const polygon = document.createElementNS(svgNS, 'polygon');
+        const size = 6;
+        const points = [
+            `${position.x},${position.y - size / 2}`,
+            `${position.x + size / 2},${position.y + size / 2}`,
+            `${position.x - size / 2},${position.y + size / 2}`
+        ].join(' ');
+        polygon.setAttribute('points', points);
+        setElementAttributes(polygon, attributes);
+        return polygon;
+    }
+
+    function generateTonno(attributes, position) {
+        const svgNS = 'http://www.w3.org/2000/svg';
+        const polygon = document.createElementNS(svgNS, 'polygon');
+        const size = 10;
+        const points = [
+            `${position.x},${position.y - size}`,
+            `${position.x - size},${position.y + size}`,
+            `${position.x + size},${position.y + size}`
+        ].join(' ');
+        polygon.setAttribute('points', points);
+        setElementAttributes(polygon, attributes);
+        return polygon;
+    }
+
+    function generatePilze(attributes, position) {
+        const svgNS = 'http://www.w3.org/2000/svg';
+        const path = document.createElementNS(svgNS, 'path');
+        const width = 20;
+        const height = 10;
+        const x = position.x;
+        const y = position.y;
+        const d = `M${x - width / 2} ${y} C${x - width / 2 + 5} ${y - height} ${x + width / 2 - 5} ${y - height} ${x + width / 2} ${y} L${x + width / 2} ${y + height} L${x - width / 2} ${y + height} Z`;
+        path.setAttribute('d', d);
+        setElementAttributes(path, attributes);
+        return path;
+    }
+
+    function generateSpinach(attributes, position) {
+        const svgNS = 'http://www.w3.org/2000/svg';
+        const path = document.createElementNS(svgNS, 'path');
+        const size = 10;
+        const d = `M${position.x - size},${position.y} Q${position.x},${position.y - size} ${position.x + size},${position.y} T${position.x - size},${position.y}`;
+        path.setAttribute('d', d);
+        setElementAttributes(path, attributes);
+        return path;
+    }
+
+    function generateLombardi(attributes, position) {
+        const svgNS = 'http://www.w3.org/2000/svg';
+        const path = document.createElementNS(svgNS, 'path');
+        const size = 10;
+        const d = `M${position.x},${position.y} L${position.x + size},${position.y - size * 2} L${position.x + size * 2},${position.y} Z`;
+        path.setAttribute('d', d);
+        setElementAttributes(path, attributes);
+        return path;
+    }
+
+    function generateKnoblauch(attributes, position) {
+        const svgNS = 'http://www.w3.org/2000/svg';
+        const path = document.createElementNS(svgNS, 'path');
+        const size = 6;
+        const d = `M${position.x},${position.y} Q${position.x - size},${position.y - size} ${position.x},${position.y - size * 2} Q${position.x + size},${position.y - size} ${position.x},${position.y}`;
+        path.setAttribute('d', d);
+        setElementAttributes(path, attributes);
+        return path;
+    }
+
+    function generateBasilikum(attributes, position) {
+        const svgNS = 'http://www.w3.org/2000/svg';
+        const path = document.createElementNS(svgNS, 'path');
+        const size = 5;
+        const d = `M${position.x},${position.y} Q${position.x - size},${position.y - size} ${position.x},${position.y - size * 2} Q${position.x + size},${position.y - size} ${position.x},${position.y}`;
+        path.setAttribute('d', d);
+        setElementAttributes(path, attributes);
+        return path;
+    }
+
+    function generateSpiegelei(attributes, position) {
+        const svgNS = 'http://www.w3.org/2000/svg';
+        const group = document.createElementNS(svgNS, 'g');
+        const white = document.createElementNS(svgNS, 'circle');
+        const yolk = document.createElementNS(svgNS, 'circle');
+        white.setAttribute('cx', position.x);
+        white.setAttribute('cy', position.y);
+        white.setAttribute('r', 20);
+        white.setAttribute('fill', 'white');
+        yolk.setAttribute('cx', position.x);
+        yolk.setAttribute('cy', position.y);
+        yolk.setAttribute('r', 10);
+        yolk.setAttribute('fill', 'yellow');
+        group.appendChild(white);
+        group.appendChild(yolk);
+        return group;
+    }
+
+    function generateGekochtesEi(attributes, position) {
+        const svgNS = 'http://www.w3.org/2000/svg';
+        const group = document.createElementNS(svgNS, 'g');
+        const egg = document.createElementNS(svgNS, 'ellipse');
+        const yolk = document.createElementNS(svgNS, 'circle');
+        egg.setAttribute('cx', position.x);
+        egg.setAttribute('cy', position.y);
+        egg.setAttribute('rx', 15);
+        egg.setAttribute('ry', 25);
+        egg.setAttribute('fill', 'white');
+        yolk.setAttribute('cx', position.x);
+        yolk.setAttribute('cy', position.y);
+        yolk.setAttribute('r', 8);
+        yolk.setAttribute('fill', '#FFD700');
+        group.appendChild(egg);
+        group.appendChild(yolk);
+        return group;
+    }
+
+    // Generate the ingredients
+    generateIngredients();
+
+</script>
 
 <script>
     const pizzas = {
@@ -519,12 +663,58 @@
                 <p>Additional ingredients needed: ${missingIngredients.join(", ") || "None"}</p>
                 <p>Ingredients to remove: ${additionalIngredients.join(", ") || "None"}</p>
             `;
+            highlightClosestPizza(closestPizza);
         } else {
             document.getElementById("closest-match").innerHTML = "<p>No close matches found.</p>";
+            removeClosestPizzaHighlight();
         }
     }
 
-    document.addEventListener('DOMContentLoaded', generateIngredientList);
+    function highlightClosestPizza(pizzaName) {
+        document.querySelectorAll('.pizza-item').forEach(pizzaDiv => {
+            if (pizzaDiv.getAttribute('data-pizza-name') === pizzaName) {
+                pizzaDiv.classList.add('highlight');
+            } else {
+                pizzaDiv.classList.remove('highlight');
+            }
+        });
+    }
+
+    function removeClosestPizzaHighlight() {
+        document.querySelectorAll('.pizza-item').forEach(pizzaDiv => {
+            pizzaDiv.classList.remove('highlight');
+        });
+    }
+
+
+    function displayAllPizzas() {
+        const allPizzasContainer = document.getElementById('all-pizzas');
+        allPizzasContainer.innerHTML = '<h2>All Pizza Combinations</h2>';
+        for (const [pizzaName, ingredients] of Object.entries(pizzas)) {
+            const pizzaDiv = document.createElement('div');
+            pizzaDiv.classList.add('pizza-item');
+            pizzaDiv.setAttribute('data-pizza-name', pizzaName);
+            pizzaDiv.innerHTML = `<h3>${pizzaName}</h3><p>${ingredients.join(", ")}</p>`;
+            pizzaDiv.addEventListener('click', () => {
+                selectPizzaIngredients(ingredients);
+            });
+            allPizzasContainer.appendChild(pizzaDiv);
+        }
+    }
+
+
+    document.addEventListener('DOMContentLoaded', () => {
+        generateIngredientList();
+        displayAllPizzas();
+    });
+
+    function selectPizzaIngredients(ingredients) {
+        document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+            checkbox.checked = ingredients.includes(checkbox.value);
+            toggleIngredient(generateLayerId(checkbox.value), checkbox.checked);
+        });
+        updatePizza();
+    }
 </script>
 
 </body>
