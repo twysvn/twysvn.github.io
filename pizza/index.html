@@ -300,8 +300,8 @@ const ingredients = [
     // Meats
     {
         id: 'schinken-layer',
-        elementType: 'ellipse',
-        attributes: { rx: 25, ry: 12, fill: '#e9967a' },
+        elementType: 'rect',
+        attributes: { width: 40, height: 20, fill: '#e9967a' },
         count: 8,
         rotation: true
     },
@@ -309,6 +309,13 @@ const ingredients = [
         id: 'speck-layer',
         elementType: 'rect',
         attributes: { width: 50, height: 10, fill: '#cd853f' },
+        count: 8,
+        rotation: true
+    },
+    {
+        id: 'rohschinken-layer',
+        elementType: 'rect',
+        attributes: { width: 40, height: 20, fill: '#e9967a' },
         count: 8,
         rotation: true
     },
@@ -325,25 +332,16 @@ const ingredients = [
         count: 10
     },
     {
-        id: 'wurstel-layer',
-        elementType: 'ellipse',
-        attributes: { rx: 15, ry: 7, fill: '#f5a623' },
-        count: 15,
-        rotation: true
-    },
-    {
         id: 'kaminwurze-layer',
-        elementType: 'rect',
-        attributes: { width: 40, height: 10, fill: '#8b4513' },
-        count: 8,
-        rotation: true
+        elementType: 'circle', // Changed to circle
+        attributes: { r: 10, fill: '#8B0000' }, // Dark red color
+        count: 8
     },
     {
-        id: 'rohschinken-layer',
-        elementType: 'path',
-        attributes: { fill: '#e9967a' },
-        count: 8,
-        customGenerator: generateRohschinken
+        id: 'wurstel-layer',
+        elementType: 'circle', // Changed to circle
+        attributes: { r: 10, fill: '#f5a623' },
+        count: 15
     },
     {
         id: 'bresaola-layer',
@@ -395,13 +393,12 @@ const ingredients = [
         attributes: { fill: '#c2a383' },
         count: 8,
         customGenerator: generateSteinpilze
-    },
-    {
+    },{
         id: 'pfifferlinge-layer',
         elementType: 'path',
-        attributes: { fill: '#d99a6c' },
-        count: 10,
-        customGenerator: generatePfifferlinge
+        attributes: { fill: '#ffd700' },
+        count: 12,
+        customGenerator: generatePilze
     },
     {
         id: 'artischocken-layer',
@@ -447,7 +444,7 @@ const ingredients = [
     {
         id: 'lombardi-layer',
         elementType: 'path',
-        attributes: { fill: '#ff4500' },
+        attributes: { fill: '#228B22' }, // Green color
         count: 8,
         customGenerator: generateLombardi
     },
@@ -559,12 +556,19 @@ const ingredients = [
     },
     // Vier Gemüse Sorten (Four Vegetable Types)
     {
-        id: 'vier-gemuse-layer',
+        id: 'champignon-layer',
+        elementType: 'path',
+        attributes: { fill: '#deb887' },
+        count: 12,
+        customGenerator: generatePilze
+    },
+    {
+        id: 'vier-gemuse-sorten-layer',
         elementType: 'group',
         attributes: {},
         count: 1,
         customGenerator: generateVierGemuse
-    }
+    },
 ];
 
 // Function to generate ingredients
@@ -683,14 +687,36 @@ function generateTonno(attributes, position) {
 }
 
 function generatePilze(attributes, position) {
-    const width = 20;
-    const height = 10;
+    const capWidth = 20;
+    const capHeight = 10;
+    const stemWidth = 6;
+    const stemHeight = 12;
     const x = position.x;
     const y = position.y;
-    const d = `M${x - width / 2} ${y}
-               C${x - width / 2 + 5} ${y - height} ${x + width / 2 - 5} ${y - height} ${x + width / 2} ${y}
-               L${x + width / 2} ${y + height} L${x - width / 2} ${y + height} Z`;
-    return createSvgElement('path', { d, ...attributes });
+
+    const capPath = `
+        M${x - capWidth / 2},${y}
+        C${x - capWidth / 2 + 5},${y - capHeight} ${x + capWidth / 2 - 5},${y - capHeight} ${x + capWidth / 2},${y}
+        Z
+    `;
+
+    const stemPath = `
+        M${x - stemWidth / 2},${y}
+        L${x - stemWidth / 2},${y + stemHeight}
+        L${x + stemWidth / 2},${y + stemHeight}
+        L${x + stemWidth / 2},${y}
+        Z
+    `;
+
+    const group = createSvgElement('g', {});
+
+    const cap = createSvgElement('path', { d: capPath, fill: attributes.fill });
+    const stem = createSvgElement('path', { d: stemPath, fill: '#f5deb3' }); // Light wheat color for stem
+
+    group.appendChild(cap);
+    group.appendChild(stem);
+
+    return group;
 }
 
 function generateSteinpilze(attributes, position) {
@@ -719,12 +745,36 @@ function generateSpinach(attributes, position) {
 }
 
 function generateLombardi(attributes, position) {
-    const size = 10;
-    const d = `M${position.x},${position.y}
-               L${position.x + size},${position.y - size * 2}
-               L${position.x + size * 2},${position.y} Z`;
-    return createSvgElement('path', { d, ...attributes });
+    // Create a Lombardi-style chili pepper that is curved and gets thinner on one side
+    const x = position.x;
+    const y = position.y;
+    const width = 15; // Width of the base of the chili
+    const height = 30; // Height of the chili
+    const rx = 7; // Horizontal radius for rounded corners
+    const ry = 7; // Vertical radius for rounded corners
+
+    // Adjust the path data to make the shape curve and taper on one side
+    const pathData = `
+        M ${x},${y} 
+        q ${width * 0.4},-${height * 0.6} ${width * 0.7},-${height * 0.3} 
+        c ${width * 0.3},${height * 0.3} ${width * 0.1},${height * 0.9} -${width * 0.2},${height * 1.2} 
+        q -${width * 0.6},${height * 0.6} -${width * 0.7},-${height * 0.1} 
+        t ${width * 0.2},-${height * 0.8} 
+        z
+    `;
+
+    // Create the SVG path element
+    const chili = createSvgElement('path', { d: pathData, ...attributes });
+
+    // Randomize rotation to add a natural variation
+    const rotation = Math.random() * 360;
+    chili.setAttribute('transform', `rotate(${rotation} ${x + width / 2} ${y + height / 2})`);
+
+    return chili;
 }
+
+
+
 
 function generateKnoblauch(attributes, position) {
     const size = 6;
@@ -782,14 +832,21 @@ function generateGekochtesEi(attributes, position) {
 }
 
 function generateAnanas(attributes, position) {
-    const size = 15;
-    const points = [
-        `${position.x},${position.y - size / 2}`,
-        `${position.x + size / 2},${position.y}`,
-        `${position.x},${position.y + size / 2}`,
-        `${position.x - size / 2},${position.y}`
-    ].join(' ');
-    return createSvgElement('polygon', { points, ...attributes });
+    // Create a wedge shape to represent a pineapple chunk
+    const size = 20;
+    const x = position.x;
+    const y = position.y;
+
+    const d = `
+        M${x},${y}
+        L${x + size},${y}
+        A${size},${size} 0 0,0 ${x},${y - size}
+        Z
+    `;
+    const path = createSvgElement('path', { d, ...attributes });
+    const rotation = Math.random() * 360;
+    path.setAttribute('transform', `rotate(${rotation} ${position.x} ${position.y})`);
+    return path;
 }
 
 function generateSardellen(attributes, position) {
@@ -800,12 +857,38 @@ function generateSardellen(attributes, position) {
     return createSvgElement('path', { d, ...attributes });
 }
 
+// function generateShrimps(attributes, position) {
+//     const size = 10;
+//     const d = `M${position.x},${position.y}
+//                C${position.x + size},${position.y - size} ${position.x + size},${position.y + size} ${position.x},${position.y + size}
+//                C${position.x - size},${position.y + size} ${position.x - size},${position.y - size} ${position.x},${position.y}`;
+//     return createSvgElement('path', { d, ...attributes });
+// }
+
 function generateShrimps(attributes, position) {
-    const size = 10;
-    const d = `M${position.x},${position.y}
-               C${position.x + size},${position.y - size} ${position.x + size},${position.y + size} ${position.x},${position.y + size}
-               C${position.x - size},${position.y + size} ${position.x - size},${position.y - size} ${position.x},${position.y}`;
-    return createSvgElement('path', { d, ...attributes });
+    // Create a more realistic chili pepper shape
+    const x = position.x;
+    const y = position.y;
+    const size = 10; // Adjust for overall size scaling
+
+    // Adjust the path data for a more realistic chili shape
+    const pathData = `
+        M ${x},${y} 
+        q ${size * 0.5},-${size * 1.5} ${size * 1.5},-${size * 0.75} 
+        c ${size * 0.75},${size * 0.5} ${size * 0.25},${size * 1.5} -${size * 0.75},${size * 2} 
+        q -${size * 1.25},${size * 0.5} -${size * 1.5},-${size * 1} 
+        t ${size * 0.5},-${size * 1.5} 
+        z
+    `;
+
+    // Create the SVG path element
+    const chili = createSvgElement('path', { d: pathData, ...attributes });
+
+    // Randomize rotation to add a natural variation
+    const rotation = Math.random() * 360;
+    chili.setAttribute('transform', `rotate(${rotation} ${x} ${y})`);
+
+    return chili;
 }
 
 function generateMeeresfruchte(attributes, position) {
@@ -818,11 +901,16 @@ function generateMeeresfruchte(attributes, position) {
 }
 
 function generateRucola(attributes, position) {
-    const size = 15;
-    const d = `M${position.x},${position.y}
-               Q${position.x - size / 2},${position.y - size} ${position.x},${position.y - size * 2}
-               Q${position.x + size / 2},${position.y - size} ${position.x},${position.y}`;
-    return createSvgElement('path', { d, ...attributes });
+    const pathData = `
+        M ${position.x},${position.y}
+        c -5,-15 -10,-30 0,-45
+        c 10,15 5,30 0,45
+        z
+    `;
+    const rotation = Math.random() * 360;
+    const leaf = createSvgElement('path', { d: pathData, ...attributes });
+    leaf.setAttribute('transform', `rotate(${rotation} ${position.x} ${position.y})`);
+    return leaf;
 }
 
 function generateBalsamicoGlaze(attributes) {
@@ -837,12 +925,20 @@ function generateCocktailSosse(attributes) {
 }
 
 function generateRohschinken(attributes, position) {
-    const size = 25;
-    const d = `M${position.x - size},${position.y}
-               Q${position.x},${position.y - size / 2} ${position.x + size},${position.y}
-               Q${position.x},${position.y + size / 2} ${position.x - size},${position.y}`;
-    return createSvgElement('path', { d, ...attributes });
+    const width = 50;
+    const height = 10;
+    const rect = createSvgElement('rect', {
+        x: position.x - width / 2,
+        y: position.y - height / 2,
+        width: width,
+        height: height,
+        fill: attributes.fill
+    });
+    const rotation = Math.random() * 360;
+    rect.setAttribute('transform', `rotate(${rotation} ${position.x} ${position.y})`);
+    return rect;
 }
+
 
 function generateVierGemuse(attributes, position) {
     const group = createSvgElement('g', {});
@@ -1001,6 +1097,7 @@ generateIngredients();
                 checkbox.value = ingredient;
 
                 const layerId = generateLayerId(ingredient);
+                console.log(generateLayerId(ingredient));
 
                 checkbox.addEventListener('change', () => {
                     toggleIngredient(layerId, checkbox.checked);
@@ -1102,6 +1199,7 @@ generateIngredients();
     function selectPizzaIngredients(ingredients) {
         document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
             checkbox.checked = ingredients.includes(checkbox.value);
+            console.log(generateLayerId(checkbox.value));
             toggleIngredient(generateLayerId(checkbox.value), checkbox.checked);
         });
         updatePizza();
