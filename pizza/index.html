@@ -11,34 +11,34 @@
             padding: 0;
             background-color: #f8f8f8;
         }
-    
+
         h1 {
             text-align: center;
             color: #333;
             margin: 20px;
         }
-    
+
         .container {
             max-width: 800px;
             margin: 0 auto;
             padding: 20px;
         }
-    
+
         .section {
             margin-bottom: 20px;
         }
-    
+
         .section h2 {
             margin-bottom: 10px;
             color: #4CAF50;
         }
-    
+
         .ingredients {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
             gap: 10px;
         }
-    
+
         .ingredient {
             display: flex;
             align-items: center;
@@ -49,17 +49,17 @@
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
-    
+
         .ingredient:hover {
             transform: scale(1.05);
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
         }
-    
+
         .ingredient input[type="checkbox"] {
             margin-right: 10px;
             transform: scale(1.2);
         }
-    
+
         #create-button {
             width: 100%;
             padding: 15px;
@@ -72,11 +72,11 @@
             cursor: pointer;
             margin-top: 20px;
         }
-    
+
         #create-button:hover {
             background-color: #45a049;
         }
-    
+
         #result, #closest-match, #all-pizzas {
             margin-top: 20px;
             padding: 20px;
@@ -85,21 +85,21 @@
             border-radius: 5px;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
-    
+
         #pizza-container {
             position: relative;
             width: 300px;
             height: 300px;
             margin: 0 auto;
         }
-    
+
         .ingredient-layer {
             position: absolute;
             top: 0;
             left: 0;
             transition: opacity 0.5s ease;
         }
-    
+
         /* Pizza Item Styling */
         .pizza-item {
             padding: 15px;
@@ -110,101 +110,110 @@
             background-color: #fff;
             border-radius: 5px;
         }
-    
+
         .pizza-item h3 {
             margin: 0;
         }
-    
+
         .pizza-item p {
             margin: 0;
             color: #333;
         }
-    
+
         /* Hover animation for pizza items */
         .pizza-item:hover {
             transform: translateY(-5px);
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
         }
-    
+
         /* Highlight Styling for Closest Pizza */
         .highlight {
             border: 2px solid #47b2ff;
             background-color: #e1f6ff;
         }
-    
+
         @media (max-width: 600px) {
             h1 {
                 font-size: 1.5em;
             }
-    
+
             #create-button {
                 font-size: 16px;
                 padding: 12px;
             }
         }
-    
+
         /* Dark Mode Styles */
         @media (prefers-color-scheme: dark) {
             body {
                 background-color: #121212;
                 color: #e0e0e0;
             }
-    
+
             h1 {
                 color: #ffffff;
             }
-    
+
             .section h2 {
                 color: #80e27e;
             }
-    
+
             .ingredient {
                 background: #1e1e1e;
                 border: 1px solid #333;
                 box-shadow: 0 2px 4px rgba(255, 255, 255, 0.1);
             }
-    
+
             .ingredient:hover {
                 box-shadow: 0 4px 8px rgba(255, 255, 255, 0.2);
             }
-    
+
             #create-button {
                 background-color: #357a38;
             }
-    
+
             #create-button:hover {
                 background-color: #2e7031;
             }
-    
+
             #result, #closest-match, #all-pizzas {
                 background: #1e1e1e;
                 border: 1px solid #333;
                 box-shadow: 0 2px 4px rgba(255, 255, 255, 0.1);
             }
-    
+
             .pizza-item {
                 background-color: #1e1e1e;
                 border: 1px solid #333;
             }
-    
+
             .pizza-item p {
                 color: #e0e0e0;
             }
-    
+
             .pizza-item:hover {
                 box-shadow: 0 5px 15px rgba(255, 255, 255, 0.1);
             }
-    
+
             .highlight {
                 border: 2px solid #47b2ff;
                 background-color: #003d66;
             }
         }
+        #menu {
+            display: flex;
+            justify-content: center;
+            padding: 20px;
+        }
     </style>
-    
+
 </head>
 <body>
 
+<div id="menu">
+    <button id="issingButton">Issing</button>
+    <button id="winklerButton">Winkler</button>
+</div>
 <h1>Create Your Custom Pizza</h1>
 <div class="container">
     <!-- Pizza visualization container -->
@@ -229,12 +238,21 @@
 </div>
 
 <script>
- // Pizza configuration
+// Pizza configuration
 const pizzaCenter = { x: 150, y: 150 };
 const pizzaRadius = 120; // Tomatensauce radius to confine ingredients
 
 // Ingredient definitions
 const ingredients = [
+    // Base Layer
+    {
+        id: 'tomatensauce-layer',
+        elementType: 'circle',
+        attributes: { r: pizzaRadius, fill: '#e34234', opacity: 0.8 },
+        count: 1,
+        position: pizzaCenter
+    },
+    // Cheeses
     {
         id: 'mozzarella-fior-di-latte-layer',
         elementType: 'circle',
@@ -261,6 +279,26 @@ const ingredients = [
         customGenerator: generateParmesan
     },
     {
+        id: 'brie-layer',
+        elementType: 'path',
+        attributes: { fill: '#f5f5dc' },
+        count: 10,
+        customGenerator: generateBrie
+    },
+    {
+        id: 'feta-layer',
+        elementType: 'rect',
+        attributes: { width: 15, height: 15, fill: '#fdf5e6' },
+        count: 12
+    },
+    {
+        id: 'philadelphia-layer',
+        elementType: 'circle',
+        attributes: { r: 10, fill: '#fff' },
+        count: 10
+    },
+    // Meats
+    {
         id: 'schinken-layer',
         elementType: 'ellipse',
         attributes: { rx: 25, ry: 12, fill: '#e9967a' },
@@ -275,11 +313,10 @@ const ingredients = [
         rotation: true
     },
     {
-        id: 'tonno-layer',
-        elementType: 'polygon',
-        attributes: { fill: '#b0c4de' },
-        count: 12,
-        customGenerator: generateTonno
+        id: 'salami-layer',
+        elementType: 'circle',
+        attributes: { r: 12, fill: '#c94c4c' },
+        count: 10
     },
     {
         id: 'scharfe-salami-layer',
@@ -288,18 +325,63 @@ const ingredients = [
         count: 10
     },
     {
-        id: 'mais-layer',
-        elementType: 'circle',
-        attributes: { r: 3, fill: '#ffd700' },
-        count: 70
+        id: 'wurstel-layer',
+        elementType: 'ellipse',
+        attributes: { rx: 15, ry: 7, fill: '#f5a623' },
+        count: 15,
+        rotation: true
     },
     {
-        id: 'artischocken-layer',
-        elementType: 'ellipse',
-        attributes: { rx: 20, ry: 10, fill: '#a2c523' },
+        id: 'kaminwurze-layer',
+        elementType: 'rect',
+        attributes: { width: 40, height: 10, fill: '#8b4513' },
         count: 8,
         rotation: true
     },
+    {
+        id: 'rohschinken-layer',
+        elementType: 'path',
+        attributes: { fill: '#e9967a' },
+        count: 8,
+        customGenerator: generateRohschinken
+    },
+    {
+        id: 'bresaola-layer',
+        elementType: 'ellipse',
+        attributes: { rx: 20, ry: 10, fill: '#8b0000' },
+        count: 8,
+        rotation: true
+    },
+    // Seafood
+    {
+        id: 'tonno-layer',
+        elementType: 'polygon',
+        attributes: { fill: '#b0c4de' },
+        count: 12,
+        customGenerator: generateTonno
+    },
+    {
+        id: 'sardellen-layer',
+        elementType: 'path',
+        attributes: { fill: '#708090' },
+        count: 8,
+        customGenerator: generateSardellen
+    },
+    {
+        id: 'shrimps-layer',
+        elementType: 'path',
+        attributes: { fill: '#ffa07a' },
+        count: 10,
+        customGenerator: generateShrimps
+    },
+    {
+        id: 'meeresfruchte-layer',
+        elementType: 'path',
+        attributes: { fill: '#ff7f50' },
+        count: 15,
+        customGenerator: generateMeeresfruchte
+    },
+    // Vegetables
     {
         id: 'pilze-layer',
         elementType: 'path',
@@ -308,9 +390,23 @@ const ingredients = [
         customGenerator: generatePilze
     },
     {
-        id: 'peperonata-layer',
+        id: 'steinpilze-layer',
+        elementType: 'path',
+        attributes: { fill: '#c2a383' },
+        count: 8,
+        customGenerator: generateSteinpilze
+    },
+    {
+        id: 'pfifferlinge-layer',
+        elementType: 'path',
+        attributes: { fill: '#d99a6c' },
+        count: 10,
+        customGenerator: generatePfifferlinge
+    },
+    {
+        id: 'artischocken-layer',
         elementType: 'ellipse',
-        attributes: { rx: 15, ry: 25, fill: '#ffcc00' },
+        attributes: { rx: 20, ry: 10, fill: '#a2c523' },
         count: 8,
         rotation: true
     },
@@ -322,28 +418,31 @@ const ingredients = [
         customGenerator: generateSpinach
     },
     {
+        id: 'paprika-layer',
+        elementType: 'ellipse',
+        attributes: { rx: 10, ry: 5, fill: '#ff4500' },
+        count: 10,
+        rotation: true
+    },
+    {
+        id: 'zucchini-layer',
+        elementType: 'ellipse',
+        attributes: { rx: 10, ry: 5, fill: '#9acd32' },
+        count: 10,
+        rotation: true
+    },
+    {
+        id: 'melanzane-layer',
+        elementType: 'ellipse',
+        attributes: { rx: 15, ry: 8, fill: '#800080' },
+        count: 10,
+        rotation: true
+    },
+    {
         id: 'zwiebel-layer',
         elementType: 'circle',
         attributes: { r: 15, stroke: '#d2b48c', 'stroke-width': 3, fill: 'none' },
         count: 8
-    },
-    {
-        id: 'oliven-layer',
-        elementType: 'ellipse',
-        attributes: { rx: 8, ry: 12, fill: '#556b2f' },
-        count: 10
-    },
-    {
-        id: 'taggiasca-oliven-layer',
-        elementType: 'circle',
-        attributes: { r: 7, fill: '#6a5acd' },
-        count: 10
-    },
-    {
-        id: 'riesen-kapern-layer',
-        elementType: 'ellipse',
-        attributes: { rx: 5, ry: 10, fill: '#6b8e23' },
-        count: 10
     },
     {
         id: 'lombardi-layer',
@@ -351,6 +450,78 @@ const ingredients = [
         attributes: { fill: '#ff4500' },
         count: 8,
         customGenerator: generateLombardi
+    },
+    {
+        id: 'peperonata-layer',
+        elementType: 'ellipse',
+        attributes: { rx: 15, ry: 25, fill: '#ffcc00' },
+        count: 8,
+        rotation: true
+    },
+    {
+        id: 'rucola-layer',
+        elementType: 'path',
+        attributes: { fill: '#228b22' },
+        count: 12,
+        customGenerator: generateRucola
+    },
+    {
+        id: 'cocktail-tomaten-layer',
+        elementType: 'circle',
+        attributes: { r: 8, fill: '#ff6347' },
+        count: 15
+    },
+    {
+        id: 'tomaten-layer',
+        elementType: 'circle',
+        attributes: { r: 10, fill: '#ff6347' },
+        count: 10
+    },
+    {
+        id: 'ananas-layer',
+        elementType: 'polygon',
+        attributes: { fill: '#ffdb58' },
+        count: 15,
+        customGenerator: generateAnanas
+    },
+    // Miscellaneous
+    {
+        id: 'oliven-layer',
+        elementType: 'ellipse',
+        attributes: { rx: 8, ry: 12, fill: '#556b2f' },
+        count: 10
+    },
+    {
+        id: 'kapern-layer',
+        elementType: 'ellipse',
+        attributes: { rx: 4, ry: 6, fill: '#6b8e23' },
+        count: 15
+    },
+    {
+        id: 'mais-layer',
+        elementType: 'circle',
+        attributes: { r: 3, fill: '#ffd700' },
+        count: 70
+    },
+    {
+        id: 'paprikapulver-layer',
+        elementType: 'circle',
+        attributes: { r: 2, fill: '#ff6347', opacity: 0.5 },
+        count: 100
+    },
+    {
+        id: 'balsamico-glaze-layer',
+        elementType: 'path',
+        attributes: { stroke: '#5c3317', 'stroke-width': 3, fill: 'none' },
+        count: 1,
+        customGenerator: generateBalsamicoGlaze
+    },
+    {
+        id: 'cocktail-sosse-layer',
+        elementType: 'path',
+        attributes: { stroke: '#ff69b4', 'stroke-width': 3, fill: 'none' },
+        count: 1,
+        customGenerator: generateCocktailSosse
     },
     {
         id: 'knoblauch-layer',
@@ -379,12 +550,26 @@ const ingredients = [
         attributes: {},
         count: 2,
         customGenerator: generateGekochtesEi
+    },
+    {
+        id: 'oregano-layer',
+        elementType: 'circle',
+        attributes: { r: 1, fill: '#556b2f' },
+        count: 150
+    },
+    // Vier Gemüse Sorten (Four Vegetable Types)
+    {
+        id: 'vier-gemuse-layer',
+        elementType: 'group',
+        attributes: {},
+        count: 1,
+        customGenerator: generateVierGemuse
     }
 ];
 
 // Function to generate ingredients
 function generateIngredients() {
-    ingredients.forEach((ingredient, layerIndex) => {
+    ingredients.forEach((ingredient) => {
         const svgNS = 'http://www.w3.org/2000/svg';
         const svg = document.createElementNS(svgNS, 'svg');
         svg.setAttribute('viewBox', '0 0 300 300');
@@ -395,16 +580,17 @@ function generateIngredients() {
         svg.style.left = '0';
         svg.style.opacity = '0';
 
-        for (let i = 0; i < ingredient.count; i++) {
+        const count = ingredient.count || 1;
+        for (let i = 0; i < count; i++) {
             let element;
-            let position = getRandomPositionInCircle();
+            let position = ingredient.position || getRandomPositionInCircle();
             if (ingredient.count < 2) {
                 position = getPositionNearCenter();
             }
             if (ingredient.customGenerator) {
                 element = ingredient.customGenerator(ingredient.attributes, position);
             } else {
-                element = document.createElementNS(svgNS, ingredient.elementType);
+                element = createSvgElement(ingredient.elementType, {});
                 setElementAttributes(element, ingredient.attributes, position);
 
                 if (ingredient.rotation) {
@@ -429,9 +615,10 @@ function setElementAttributes(element, attributes, position) {
             element.setAttribute('cx', position.x);
             element.setAttribute('cy', position.y);
         } else if (element.tagName === 'rect') {
-            element.setAttribute('x', position.x - attributes.width / 2);
-            element.setAttribute('y', position.y - attributes.height / 2);
+            element.setAttribute('x', position.x - (attributes.width || 0) / 2);
+            element.setAttribute('y', position.y - (attributes.height || 0) / 2);
         }
+        // For paths and polygons, positioning is handled in custom generators
     }
 }
 
@@ -454,195 +641,335 @@ function getPositionNearCenter() {
     return { x, y };
 }
 
-// Custom generator functions
-function generateParmesan(attributes, position) {
+// Helper function to create SVG elements
+function createSvgElement(type, attributes) {
     const svgNS = 'http://www.w3.org/2000/svg';
-    const polygon = document.createElementNS(svgNS, 'polygon');
+    const element = document.createElementNS(svgNS, type);
+    for (const attr in attributes) {
+        element.setAttribute(attr, attributes[attr]);
+    }
+    return element;
+}
+
+// Custom generator functions
+
+function generateParmesan(attributes, position) {
     const size = 6;
     const points = [
         `${position.x},${position.y - size / 2}`,
         `${position.x + size / 2},${position.y + size / 2}`,
         `${position.x - size / 2},${position.y + size / 2}`
     ].join(' ');
-    polygon.setAttribute('points', points);
-    setElementAttributes(polygon, attributes);
-    return polygon;
+    return createSvgElement('polygon', { points, ...attributes });
+}
+
+function generateBrie(attributes, position) {
+    const size = 12;
+    const d = `M${position.x - size},${position.y}
+               A${size},${size} 0 0,1 ${position.x + size},${position.y}
+               L${position.x},${position.y + size}
+               Z`;
+    return createSvgElement('path', { d, ...attributes });
 }
 
 function generateTonno(attributes, position) {
-    const svgNS = 'http://www.w3.org/2000/svg';
-    const polygon = document.createElementNS(svgNS, 'polygon');
     const size = 10;
     const points = [
         `${position.x},${position.y - size}`,
         `${position.x - size},${position.y + size}`,
         `${position.x + size},${position.y + size}`
     ].join(' ');
-    polygon.setAttribute('points', points);
-    setElementAttributes(polygon, attributes);
-    return polygon;
+    return createSvgElement('polygon', { points, ...attributes });
 }
 
 function generatePilze(attributes, position) {
-    const svgNS = 'http://www.w3.org/2000/svg';
-    const path = document.createElementNS(svgNS, 'path');
     const width = 20;
     const height = 10;
     const x = position.x;
     const y = position.y;
-    const d = `M${x - width / 2} ${y} C${x - width / 2 + 5} ${y - height} ${x + width / 2 - 5} ${y - height} ${x + width / 2} ${y} L${x + width / 2} ${y + height} L${x - width / 2} ${y + height} Z`;
-    path.setAttribute('d', d);
-    setElementAttributes(path, attributes);
-    return path;
+    const d = `M${x - width / 2} ${y}
+               C${x - width / 2 + 5} ${y - height} ${x + width / 2 - 5} ${y - height} ${x + width / 2} ${y}
+               L${x + width / 2} ${y + height} L${x - width / 2} ${y + height} Z`;
+    return createSvgElement('path', { d, ...attributes });
+}
+
+function generateSteinpilze(attributes, position) {
+    // Reuse generatePilze with different attributes
+    return generatePilze(attributes, position);
+}
+
+function generatePfifferlinge(attributes, position) {
+    const width = 15;
+    const height = 10;
+    const x = position.x;
+    const y = position.y;
+    const d = `M${x - width / 2},${y}
+               C${x - width / 2},${y - height} ${x + width / 2},${y - height} ${x + width / 2},${y}
+               L${x},${y + height}
+               Z`;
+    return createSvgElement('path', { d, ...attributes });
 }
 
 function generateSpinach(attributes, position) {
-    const svgNS = 'http://www.w3.org/2000/svg';
-    const path = document.createElementNS(svgNS, 'path');
     const size = 10;
-    const d = `M${position.x - size},${position.y} Q${position.x},${position.y - size} ${position.x + size},${position.y} T${position.x - size},${position.y}`;
-    path.setAttribute('d', d);
-    setElementAttributes(path, attributes);
-    return path;
+    const d = `M${position.x - size},${position.y}
+               Q${position.x},${position.y - size} ${position.x + size},${position.y}
+               T${position.x - size},${position.y}`;
+    return createSvgElement('path', { d, ...attributes });
 }
 
 function generateLombardi(attributes, position) {
-    const svgNS = 'http://www.w3.org/2000/svg';
-    const path = document.createElementNS(svgNS, 'path');
     const size = 10;
-    const d = `M${position.x},${position.y} L${position.x + size},${position.y - size * 2} L${position.x + size * 2},${position.y} Z`;
-    path.setAttribute('d', d);
-    setElementAttributes(path, attributes);
-    return path;
+    const d = `M${position.x},${position.y}
+               L${position.x + size},${position.y - size * 2}
+               L${position.x + size * 2},${position.y} Z`;
+    return createSvgElement('path', { d, ...attributes });
 }
 
 function generateKnoblauch(attributes, position) {
-    const svgNS = 'http://www.w3.org/2000/svg';
-    const path = document.createElementNS(svgNS, 'path');
     const size = 6;
-    const d = `M${position.x},${position.y} Q${position.x - size},${position.y - size} ${position.x},${position.y - size * 2} Q${position.x + size},${position.y - size} ${position.x},${position.y}`;
-    path.setAttribute('d', d);
-    setElementAttributes(path, attributes);
-    return path;
+    const d = `M${position.x},${position.y}
+               Q${position.x - size},${position.y - size} ${position.x},${position.y - size * 2}
+               Q${position.x + size},${position.y - size} ${position.x},${position.y}`;
+    return createSvgElement('path', { d, ...attributes });
 }
 
 function generateBasilikum(attributes, position) {
-    const svgNS = 'http://www.w3.org/2000/svg';
-    const path = document.createElementNS(svgNS, 'path');
     const size = 5;
-    const d = `M${position.x},${position.y} Q${position.x - size},${position.y - size} ${position.x},${position.y - size * 2} Q${position.x + size},${position.y - size} ${position.x},${position.y}`;
-    path.setAttribute('d', d);
-    setElementAttributes(path, attributes);
-    return path;
+    const d = `M${position.x},${position.y}
+               Q${position.x - size},${position.y - size} ${position.x},${position.y - size * 2}
+               Q${position.x + size},${position.y - size} ${position.x},${position.y}`;
+    return createSvgElement('path', { d, ...attributes });
 }
 
 function generateSpiegelei(attributes, position) {
-    const svgNS = 'http://www.w3.org/2000/svg';
-    const group = document.createElementNS(svgNS, 'g');
-    const white = document.createElementNS(svgNS, 'circle');
-    const yolk = document.createElementNS(svgNS, 'circle');
-    white.setAttribute('cx', position.x);
-    white.setAttribute('cy', position.y);
-    white.setAttribute('r', 20);
-    white.setAttribute('fill', 'white');
-    yolk.setAttribute('cx', position.x);
-    yolk.setAttribute('cy', position.y);
-    yolk.setAttribute('r', 10);
-    yolk.setAttribute('fill', 'yellow');
+    const group = createSvgElement('g', {});
+    const white = createSvgElement('circle', {
+        cx: position.x,
+        cy: position.y,
+        r: 20,
+        fill: 'white'
+    });
+    const yolk = createSvgElement('circle', {
+        cx: position.x,
+        cy: position.y,
+        r: 10,
+        fill: 'yellow'
+    });
     group.appendChild(white);
     group.appendChild(yolk);
     return group;
 }
 
 function generateGekochtesEi(attributes, position) {
-    const svgNS = 'http://www.w3.org/2000/svg';
-    const group = document.createElementNS(svgNS, 'g');
-    const egg = document.createElementNS(svgNS, 'ellipse');
-    const yolk = document.createElementNS(svgNS, 'circle');
-    egg.setAttribute('cx', position.x);
-    egg.setAttribute('cy', position.y);
-    egg.setAttribute('rx', 15);
-    egg.setAttribute('ry', 25);
-    egg.setAttribute('fill', 'white');
-    yolk.setAttribute('cx', position.x);
-    yolk.setAttribute('cy', position.y);
-    yolk.setAttribute('r', 8);
-    yolk.setAttribute('fill', '#FFD700');
+    const group = createSvgElement('g', {});
+    const egg = createSvgElement('ellipse', {
+        cx: position.x,
+        cy: position.y,
+        rx: 15,
+        ry: 25,
+        fill: 'white'
+    });
+    const yolk = createSvgElement('circle', {
+        cx: position.x,
+        cy: position.y,
+        r: 8,
+        fill: '#FFD700'
+    });
     group.appendChild(egg);
     group.appendChild(yolk);
     return group;
 }
 
+function generateAnanas(attributes, position) {
+    const size = 15;
+    const points = [
+        `${position.x},${position.y - size / 2}`,
+        `${position.x + size / 2},${position.y}`,
+        `${position.x},${position.y + size / 2}`,
+        `${position.x - size / 2},${position.y}`
+    ].join(' ');
+    return createSvgElement('polygon', { points, ...attributes });
+}
+
+function generateSardellen(attributes, position) {
+    const size = 15;
+    const d = `M${position.x - size},${position.y}
+               Q${position.x},${position.y - size / 2} ${position.x + size},${position.y}
+               Q${position.x},${position.y + size / 2} ${position.x - size},${position.y}`;
+    return createSvgElement('path', { d, ...attributes });
+}
+
+function generateShrimps(attributes, position) {
+    const size = 10;
+    const d = `M${position.x},${position.y}
+               C${position.x + size},${position.y - size} ${position.x + size},${position.y + size} ${position.x},${position.y + size}
+               C${position.x - size},${position.y + size} ${position.x - size},${position.y - size} ${position.x},${position.y}`;
+    return createSvgElement('path', { d, ...attributes });
+}
+
+function generateMeeresfruchte(attributes, position) {
+    // For simplicity, reuse generateShrimps with slight variation
+    const size = 10;
+    const d = `M${position.x - size},${position.y}
+               C${position.x - size},${position.y - size} ${position.x + size},${position.y - size} ${position.x + size},${position.y}
+               C${position.x + size},${position.y + size} ${position.x - size},${position.y + size} ${position.x - size},${position.y}`;
+    return createSvgElement('path', { d, ...attributes });
+}
+
+function generateRucola(attributes, position) {
+    const size = 15;
+    const d = `M${position.x},${position.y}
+               Q${position.x - size / 2},${position.y - size} ${position.x},${position.y - size * 2}
+               Q${position.x + size / 2},${position.y - size} ${position.x},${position.y}`;
+    return createSvgElement('path', { d, ...attributes });
+}
+
+function generateBalsamicoGlaze(attributes) {
+    const d = `M50,200 C150,100 150,100 250,200`;
+    return createSvgElement('path', { d, ...attributes });
+}
+
+function generateCocktailSosse(attributes) {
+    // Similar to generateBalsamicoGlaze but different stroke color
+    const d = `M50,220 C150,120 150,120 250,220`;
+    return createSvgElement('path', { d, ...attributes });
+}
+
+function generateRohschinken(attributes, position) {
+    const size = 25;
+    const d = `M${position.x - size},${position.y}
+               Q${position.x},${position.y - size / 2} ${position.x + size},${position.y}
+               Q${position.x},${position.y + size / 2} ${position.x - size},${position.y}`;
+    return createSvgElement('path', { d, ...attributes });
+}
+
+function generateVierGemuse(attributes, position) {
+    const group = createSvgElement('g', {});
+    const vegetables = [
+        { generator: generatePaprika, count: 5 },
+        { generator: generateZucchini, count: 5 },
+        { generator: generateMelanzane, count: 5 },
+        { generator: generatePilze, count: 5 }
+    ];
+
+    vegetables.forEach(veg => {
+        for (let i = 0; i < veg.count; i++) {
+            const vegPosition = getRandomPositionInCircle();
+            const vegElement = veg.generator({}, vegPosition);
+            group.appendChild(vegElement);
+        }
+    });
+
+    return group;
+}
+
+function generatePaprika(attributes, position) {
+    const ellipse = createSvgElement('ellipse', {
+        cx: position.x,
+        cy: position.y,
+        rx: 10,
+        ry: 5,
+        fill: '#ff4500'
+    });
+    const rotation = Math.random() * 360;
+    ellipse.setAttribute('transform', `rotate(${rotation} ${position.x} ${position.y})`);
+    return ellipse;
+}
+
+function generateZucchini(attributes, position) {
+    const ellipse = createSvgElement('ellipse', {
+        cx: position.x,
+        cy: position.y,
+        rx: 10,
+        ry: 5,
+        fill: '#9acd32'
+    });
+    const rotation = Math.random() * 360;
+    ellipse.setAttribute('transform', `rotate(${rotation} ${position.x} ${position.y})`);
+    return ellipse;
+}
+
+function generateMelanzane(attributes, position) {
+    const ellipse = createSvgElement('ellipse', {
+        cx: position.x,
+        cy: position.y,
+        rx: 15,
+        ry: 8,
+        fill: '#800080'
+    });
+    const rotation = Math.random() * 360;
+    ellipse.setAttribute('transform', `rotate(${rotation} ${position.x} ${position.y})`);
+    return ellipse;
+}
+
 // Generate the ingredients
 generateIngredients();
 
-// Add 3D perspective effect on hover and layer split animation
-const pizzaContainer = document.getElementById('pizza-container');
-
-// Set up initial styles
-pizzaContainer.style.transition = 'transform 0.5s';
-pizzaContainer.style.transformStyle = 'preserve-3d';
-
-const layers = document.querySelectorAll('.ingredient-layer');
-
-// Set initial transform style and transition for layers
-layers.forEach((layer) => {
-    layer.style.transformStyle = 'preserve-3d';
-    layer.style.transition = 'transform 0.5s';
-});
-
-function splitLayers() {
-    layers.forEach((layer, index) => {
-        const offset = index * 10; // Adjust the offset as needed
-        layer.style.transform = `translateZ(${offset}px)`;
-    });
-}
-
-function resetLayers() {
-    layers.forEach((layer) => {
-        layer.style.transform = `translateZ(0px)`;
-    });
-}
-
-pizzaContainer.addEventListener('mouseenter', () => {
-    pizzaContainer.style.transform = 'perspective(800px) rotateX(60deg) translateZ(-100px)';
-    splitLayers();
-});
-
-pizzaContainer.addEventListener('mouseleave', () => {
-    pizzaContainer.style.transform = 'perspective(800px) rotateX(0deg)';
-    resetLayers();
-});
 
 </script>
 
 <script>
-    const pizzas = {
-        "Pizza Marinara": ["Tomatensauce", "Knoblauch"],
-        "Pizza Margherita": ["Tomatensauce", "Mozzarella fior di latte"],
-        "Scharfe Salami": ["Tomatensauce", "Mozzarella fior di latte", "Scharfe Salami"],
-        "Pizza Schinken": ["Tomatensauce", "Mozzarella fior di latte", "Schinken"],
-        "Tunfisch Mais": ["Tomatensauce", "Mozzarella fior di latte", "Tonno", "Mais"],
-        "Pizza Gorgonzola": ["Tomatensauce", "Mozzarella fior di latte", "Gorgonzola"],
-        "Pizza Napoletana": ["Tomatensauce", "Büffelmozzarella", "Parmesan", "Basilikum"],
-        "Pizza Siciliana": ["Tomatensauce", "Mozzarella fior di latte", "Scharfe Salami", "Peperonata", "Knoblauch"],
-        "Pizza 4 Stagioni": ["Tomatensauce", "Mozzarella fior di latte", "Schinken", "Pilze", "Artischocken", "Oliven"],
+    var pizzas = {};
+    var ingredientCategories = {};
+    var generatePizzaName = () => {};
 
-        "Pizza Diavolo": ["Tomatensauce", "Mozzarella fior di latte", "Scharfe Salami", "Oliven", "Lombardi", "Peperonata"],
-        "Pizza Capricciosa": ["Tomatensauce", "Mozzarella fior di latte", "Schinken", "Pilze", "Artischocken"],
-        "Pizza Calabrese": ["Tomatensauce", "Büffelmozzarella", "Riesen Kapern", "Taggiasca Oliven", "Knoblauch", "Scharfe Salami"],
-        "Pizza Mesico": ["Tomatensauce", "Mozzarella fior di latte", "Scharfe Salami", "Lombardi", "Mais", "Peperonata"],
-        "Pizza Englisch": ["Tomatensauce", "Mozzarella fior di latte", "Speck", "Peperonata", "Zwiebel", "Spiegelei"],
-        "Fire and Ice": ["Tomatensauce", "Mozzarella fior di latte", "Spinat", "Gekochtes Ei", "Scharfe Salami", "Knoblauch", "Zwiebel"]
-    };
+        function loadDataset(scriptSrc) {
+            return new Promise((resolve, reject) => {
+                const script = document.createElement('script');
+                script.src = scriptSrc;
+                script.dataset.dataset = "true";
+                script.onload = () => {
+                    resolve({ pizzas, ingredientCategories, generatePizzaName });
+                };
+                script.onerror = reject;
+                document.body.appendChild(script);
+            });
+        }
 
-    const ingredientCategories = {
-        "Choose Your Sauce": ["Tomatensauce"],
-        "Choose Your Cheese": ["Mozzarella fior di latte", "Büffelmozzarella", "Gorgonzola"],
-        "Choose Your Proteins": ["Schinken", "Speck", "Tonno", "Scharfe Salami"],
-        "Choose Your Vegetables": ["Mais", "Artischocken", "Pilze", "Peperonata", "Spinat", "Zwiebel", "Oliven", "Taggiasca Oliven", "Riesen Kapern", "Lombardi"],
-        "Choose Your Other Toppings": ["Knoblauch", "Basilikum", "Parmesan", "Spiegelei", "Gekochtes Ei"]
-    };
+        document.addEventListener('DOMContentLoaded', async () => {
+
+            function switchDataset(dataset) {
+                pizzas = dataset.pizzas;
+                ingredientCategories = dataset.ingredientCategories;
+                generatePizzaName = dataset.generatePizzaName;
+
+                console.log('Dataset switched:', pizzas, ingredientCategories, generatePizzaName);
+
+                generateIngredientList();
+                displayAllPizzas();
+            }
+
+            document.getElementById('issingButton').onclick = async () => {
+                // Remove any previously loaded script to avoid re-declaration errors
+                const oldScript = document.querySelector('script[data-dataset]');
+                if (oldScript) {
+                    document.body.removeChild(oldScript);
+                }
+                pizzas = {};
+                ingredientCategories = {};
+                generatePizzaName = () => {};
+                const dataset = await loadDataset('./issing.js');
+                switchDataset(dataset);
+            };
+
+            document.getElementById('winklerButton').onclick = async () => {
+                // Remove any previously loaded script to avoid re-declaration errors
+                const oldScript = document.querySelector('script[data-dataset]');
+                if (oldScript) {
+                    document.body.removeChild(oldScript);
+                }
+                pizzas = {};
+                ingredientCategories = {};
+                generatePizzaName = () => {};
+                const dataset = await loadDataset('./winkler.js');
+                switchDataset(dataset);
+            };
+
+            // Load the initial dataset
+            const dataset = await loadDataset('./issing.js');
+            switchDataset(dataset);
+        });
 
     function generateLayerId(ingredient) {
         return ingredient.toLowerCase()
@@ -702,32 +1029,6 @@ pizzaContainer.addEventListener('mouseleave', () => {
         const customName = generatePizzaName(selectedIngredients);
         document.getElementById("result").innerHTML = `<h2>${customName}</h2><p>${selectedIngredients.join(", ")}</p>`;
         findClosestPizza(selectedIngredients);
-    }
-
-    function generatePizzaName(ingredients) {
-        const baseNames = {
-            "Tomatensauce": "Inferno",
-            "Mozzarella fior di latte": "Mozzarella",
-            "Büffelmozzarella": "Buffalo",
-            "Scharfe Salami": "Spicy",
-            "Speck": "Smoky",
-            "Tonno": "Tuna",
-            "Pilze": "Mushroom",
-            "Spinat": "Spinach",
-            "Gorgonzola": "Gorgonzola",
-            "Parmesan": "Parmesan",
-            "Schinken": "Ham",
-            "Prosciutto Cotto": "Prosciutto",
-            "Mais": "Corn",
-            "Artischocken": "Artichoke",
-            "Zwiebel": "Onion",
-            "Oliven": "Olive",
-            "Riesen Kapern": "Capers",
-            "Lombardi": "Pepper"
-        };
-
-        let nameParts = ingredients.map(ingredient => baseNames[ingredient] || "Custom").sort();
-        return nameParts.length > 0 ? nameParts.join(" ") + " Pizza" : "Custom Pizza";
     }
 
     function toggleIngredient(layerId, isChecked) {
@@ -797,12 +1098,6 @@ pizzaContainer.addEventListener('mouseleave', () => {
             allPizzasContainer.appendChild(pizzaDiv);
         }
     }
-
-
-    document.addEventListener('DOMContentLoaded', () => {
-        generateIngredientList();
-        displayAllPizzas();
-    });
 
     function selectPizzaIngredients(ingredients) {
         document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
