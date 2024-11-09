@@ -19,9 +19,10 @@
         }
 
         .container {
-            max-width: 800px;
+            max-width: 1000px;
             margin: 0 auto;
             padding: 20px;
+            display: flex;
         }
 
         .section {
@@ -31,6 +32,7 @@
         .section h2 {
             margin-bottom: 10px;
             color: #4CAF50;
+            position: sticky;
         }
 
         .ingredients {
@@ -77,19 +79,38 @@
             background-color: #45a049;
         }
 
-        #result, #closest-match, #all-pizzas {
+        #closest-match, #all-pizzas {
             margin-top: 20px;
-            padding: 20px;
+            padding: 0px 20px;
             background: #fff;
             border: 1px solid #ddd;
             border-radius: 5px;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
+        #result {
+            margin-top: 20px;
+            padding: 0px 20px;
+        }
+
+        .sidebar-wrapper {
+            position: relative;
+            margin-top: -0.5rem;
+        }
+
+        .sidebar {
+            padding-top: 0.5rem;
+            position: sticky;
+            top: 0;
+            margin-right: 2rem;
+            max-width: 450px;
+            overflow: visible; /* Ensure no overflow property interferes */
+        }
+
         #pizza-container {
             position: relative;
-            width: 300px;
-            height: 300px;
+            width: 400px;
+            height: 400px;
             margin: 0 auto;
         }
 
@@ -98,6 +119,10 @@
             top: 0;
             left: 0;
             transition: opacity 0.5s ease;
+        }
+
+        .ingredient-container {
+            position: relative;
         }
 
         /* Pizza Item Styling */
@@ -132,9 +157,55 @@
             background-color: #e1f6ff;
         }
 
+
+        #menu {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            padding: 15px;
+            background-color: #4CAF50;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        #menu button {
+            padding: 10px 20px;
+            background-color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+        }
+
+        #menu button:hover {
+            background-color: #d4f3d4;
+            transform: translateY(-3px);
+        }
+
+        #menu button:active {
+            background-color: #c4e3c4;
+        }
+
         @media (max-width: 600px) {
+
+            .container {
+                max-width: 800px;
+                flex-direction: column;
+                justify-content: center;
+            }
+
             h1 {
                 font-size: 1.5em;
+            }
+
+            #pizza-container {
+                position: sticky;
+                width: 300px;
+                height: 300px;
+                margin-right: 0rem;
+                margin: 0 auto;
             }
 
             #create-button {
@@ -217,24 +288,30 @@
 <h1>Create Your Custom Pizza</h1>
 <div class="container">
     <!-- Pizza visualization container -->
-    <div id="pizza-container">
-        <!-- Base Layer -->
-        <svg viewBox="0 0 300 300" class="ingredient-layer" style="display: block;">
-            <circle cx="150" cy="150" r="140" fill="#f4a460" stroke="#d2691e" stroke-width="5"></circle>
-        </svg>
-
-        <!-- Tomatensauce -->
-        <svg viewBox="0 0 300 300" id="tomatensauce-layer" class="ingredient-layer" style="opacity: 0;">
-            <circle cx="150" cy="150" r="120" fill="#e34234" opacity="0.8"></circle>
-        </svg>
+    <div class="sidebar-wrapper">
+        <div class="sidebar">
+            <div id="result"></div>
+            <div id="pizza-container">
+                <!-- Base Layer -->
+                <svg viewBox="0 0 300 300" class="ingredient-layer" style="display: block;">
+                    <circle cx="150" cy="150" r="140" fill="#f4a460" stroke="#d2691e" stroke-width="5"></circle>
+                </svg>
+        
+                <!-- Tomatensauce -->
+                <svg viewBox="0 0 300 300" id="tomatensauce-layer" class="ingredient-layer" style="opacity: 0;">
+                    <circle cx="150" cy="150" r="120" fill="#e34234" opacity="0.8"></circle>
+                </svg>
+            </div>
+            <div id="closest-match"></div>
+        </div>
     </div>
 
     <!-- Sections for selecting ingredients -->
-    <div id="ingredients-container"></div>
-
-    <div id="result"></div>
-    <div id="closest-match"></div>
-    <div id="all-pizzas"></div>
+    <div class="configurator">
+        <div id="ingredients-container"></div>
+        
+        <div id="all-pizzas"></div>
+    </div>
 </div>
 
 <script>
@@ -281,14 +358,17 @@ const ingredients = [
   { id: 'melanzane-layer', elementType: 'ellipse', attributes: { rx: 15, ry: 8, fill: '#800080' }, count: 10, rotation: true },
   { id: 'zwiebel-layer', elementType: 'circle', attributes: { r: 15, stroke: '#d2b48c', 'stroke-width': 3, fill: 'none' }, count: 8 },
   { id: 'lombardi-layer', customGenerator: generateLombardi, attributes: { fill: '#ff0000' }, count: 8 },
-  { id: 'peperonata-layer', elementType: 'ellipse', attributes: { rx: 15, ry: 25, fill: 'url(#peperonataGradient)' }, count: 8, rotation: true },
+  { id: 'peperonata-layer', elementType: 'ellipse', attributes: { rx: 15, ry: 25, fill: '#ffcc00' }, count: 8, rotation: true },
   { id: 'rucola-layer', customGenerator: generateRucola, attributes: { fill: '#228b22' }, count: 12 },
   { id: 'cocktail-tomaten-layer', elementType: 'circle', attributes: { r: 8, fill: '#ff6347' }, count: 15 },
   { id: 'tomaten-layer', elementType: 'circle', attributes: { r: 10, fill: '#ff6347' }, count: 10 },
 
   // Miscellaneous
   { id: 'oliven-layer', elementType: 'ellipse', attributes: { rx: 8, ry: 12, fill: '#556b2f' }, count: 10 },
+  { id: 'taggiasca-oliven-layer', elementType: 'ellipse', attributes: { rx: 8, ry: 12, fill: '#556b2f' }, count: 10 },
   { id: 'kapern-layer', elementType: 'ellipse', attributes: { rx: 4, ry: 6, fill: '#6b8e23' }, count: 15 },
+  { id: 'riesen-kapern-layer', elementType: 'ellipse', attributes: { rx: 4, ry: 6, fill: '#6b8e23' }, count: 15 },
+
   { id: 'mais-layer', elementType: 'circle', attributes: { r: 3, fill: '#ffd700' }, count: 70 },
   { id: 'paprikapulver-layer', elementType: 'circle', attributes: { r: 2, fill: '#ff6347', opacity: 0.5 }, count: 100 },
   { id: 'balsamico-glaze-layer', customGenerator: generateBalsamicoGlaze, attributes: { stroke: '#5c3317', 'stroke-width': 3, fill: 'none' }, count: 1 },
@@ -582,7 +662,10 @@ generateIngredients();
                 ingredientCategories = dataset.ingredientCategories;
                 generatePizzaName = dataset.generatePizzaName;
 
-                console.log('Dataset switched:', pizzas, ingredientCategories, generatePizzaName);
+                // hide all ingredients that were selected
+                Array.from(document.querySelectorAll('input[type="checkbox"]:checked')).forEach(x => x.checked = false);
+                setAllIngredients(false);
+                updatePizza()
 
                 generateIngredientList();
                 displayAllPizzas();
@@ -649,7 +732,6 @@ generateIngredients();
                 checkbox.value = ingredient;
 
                 const layerId = generateLayerId(ingredient);
-                console.log(generateLayerId(ingredient));
 
                 checkbox.addEventListener('change', () => {
                     toggleIngredient(layerId, checkbox.checked);
@@ -666,13 +748,6 @@ generateIngredients();
         }
     }
 
-    function toggleIngredient(layerId, isChecked) {
-        const layer = document.getElementById(layerId);
-        if (layer) {
-            layer.style.opacity = isChecked ? '1' : '0';
-        }
-    }
-
     function updatePizza() {
         const selectedIngredients = Array.from(document.querySelectorAll('input[type="checkbox"]:checked')).map(cb => cb.value);
         const customName = generatePizzaName(selectedIngredients);
@@ -685,6 +760,11 @@ generateIngredients();
         if (layer) {
             layer.style.opacity = isChecked ? '1' : '0';
         }
+    }
+
+    function setAllIngredients(isChecked) {
+        var svgs = Array.from(document.querySelectorAll('#pizza-container .ingredient-layer'));
+        svgs.forEach((x, i) => x.style.opacity = isChecked || i == 0 ? '1' : '0');
     }
 
     function findClosestPizza(selectedIngredients) {
@@ -751,7 +831,6 @@ generateIngredients();
     function selectPizzaIngredients(ingredients) {
         document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
             checkbox.checked = ingredients.includes(checkbox.value);
-            console.log(generateLayerId(checkbox.value));
             toggleIngredient(generateLayerId(checkbox.value), checkbox.checked);
         });
         updatePizza();
