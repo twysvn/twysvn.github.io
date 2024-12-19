@@ -22,10 +22,10 @@ var pizzas = {
 
 var ingredientCategories = {
     "Choose Your Sauce": ["Tomatensauce"],
-    "Choose Your Cheese": ["Mozzarella", "Büffelmozzarella", "Gorgonzola", "Ricotta", "Parmesan"],
-    "Choose Your Proteins": ["Schinken", "Speck", "Thunfisch", "Scharfe Salami", "Rohschinken", "Ei", "Spiegelei"],
-    "Choose Your Vegetables": ["Mais", "Zucchini", "Spinach", "Spinat", "Pilze", "Artischocken", "Zwiebel", "Rucola", "Marinierte Tomaten", "Kräuter"],
-    "Choose Your Other Toppings": ["Knoblauch", "Basilikum", "Origano", "Lombardi", "Peperonata"]
+    "Choose Your Cheese": ["Mozzarella", "Büffelmozzarella", "Gorgonzola", "Ricotta", "Parmesan", "Kräutertopfen", "Schafskäse", "Käse", "Kräuterkäse"],
+    "Choose Your Proteins": ["Schinken", "Speck", "Thunfisch", "Scharfe Salami", "Rohschinken", "Ei", "Spiegelei", "Bresaola", "Kaminwurz"],
+    "Choose Your Vegetables": ["Mais", "Zucchini", "Spinach", "Spinat", "Pilze", "Artischocken", "Zwiebel", "Rucola", "Marinierte Tomaten", "Pfifferlinge", "Lombardi", "Peperonata", "Oliven", "Steinpilze"],
+    "Choose Your Other Toppings": ["Knoblauch", "Basilikum", "Origano", "Kräuter", "Parmesansplitter", "Cocktailsauce", "Balsamico Glaze"]
 };
 
 function generatePizzaName(ingredients) {
