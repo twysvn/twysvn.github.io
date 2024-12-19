@@ -310,7 +310,7 @@
                 <svg viewBox="0 0 300 300" class="ingredient-layer" style="display: block;">
                     <circle cx="150" cy="150" r="140" fill="#f4a460" stroke="#d2691e" stroke-width="5"></circle>
                 </svg>
-        
+
                 <!-- Tomatensauce -->
                 <svg viewBox="0 0 300 300" id="tomatensauce-layer" class="ingredient-layer" style="opacity: 0;">
                     <circle cx="150" cy="150" r="120" fill="#e34234" opacity="0.8"></circle>
@@ -323,7 +323,7 @@
     <!-- Sections for selecting ingredients -->
     <div class="configurator">
         <div id="ingredients-container"></div>
-        
+
         <div id="all-pizzas"></div>
     </div>
 </div>
@@ -338,10 +338,12 @@ const ingredients = [
 
   // Cheeses
   { id: 'mozzarella-fior-di-latte-layer', elementType: 'circle', attributes: { r: 15, fill: 'white' }, count: 12 },
+  { id: 'mozzarella-layer', elementType: 'circle', attributes: { r: 15, fill: 'white' }, count: 12 },
   { id: 'buffelmozzarella-layer', elementType: 'circle', attributes: { r: 15, fill: '#f8f8f2' }, count: 10 },
   { id: 'gorgonzola-layer', elementType: 'circle', attributes: { r: 12, fill: '#7f8c8d', opacity: 0.7 }, count: 8 },
   { id: 'parmesan-layer', customGenerator: generateParmesan, attributes: { fill: '#f1c40f' }, count: 30 },
   { id: 'brie-layer', customGenerator: generateBrie, attributes: { fill: '#f5f5dc' }, count: 10 },
+  { id: 'ricotta-layer', customGenerator: generateBrie, attributes: { fill: '#f5f5dc' }, count: 10 },
   { id: 'feta-layer', elementType: 'rect', attributes: { width: 15, height: 15, fill: '#fdf5e6' }, count: 12 },
   { id: 'philadelphia-layer', elementType: 'circle', attributes: { r: 10, fill: '#fff' }, count: 10 },
 
@@ -357,6 +359,7 @@ const ingredients = [
 
   // Seafood
   { id: 'tonno-layer', customGenerator: generateTonno, attributes: { fill: '#b0c4de' }, count: 12 },
+  { id: 'thunfisch-layer', customGenerator: generateTonno, attributes: { fill: '#b0c4de' }, count: 12 },
   { id: 'sardellen-layer', customGenerator: generateSardellen, attributes: { fill: '#708090' }, count: 8 },
   { id: 'shrimps-layer', customGenerator: generateShrimps, attributes: { fill: '#ffa07a' }, count: 10 },
   { id: 'meeresfruchte-layer', customGenerator: generateMeeresfruchte, attributes: { fill: '#ff7f50' }, count: 15 },
@@ -367,6 +370,7 @@ const ingredients = [
   { id: 'pfifferlinge-layer', customGenerator: generatePilze, attributes: { fill: '#ffd700' }, count: 12 },
   { id: 'artischocken-layer', elementType: 'ellipse', attributes: { rx: 20, ry: 10, fill: '#a2c523' }, count: 8, rotation: true },
   { id: 'spinat-layer', customGenerator: generateSpinach, attributes: { fill: '#2E8B57' }, count: 15 },
+  { id: 'spinach-layer', customGenerator: generateSpinach, attributes: { fill: '#2E8B57' }, count: 15 },
   { id: 'paprika-layer', elementType: 'ellipse', attributes: { rx: 10, ry: 5, fill: '#ff4500' }, count: 10, rotation: true },
   { id: 'zucchini-layer', elementType: 'ellipse', attributes: { rx: 10, ry: 5, fill: '#9acd32' }, count: 10, rotation: true },
   { id: 'melanzane-layer', elementType: 'ellipse', attributes: { rx: 15, ry: 8, fill: '#800080' }, count: 10, rotation: true },
@@ -375,6 +379,7 @@ const ingredients = [
   { id: 'peperonata-layer', elementType: 'ellipse', attributes: { rx: 15, ry: 25, fill: '#ffcc00' }, count: 8, rotation: true },
   { id: 'rucola-layer', customGenerator: generateRucola, attributes: { fill: '#228b22' }, count: 12 },
   { id: 'cocktail-tomaten-layer', elementType: 'circle', attributes: { r: 8, fill: '#ff6347' }, count: 15 },
+  { id: 'marinierte-tomaten-layer', elementType: 'circle', attributes: { r: 8, fill: '#ff6347' }, count: 15 },
   { id: 'tomaten-layer', elementType: 'circle', attributes: { r: 10, fill: '#ff6347' }, count: 10 },
 
   // Miscellaneous
@@ -391,7 +396,10 @@ const ingredients = [
   { id: 'basilikum-layer', customGenerator: generateBasilikum, attributes: { fill: '#008000' }, count: 12 },
   { id: 'spiegelei-layer', customGenerator: generateSpiegelei, attributes: {}, count: 2, placementRadius: 50 },
   { id: 'gekochtes-ei-layer', customGenerator: generateGekochtesEi, attributes: {}, count: 2 , placementRadius: 50},
+  { id: 'ei-layer', customGenerator: generateGekochtesEi, attributes: {}, count: 2 , placementRadius: 50},
   { id: 'oregano-layer', elementType: 'circle', attributes: { r: 1, fill: '#556b2f' }, count: 150 },
+  { id: 'origano-layer', elementType: 'circle', attributes: { r: 1, fill: '#556b2f' }, count: 150 },
+  { id: 'krauter-layer', elementType: 'circle', attributes: { r: 1, fill: '#556b2f' }, count: 150 },
 
   // Additional Ingredients
   { id: 'champignon-layer', customGenerator: generatePilze, attributes: { fill: '#deb887' }, count: 12 },
@@ -646,6 +654,65 @@ function generateMelanzane(attributes, position) {
   return ellipse;
 }
 
+function generateKrautertopfenkase(attributes, position) {
+  const circle = createSvgElement('circle', { cx: position.x, cy: position.y, r: 12, fill: '#f5deb3' }); // Light wheat color
+  const rotation = Math.random() * 360;
+  circle.setAttribute('transform', `rotate(${rotation} ${position.x} ${position.y})`);
+  return circle;
+}
+
+function generateKrauterkase(attributes, position) {
+  const rect = createSvgElement('rect', {
+    x: position.x - 10,
+    y: position.y - 10,
+    width: 20,
+    height: 20,
+    fill: '#f4a460', // Sandy brown
+    rx: 4, // Rounded corners
+    ry: 4
+  });
+  const rotation = Math.random() * 360;
+  rect.setAttribute('transform', `rotate(${rotation} ${position.x} ${position.y})`);
+  return rect;
+}
+
+function generateKaminwurz(attributes, position) {
+  const ellipse = createSvgElement('ellipse', {
+    cx: position.x,
+    cy: position.y,
+    rx: 5,
+    ry: 20,
+    fill: '#8b4513' // Saddle brown
+  });
+  const rotation = Math.random() * 360;
+  ellipse.setAttribute('transform', `rotate(${rotation} ${position.x} ${position.y})`);
+  return ellipse;
+}
+
+function generateParmesansplitter(attributes, position) {
+  const polygon = createSvgElement('polygon', {
+    points: `${position.x},${position.y} ${position.x + 10},${position.y - 5} ${position.x + 5},${position.y + 10}`,
+    fill: '#fffacd' // Lemon chiffon
+  });
+  const rotation = Math.random() * 360;
+  polygon.setAttribute('transform', `rotate(${rotation} ${position.x} ${position.y})`);
+  return polygon;
+}
+
+function generateCocktailsauce(attributes, position) {
+  const ellipse = createSvgElement('ellipse', {
+    cx: position.x,
+    cy: position.y,
+    rx: 15,
+    ry: 8,
+    fill: '#ff6347' // Tomato red
+  });
+  const rotation = Math.random() * 360;
+  ellipse.setAttribute('transform', `rotate(${rotation} ${position.x} ${position.y})`);
+  return ellipse;
+}
+
+
 // Generate the ingredients
 generateIngredients();
 
@@ -710,7 +777,7 @@ generateIngredients();
                 const dataset = await loadDataset('./winkler.js');
                 switchDataset(dataset);
             };
-            
+
             document.getElementById('jochtalButton').onclick = async () => {
                 // Remove any previously loaded script to avoid re-declaration errors
                 const oldScript = document.querySelector('script[data-dataset]');
@@ -786,6 +853,8 @@ generateIngredients();
         const layer = document.getElementById(layerId);
         if (layer) {
             layer.style.opacity = isChecked ? '1' : '0';
+        } else {
+            console.error(`Layer with ID ${layerId} not found.`);
         }
     }
 
@@ -802,6 +871,7 @@ generateIngredients();
 
         for (const [pizza, ingredients] of Object.entries(pizzas)) {
             const matches = selectedIngredients.filter(ingredient => ingredients.includes(ingredient)).length;
+
             if (matches > maxMatches) {
                 maxMatches = matches;
                 closestPizza = pizza;
@@ -858,6 +928,15 @@ generateIngredients();
     }
 
     function selectPizzaIngredients(ingredients) {
+        console.log("Selecting ingredients for pizza:", ingredients);
+
+        var missingIngredients = ingredients.filter(ingredient => !document.querySelector(`input[value="${ingredient}"]`));
+        if (missingIngredients.length > 0) {
+            console.log("Missing ingredients:", missingIngredients);
+            alert(`Missing ingredients: ${missingIngredients.join(", ")}`);
+            return;
+        }
+
         document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
             checkbox.checked = ingredients.includes(checkbox.value);
             toggleIngredient(generateLayerId(checkbox.value), checkbox.checked);
