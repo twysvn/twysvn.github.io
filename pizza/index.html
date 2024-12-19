@@ -296,6 +296,7 @@
     <div>
         <button id="issingButton">Issing</button>
         <button id="winklerButton">Winkler</button>
+        <button id="jochtalButton">Jochtal</button>
     </div>
 </div>
 
@@ -707,6 +708,19 @@ generateIngredients();
                 ingredientCategories = {};
                 generatePizzaName = () => {};
                 const dataset = await loadDataset('./winkler.js');
+                switchDataset(dataset);
+            };
+            
+            document.getElementById('jochtalButton').onclick = async () => {
+                // Remove any previously loaded script to avoid re-declaration errors
+                const oldScript = document.querySelector('script[data-dataset]');
+                if (oldScript) {
+                    document.body.removeChild(oldScript);
+                }
+                pizzas = {};
+                ingredientCategories = {};
+                generatePizzaName = () => {};
+                const dataset = await loadDataset('./jochtal.js');
                 switchDataset(dataset);
             };
 
