@@ -1,0 +1,286 @@
+{
+  "restaurant": {
+    "id": "issing",
+    "name": "Issing",
+    "version": "1.0"
+  },
+  "ingredients": {
+    "categories": {
+      "sauce": {
+        "name": "Choose Your Sauce",
+        "order": 1,
+        "items": [
+          {
+            "id": "tomatensauce",
+            "name": "Tomatensauce",
+            "svgLayer": "tomatensauce-layer"
+          }
+        ]
+      },
+      "cheese": {
+        "name": "Choose Your Cheese",
+        "order": 2,
+        "items": [
+          {
+            "id": "mozzarella-fior-di-latte",
+            "name": "Mozzarella fior di latte",
+            "svgLayer": "mozzarella-fior-di-latte-layer"
+          },
+          {
+            "id": "buffelmozzarella",
+            "name": "Büffelmozzarella",
+            "svgLayer": "buffelmozzarella-layer"
+          },
+          {
+            "id": "gorgonzola",
+            "name": "Gorgonzola",
+            "svgLayer": "gorgonzola-layer"
+          }
+        ]
+      },
+      "meat": {
+        "name": "Choose Your Proteins",
+        "order": 3,
+        "items": [
+          {
+            "id": "schinken",
+            "name": "Schinken",
+            "svgLayer": "schinken-layer"
+          },
+          {
+            "id": "speck",
+            "name": "Speck",
+            "svgLayer": "speck-layer"
+          },
+          {
+            "id": "tonno",
+            "name": "Tonno",
+            "svgLayer": "tonno-layer"
+          },
+          {
+            "id": "scharfe-salami",
+            "name": "Scharfe Salami",
+            "svgLayer": "scharfe-salami-layer"
+          },
+          {
+            "id": "sardellen",
+            "name": "Sardellen",
+            "svgLayer": "sardellen-layer"
+          }
+        ]
+      },
+      "vegetable": {
+        "name": "Choose Your Vegetables",
+        "order": 4,
+        "items": [
+          {
+            "id": "mais",
+            "name": "Mais",
+            "svgLayer": "mais-layer"
+          },
+          {
+            "id": "artischocken",
+            "name": "Artischocken",
+            "svgLayer": "artischocken-layer"
+          },
+          {
+            "id": "pilze",
+            "name": "Pilze",
+            "svgLayer": "pilze-layer"
+          },
+          {
+            "id": "peperonata",
+            "name": "Peperonata",
+            "svgLayer": "peperonata-layer"
+          },
+          {
+            "id": "spinat",
+            "name": "Spinat",
+            "svgLayer": "spinat-layer"
+          },
+          {
+            "id": "zwiebel",
+            "name": "Zwiebel",
+            "svgLayer": "zwiebel-layer"
+          },
+          {
+            "id": "oliven",
+            "name": "Oliven",
+            "svgLayer": "oliven-layer"
+          },
+          {
+            "id": "taggiasca-oliven",
+            "name": "Taggiasca Oliven",
+            "svgLayer": "taggiasca-oliven-layer"
+          },
+          {
+            "id": "riesen-kapern",
+            "name": "Riesen Kapern",
+            "svgLayer": "riesen-kapern-layer"
+          },
+          {
+            "id": "lombardi",
+            "name": "Lombardi",
+            "svgLayer": "lombardi-layer"
+          }
+        ]
+      },
+      "topping": {
+        "name": "Choose Your Other Toppings",
+        "order": 5,
+        "items": [
+          {
+            "id": "knoblauch",
+            "name": "Knoblauch",
+            "svgLayer": "knoblauch-layer"
+          },
+          {
+            "id": "basilikum",
+            "name": "Basilikum",
+            "svgLayer": "basilikum-layer"
+          },
+          {
+            "id": "parmesan",
+            "name": "Parmesan",
+            "svgLayer": "parmesan-layer"
+          },
+          {
+            "id": "spiegelei",
+            "name": "Spiegelei",
+            "svgLayer": "spiegelei-layer"
+          },
+          {
+            "id": "gekochtes-ei",
+            "name": "Gekochtes Ei",
+            "svgLayer": "gekochtes-ei-layer"
+          }
+        ]
+      },
+      "seafood": {
+        "name": "Seafood",
+        "order": 6,
+        "items": [
+          {
+            "id": "meeresfruchte",
+            "name": "Meeresfrüchte",
+            "svgLayer": "meeresfruchte-layer"
+          }
+        ]
+      }
+    }
+  },
+  "pizzas": [
+    {
+      "id": "marinara",
+      "name": "Pizza Marinara",
+      "description": "Simple pizza with tomato sauce and garlic",
+      "ingredients": ["tomatensauce", "knoblauch"],
+      "tags": ["classic", "vegan"]
+    },
+    {
+      "id": "margherita",
+      "name": "Pizza Margherita",
+      "description": "Classic pizza with mozzarella and tomato sauce",
+      "ingredients": ["tomatensauce", "mozzarella-fior-di-latte"],
+      "tags": ["classic", "vegetarian"]
+    },
+    {
+      "id": "scharfe-salami",
+      "name": "Scharfe Salami",
+      "description": "Spicy salami pizza",
+      "ingredients": ["tomatensauce", "mozzarella-fior-di-latte", "scharfe-salami"],
+      "tags": ["spicy"]
+    },
+    {
+      "id": "schinken",
+      "name": "Pizza Schinken",
+      "description": "Ham pizza",
+      "ingredients": ["tomatensauce", "mozzarella-fior-di-latte", "schinken"],
+      "tags": ["classic"]
+    },
+    {
+      "id": "tunfisch-mais",
+      "name": "Tunfisch Mais",
+      "description": "Tuna and corn pizza",
+      "ingredients": ["tomatensauce", "mozzarella-fior-di-latte", "tonno", "mais"],
+      "tags": ["seafood"]
+    },
+    {
+      "id": "gorgonzola",
+      "name": "Pizza Gorgonzola",
+      "description": "Gorgonzola cheese pizza",
+      "ingredients": ["tomatensauce", "mozzarella-fior-di-latte", "gorgonzola"],
+      "tags": ["vegetarian", "cheese-lovers"]
+    },
+    {
+      "id": "napoletana",
+      "name": "Pizza Napoletana",
+      "description": "Neapolitan pizza with buffalo mozzarella, parmesan, and basil",
+      "ingredients": ["tomatensauce", "buffelmozzarella", "parmesan", "basilikum"],
+      "tags": ["classic", "vegetarian"]
+    },
+    {
+      "id": "siciliana",
+      "name": "Pizza Siciliana",
+      "description": "Sicilian pizza with spicy salami, peperonata, and garlic",
+      "ingredients": ["tomatensauce", "mozzarella-fior-di-latte", "scharfe-salami", "peperonata", "knoblauch"],
+      "tags": ["spicy"]
+    },
+    {
+      "id": "4-stagioni",
+      "name": "Pizza 4 Stagioni",
+      "description": "Four seasons pizza with ham, mushrooms, artichokes, and olives",
+      "ingredients": ["tomatensauce", "mozzarella-fior-di-latte", "schinken", "pilze", "artischocken", "oliven"],
+      "tags": ["classic"]
+    },
+    {
+      "id": "diavolo",
+      "name": "Pizza Diavolo",
+      "description": "Devil pizza with spicy salami, olives, hot peppers, and peperonata",
+      "ingredients": ["tomatensauce", "mozzarella-fior-di-latte", "scharfe-salami", "oliven", "lombardi", "peperonata"],
+      "tags": ["spicy"]
+    },
+    {
+      "id": "capricciosa",
+      "name": "Pizza Capricciosa",
+      "description": "Pizza with ham, mushrooms, and artichokes",
+      "ingredients": ["tomatensauce", "mozzarella-fior-di-latte", "schinken", "pilze", "artischocken"],
+      "tags": ["classic"]
+    },
+    {
+      "id": "calabrese",
+      "name": "Pizza Calabrese",
+      "description": "Calabrian pizza with buffalo mozzarella, capers, olives, garlic, and spicy salami",
+      "ingredients": ["tomatensauce", "buffelmozzarella", "riesen-kapern", "taggiasca-oliven", "knoblauch", "scharfe-salami"],
+      "tags": ["spicy", "specialty"]
+    },
+    {
+      "id": "mesico",
+      "name": "Pizza Mesico",
+      "description": "Mexican pizza with spicy salami, hot peppers, corn, and peperonata",
+      "ingredients": ["tomatensauce", "mozzarella-fior-di-latte", "scharfe-salami", "lombardi", "mais", "peperonata"],
+      "tags": ["spicy"]
+    },
+    {
+      "id": "englisch",
+      "name": "Pizza Englisch",
+      "description": "English pizza with bacon, peperonata, onion, and fried egg",
+      "ingredients": ["tomatensauce", "mozzarella-fior-di-latte", "speck", "peperonata", "zwiebel", "spiegelei"],
+      "tags": ["hearty"]
+    },
+    {
+      "id": "fire-and-ice",
+      "name": "Fire and Ice",
+      "description": "Pizza with spinach, boiled egg, spicy salami, garlic, and onion",
+      "ingredients": ["tomatensauce", "mozzarella-fior-di-latte", "spinat", "gekochtes-ei", "scharfe-salami", "knoblauch", "zwiebel"],
+      "tags": ["spicy", "specialty"]
+    },
+    {
+      "id": "meeresfruchte",
+      "name": "Pizza Meeresfrüchte",
+      "description": "Seafood pizza",
+      "ingredients": ["tomatensauce", "mozzarella-fior-di-latte", "meeresfruchte"],
+      "tags": ["seafood"]
+    }
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "version": "1.0",
+  "restaurants": [
+    {
+      "id": "jochtal",
+      "name": "Jochtal",
+      "displayName": "Pizzeria Jochtal",
+      "location": "Jochtal, South Tyrol",
+      "dataFile": "restaurants/jochtal.json",
+      "enabled": true,
+      "tags": ["italian", "south-tyrol", "mountain"]
+    },
+    {
+      "id": "winkler",
+      "name": "Winkler",
+      "displayName": "Winkler Pizzeria",
+      "location": "Winkler, South Tyrol",
+      "dataFile": "restaurants/winkler.json",
+      "enabled": true,
+      "tags": ["italian", "south-tyrol"]
+    },
+    {
+      "id": "issing",
+      "name": "Issing",
+      "displayName": "Pizzeria Issing",
+      "location": "Issing, Germany",
+      "dataFile": "restaurants/issing.json",
+      "enabled": true,
+      "tags": ["german", "bavarian"]
+    }
+  ]
+}
