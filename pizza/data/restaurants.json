@@ -29,13 +29,13 @@
       "id": "issing",
       "name": "Issing",
       "displayName": "Pizzeria Issing",
-      "location": "Issing, Germany",
-      "country": "Germany",
-      "region": "Bavaria",
+      "location": "Issing, South Tyrol",
+      "country": "Italy",
+      "region": "South Tyrol",
       "pizzaCount": 16,
       "dataFile": "restaurants/issing.json",
       "enabled": true,
-      "tags": ["german", "bavarian"]
+      "tags": ["italian", "south-tyrol"]
     }
   ]
 }
