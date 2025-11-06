@@ -278,11 +278,17 @@ export class UIController {
         });
 
         // Close dropdown when clicking outside
-        document.addEventListener('click', (e) => {
+        // Remove previous document click handler if it exists
+        if (this._restaurantDropdownDocumentClickHandler) {
+            document.removeEventListener('click', this._restaurantDropdownDocumentClickHandler);
+        }
+        // Create and store the new handler
+        this._restaurantDropdownDocumentClickHandler = (e) => {
             if (!dropdown.contains(e.target) && !dropdownButton.contains(e.target)) {
                 dropdown.classList.remove('visible');
             }
-        });
+        };
+        document.addEventListener('click', this._restaurantDropdownDocumentClickHandler);
 
         menuButtons.appendChild(dropdownButton);
         menuButtons.appendChild(dropdown);
