@@ -36,6 +36,18 @@
       "dataFile": "restaurants/issing.json",
       "enabled": true,
       "tags": ["italian", "south-tyrol"]
+    },
+    {
+      "id": "rienzbraeu",
+      "name": "Rienzbräu",
+      "displayName": "Rienzbräu",
+      "location": "Bruneck, South Tyrol",
+      "country": "Italy",
+      "region": "South Tyrol",
+      "pizzaCount": 45,
+      "dataFile": "restaurants/rienzbraeu.json",
+      "enabled": true,
+      "tags": ["italian", "south-tyrol", "brewery"]
     }
   ]
 }
