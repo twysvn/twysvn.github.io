@@ -1,19 +1,22 @@
 /**
- * PizzaVisualizer - Handles SVG rendering of pizza ingredients
+ * PizzaVisualizer - Enhanced SVG rendering with realistic effects
+ * Features: Advanced filters, gradients, physics-based placement, realistic textures
  */
 
 const pizzaCenter = { x: 150, y: 150 };
 const defaultPizzaRadius = 120;
+const MIN_INGREDIENT_DISTANCE = 8; // Minimum distance between ingredients
 
 export class PizzaVisualizer {
     constructor(containerId) {
         this.containerId = containerId;
         this.container = null;
         this.initialized = false;
+        this.usedPositions = [];
     }
 
     /**
-     * Initialize the pizza visualizer
+     * Initialize the pizza visualizer with enhanced graphics
      */
     initialize() {
         this.container = document.getElementById(this.containerId);
@@ -21,54 +24,327 @@ export class PizzaVisualizer {
             throw new Error(`Container with ID ${this.containerId} not found`);
         }
 
-        // Clear existing content
         this.container.innerHTML = '';
-
-        // Generate the base pizza and all ingredient layers
+        this.generateEnhancedBase();
         this.generateIngredientLayers();
         this.initialized = true;
     }
 
     /**
-     * Generate all ingredient SVG layers
+     * Generate enhanced pizza base with realistic crust
      */
-    generateIngredientLayers() {
-        // Add base pizza layer
+    generateEnhancedBase() {
         const baseSvg = this.createSvgElement('svg', {
             viewBox: '0 0 300 300',
             class: 'ingredient-layer',
             style: 'display: block; position: absolute; top: 0; left: 0;'
         });
 
-        const baseCircle = this.createSvgElement('circle', {
-            cx: '150',
-            cy: '150',
-            r: '140',
-            fill: '#f4a460',
-            stroke: '#d2691e',
-            'stroke-width': '5'
-        });
-
-        baseSvg.appendChild(baseCircle);
-        this.container.appendChild(baseSvg);
-
-        // Define gradients
+        // Create filters and gradients
         const defs = this.createSvgElement('defs', {});
-        const gradient = this.createSvgElement('linearGradient', {
-            id: 'peperonataGradient',
-            x1: '0%',
-            x2: '100%',
-            y1: '0%',
-            y2: '0%'
-        });
-        gradient.appendChild(this.createSvgElement('stop', {offset: '0%', 'stop-color': '#ffcc00'}));
-        gradient.appendChild(this.createSvgElement('stop', {offset: '100%', 'stop-color': '#ff4500'}));
-        defs.appendChild(gradient);
-        this.container.appendChild(defs);
+        this.addFilters(defs);
+        this.addGradients(defs);
+        baseSvg.appendChild(defs);
 
-        // Generate all ingredient layers
+        // Enhanced crust with irregular edge
+        const crustPath = this.generateIrregularCrustPath();
+        const crust = this.createSvgElement('path', {
+            d: crustPath,
+            fill: 'url(#crustGradient)',
+            stroke: '#d2691e',
+            'stroke-width': '3',
+            filter: 'url(#crustShadow)'
+        });
+        baseSvg.appendChild(crust);
+
+        // Add crust bubbles
+        this.addCrustBubbles(baseSvg);
+
+        // Add char marks
+        this.addCharMarks(baseSvg);
+
+        // Add flour dusting
+        this.addFlourDusting(baseSvg);
+
+        this.container.appendChild(baseSvg);
+    }
+
+    /**
+     * Add SVG filters for realistic effects
+     */
+    addFilters(defs) {
+        // Drop shadow for ingredients
+        const ingredientShadow = this.createSvgElement('filter', { id: 'ingredientShadow' });
+        ingredientShadow.innerHTML = `
+            <feGaussianBlur in="SourceAlpha" stdDeviation="2"/>
+            <feOffset dx="0" dy="2" result="offsetblur"/>
+            <feComponentTransfer>
+                <feFuncA type="linear" slope="0.4"/>
+            </feComponentTransfer>
+            <feMerge>
+                <feMergeNode/>
+                <feMergeNode in="SourceGraphic"/>
+            </feMerge>
+        `;
+        defs.appendChild(ingredientShadow);
+
+        // Soft shadow for cheese
+        const cheeseShadow = this.createSvgElement('filter', { id: 'cheeseShadow' });
+        cheeseShadow.innerHTML = `
+            <feGaussianBlur in="SourceAlpha" stdDeviation="1.5"/>
+            <feOffset dx="0" dy="1" result="offsetblur"/>
+            <feComponentTransfer>
+                <feFuncA type="linear" slope="0.2"/>
+            </feComponentTransfer>
+            <feMerge>
+                <feMergeNode/>
+                <feMergeNode in="SourceGraphic"/>
+            </feMerge>
+        `;
+        defs.appendChild(cheeseShadow);
+
+        // Crust shadow
+        const crustShadow = this.createSvgElement('filter', { id: 'crustShadow' });
+        crustShadow.innerHTML = `
+            <feGaussianBlur in="SourceAlpha" stdDeviation="3"/>
+            <feOffset dx="0" dy="3" result="offsetblur"/>
+            <feComponentTransfer>
+                <feFuncA type="linear" slope="0.5"/>
+            </feComponentTransfer>
+            <feMerge>
+                <feMergeNode/>
+                <feMergeNode in="SourceGraphic"/>
+            </feMerge>
+        `;
+        defs.appendChild(crustShadow);
+
+        // Texture for cheese
+        const cheeseTexture = this.createSvgElement('filter', { id: 'cheeseTexture' });
+        cheeseTexture.innerHTML = `
+            <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="4" seed="2"/>
+            <feColorMatrix type="saturate" values="0"/>
+            <feComponentTransfer>
+                <feFuncA type="linear" slope="0.15"/>
+            </feComponentTransfer>
+            <feBlend in="SourceGraphic" mode="overlay"/>
+        `;
+        defs.appendChild(cheeseTexture);
+
+        // Mushroom texture
+        const mushroomTexture = this.createSvgElement('filter', { id: 'mushroomTexture' });
+        mushroomTexture.innerHTML = `
+            <feTurbulence type="fractalNoise" baseFrequency="2" numOctaves="3" seed="5"/>
+            <feColorMatrix type="saturate" values="0"/>
+            <feComponentTransfer>
+                <feFuncA type="linear" slope="0.1"/>
+            </feComponentTransfer>
+            <feBlend in="SourceGraphic" mode="multiply"/>
+        `;
+        defs.appendChild(mushroomTexture);
+
+        // Meat texture
+        const meatTexture = this.createSvgElement('filter', { id: 'meatTexture' });
+        meatTexture.innerHTML = `
+            <feTurbulence type="turbulence" baseFrequency="1.5" numOctaves="2" seed="8"/>
+            <feColorMatrix type="saturate" values="0"/>
+            <feComponentTransfer>
+                <feFuncA type="linear" slope="0.12"/>
+            </feComponentTransfer>
+            <feBlend in="SourceGraphic" mode="multiply"/>
+        `;
+        defs.appendChild(meatTexture);
+    }
+
+    /**
+     * Add gradient definitions for realistic colors
+     */
+    addGradients(defs) {
+        // Crust gradient
+        const crustGradient = this.createSvgElement('radialGradient', { id: 'crustGradient' });
+        crustGradient.innerHTML = `
+            <stop offset="0%" stop-color="#f4d03f"/>
+            <stop offset="50%" stop-color="#f4a460"/>
+            <stop offset="85%" stop-color="#d2691e"/>
+            <stop offset="100%" stop-color="#8b4513"/>
+        `;
+        defs.appendChild(crustGradient);
+
+        // Mozzarella gradient
+        const mozzarellaGradient = this.createSvgElement('radialGradient', { id: 'mozzarellaGradient' });
+        mozzarellaGradient.innerHTML = `
+            <stop offset="0%" stop-color="#ffffff"/>
+            <stop offset="60%" stop-color="#fefefe"/>
+            <stop offset="100%" stop-color="#f8f8f0"/>
+        `;
+        defs.appendChild(mozzarellaGradient);
+
+        // Salami gradient
+        const salamiGradient = this.createSvgElement('radialGradient', { id: 'salamiGradient' });
+        salamiGradient.innerHTML = `
+            <stop offset="0%" stop-color="#d45454"/>
+            <stop offset="50%" stop-color="#c94c4c"/>
+            <stop offset="100%" stop-color="#a83838"/>
+        `;
+        defs.appendChild(salamiGradient);
+
+        // Mushroom cap gradient
+        const mushroomGradient = this.createSvgElement('radialGradient', { id: 'mushroomGradient' });
+        mushroomGradient.innerHTML = `
+            <stop offset="0%" stop-color="#e0c9a6"/>
+            <stop offset="60%" stop-color="#deb887"/>
+            <stop offset="100%" stop-color="#c2a268"/>
+        `;
+        defs.appendChild(mushroomGradient);
+
+        // Pepperoni gradient with fat marbling
+        const pepperoniGradient = this.createSvgElement('radialGradient', { id: 'pepperoniGradient' });
+        pepperoniGradient.innerHTML = `
+            <stop offset="0%" stop-color="#c94c4c"/>
+            <stop offset="40%" stop-color="#b84444"/>
+            <stop offset="80%" stop-color="#a83838"/>
+            <stop offset="100%" stop-color="#8b2f2f"/>
+        `;
+        defs.appendChild(pepperoniGradient);
+
+        // Tomato sauce gradient
+        const sauceGradient = this.createSvgElement('radialGradient', { id: 'sauceGradient' });
+        sauceGradient.innerHTML = `
+            <stop offset="0%" stop-color="#e85d4e"/>
+            <stop offset="50%" stop-color="#e34234"/>
+            <stop offset="100%" stop-color="#c93529"/>
+        `;
+        defs.appendChild(sauceGradient);
+
+        // Spinach gradient
+        const spinachGradient = this.createSvgElement('linearGradient', { id: 'spinachGradient', x1: '0%', y1: '0%', x2: '100%', y2: '100%' });
+        spinachGradient.innerHTML = `
+            <stop offset="0%" stop-color="#3ba05f"/>
+            <stop offset="50%" stop-color="#2E8B57"/>
+            <stop offset="100%" stop-color="#256f44"/>
+        `;
+        defs.appendChild(spinachGradient);
+
+        // Olive gradient
+        const oliveGradient = this.createSvgElement('radialGradient', { id: 'oliveGradient' });
+        oliveGradient.innerHTML = `
+            <stop offset="0%" stop-color="#6b7c3f"/>
+            <stop offset="50%" stop-color="#556b2f"/>
+            <stop offset="100%" stop-color="#3d4f1f"/>
+        `;
+        defs.appendChild(oliveGradient);
+    }
+
+    /**
+     * Generate irregular crust path with natural variation
+     */
+    generateIrregularCrustPath() {
+        const radius = 140;
+        const points = 48;
+        let path = 'M';
+
+        for (let i = 0; i <= points; i++) {
+            const angle = (i / points) * Math.PI * 2;
+            const variation = (Math.sin(i * 0.8) * 3) + (Math.random() * 4 - 2);
+            const r = radius + variation;
+            const x = pizzaCenter.x + r * Math.cos(angle);
+            const y = pizzaCenter.y + r * Math.sin(angle);
+
+            if (i === 0) {
+                path += `${x},${y}`;
+            } else {
+                path += ` L${x},${y}`;
+            }
+        }
+
+        path += ' Z';
+        return path;
+    }
+
+    /**
+     * Add crust bubbles for realism
+     */
+    addCrustBubbles(svg) {
+        const bubbleCount = 8 + Math.floor(Math.random() * 5);
+
+        for (let i = 0; i < bubbleCount; i++) {
+            const angle = Math.random() * Math.PI * 2;
+            const distance = 125 + Math.random() * 10;
+            const x = pizzaCenter.x + distance * Math.cos(angle);
+            const y = pizzaCenter.y + distance * Math.sin(angle);
+            const size = 4 + Math.random() * 6;
+
+            const bubble = this.createSvgElement('ellipse', {
+                cx: x,
+                cy: y,
+                rx: size,
+                ry: size * 0.8,
+                fill: '#e8c090',
+                opacity: '0.6',
+                transform: `rotate(${Math.random() * 360} ${x} ${y})`
+            });
+
+            svg.appendChild(bubble);
+        }
+    }
+
+    /**
+     * Add char marks to crust
+     */
+    addCharMarks(svg) {
+        const charCount = 12 + Math.floor(Math.random() * 6);
+
+        for (let i = 0; i < charCount; i++) {
+            const angle = Math.random() * Math.PI * 2;
+            const distance = 110 + Math.random() * 25;
+            const x = pizzaCenter.x + distance * Math.cos(angle);
+            const y = pizzaCenter.y + distance * Math.sin(angle);
+            const size = 3 + Math.random() * 5;
+
+            const char = this.createSvgElement('ellipse', {
+                cx: x,
+                cy: y,
+                rx: size,
+                ry: size * 0.7,
+                fill: '#5d3a1a',
+                opacity: 0.3 + Math.random() * 0.3,
+                transform: `rotate(${Math.random() * 360} ${x} ${y})`
+            });
+
+            svg.appendChild(char);
+        }
+    }
+
+    /**
+     * Add flour dusting effect
+     */
+    addFlourDusting(svg) {
+        const flourCount = 25;
+
+        for (let i = 0; i < flourCount; i++) {
+            const pos = this.getRandomPositionInCircle(135);
+            const size = 1 + Math.random() * 2;
+
+            const flour = this.createSvgElement('circle', {
+                cx: pos.x,
+                cy: pos.y,
+                r: size,
+                fill: '#ffffff',
+                opacity: 0.15 + Math.random() * 0.2
+            });
+
+            svg.appendChild(flour);
+        }
+    }
+
+    /**
+     * Generate all ingredient SVG layers with enhancements
+     */
+    generateIngredientLayers() {
         const ingredients = this.getIngredientsDefinition();
+
         ingredients.forEach(ingredient => {
+            this.usedPositions = []; // Reset for each ingredient type
+
             const svg = this.createSvgElement('svg', {
                 viewBox: '0 0 300 300',
                 class: 'ingredient-layer',
@@ -78,15 +354,33 @@ export class PizzaVisualizer {
 
             const count = ingredient.count || 1;
             for (let i = 0; i < count; i++) {
-                let position = ingredient.position ||
-                    this.getRandomPositionInCircle(ingredient.placementRadius || defaultPizzaRadius);
-                if (ingredient.count < 2) {
-                    position = this.getPositionNearCenter();
+                let position;
+                let attempts = 0;
+                const maxAttempts = 50;
+
+                // Get non-overlapping position
+                do {
+                    // Respect explicit positions, then apply smart defaults
+                    if (ingredient.position) {
+                        // Use explicit position if provided (e.g., tomato sauce at center)
+                        position = ingredient.position;
+                    } else if (ingredient.count < 2) {
+                        // Single items without explicit position go near center
+                        position = this.getPositionNearCenter();
+                    } else {
+                        // Multiple items get random positions
+                        position = this.getRandomPositionInCircle(ingredient.placementRadius || defaultPizzaRadius);
+                    }
+                    attempts++;
+                } while (this.hasCollision(position, ingredient.minDistance || MIN_INGREDIENT_DISTANCE) && attempts < maxAttempts);
+
+                if (attempts < maxAttempts) {
+                    this.usedPositions.push(position);
                 }
 
                 let element;
                 if (ingredient.customGenerator) {
-                    element = ingredient.customGenerator(ingredient.attributes, position);
+                    element = ingredient.customGenerator(ingredient.attributes, position, i);
                 } else {
                     element = this.createIngredientElement(ingredient, position);
                 }
@@ -99,72 +393,90 @@ export class PizzaVisualizer {
     }
 
     /**
-     * Get ingredients definition array
+     * Check for position collision
+     */
+    hasCollision(position, minDistance) {
+        return this.usedPositions.some(used => {
+            const dx = position.x - used.x;
+            const dy = position.y - used.y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+            return distance < minDistance;
+        });
+    }
+
+    /**
+     * Get ingredients definition with enhanced visual properties
      */
     getIngredientsDefinition() {
         return [
-            // Base Layer
-            { id: 'tomatensauce-layer', elementType: 'circle', attributes: { r: defaultPizzaRadius, fill: '#e34234', opacity: 0.8 }, count: 1, position: pizzaCenter },
+            // Base Layer - Enhanced tomato sauce
+            {
+                id: 'tomatensauce-layer',
+                elementType: 'circle',
+                attributes: { r: defaultPizzaRadius, fill: 'url(#sauceGradient)', opacity: 0.85 },
+                count: 1,
+                position: pizzaCenter
+            },
 
-            // Cheeses
-            { id: 'mozzarella-fior-di-latte-layer', elementType: 'circle', attributes: { r: 15, fill: 'white' }, count: 12 },
-            { id: 'mozzarella-layer', elementType: 'circle', attributes: { r: 15, fill: 'white' }, count: 12 },
-            { id: 'buffelmozzarella-layer', elementType: 'circle', attributes: { r: 15, fill: '#f8f8f2' }, count: 10 },
-            { id: 'gorgonzola-layer', elementType: 'circle', attributes: { r: 12, fill: '#7f8c8d', opacity: 0.7 }, count: 8 },
+            // Cheeses - Enhanced with gradients and textures
+            { id: 'mozzarella-fior-di-latte-layer', customGenerator: this.generateMozzarella.bind(this), attributes: { fill: 'url(#mozzarellaGradient)' }, count: 12 },
+            { id: 'mozzarella-layer', customGenerator: this.generateMozzarella.bind(this), attributes: { fill: 'url(#mozzarellaGradient)' }, count: 12 },
+            { id: 'buffelmozzarella-layer', customGenerator: this.generateMozzarella.bind(this), attributes: { fill: '#f8f8f2' }, count: 10 },
+            { id: 'gorgonzola-layer', customGenerator: this.generateGorgonzola.bind(this), attributes: { fill: '#7f8c8d' }, count: 8 },
             { id: 'parmesan-layer', customGenerator: this.generateParmesan.bind(this), attributes: { fill: '#f1c40f' }, count: 30 },
             { id: 'brie-layer', customGenerator: this.generateBrie.bind(this), attributes: { fill: '#f5f5dc' }, count: 10 },
-            { id: 'ricotta-layer', customGenerator: this.generateBrie.bind(this), attributes: { fill: '#f5f5dc' }, count: 10 },
-            { id: 'feta-layer', elementType: 'rect', attributes: { width: 15, height: 15, fill: '#fdf5e6' }, count: 12 },
-            { id: 'philadelphia-layer', elementType: 'circle', attributes: { r: 10, fill: '#fff' }, count: 10 },
-            { id: 'kase-layer', elementType: 'circle', attributes: { r: 15, fill: 'white' }, count: 12 },
-            { id: 'schafskase-layer', elementType: 'rect', attributes: { width: 15, height: 15, fill: '#fffacd' }, count: 10 },
+            { id: 'ricotta-layer', customGenerator: this.generateRicotta.bind(this), attributes: { fill: '#fefefe' }, count: 10 },
+            { id: 'feta-layer', customGenerator: this.generateFeta.bind(this), attributes: { fill: '#fdf5e6' }, count: 12 },
+            { id: 'philadelphia-layer', customGenerator: this.generateMozzarella.bind(this), attributes: { fill: '#fff' }, count: 10 },
+            { id: 'kase-layer', customGenerator: this.generateMozzarella.bind(this), attributes: { fill: 'url(#mozzarellaGradient)' }, count: 12 },
+            { id: 'schafskase-layer', customGenerator: this.generateFeta.bind(this), attributes: { fill: '#fffacd' }, count: 10 },
             { id: 'krauterkase-layer', customGenerator: this.generateKrauterkase.bind(this), attributes: { fill: '#f4a460' }, count: 10 },
             { id: 'krautertopfen-layer', customGenerator: this.generateKrautertopfenkase.bind(this), attributes: { fill: '#f5deb3' }, count: 10 },
 
-            // Meats
-            { id: 'schinken-layer', elementType: 'rect', attributes: { width: 40, height: 20, fill: '#e9967a' }, count: 8, rotation: true },
-            { id: 'speck-layer', elementType: 'rect', attributes: { width: 50, height: 10, fill: '#cd853f' }, count: 8, rotation: true },
-            { id: 'rohschinken-layer', elementType: 'rect', attributes: { width: 40, height: 20, fill: '#e9967a' }, count: 8, rotation: true },
-            { id: 'salami-layer', elementType: 'circle', attributes: { r: 12, fill: '#c94c4c' }, count: 10 },
-            { id: 'scharfe-salami-layer', elementType: 'circle', attributes: { r: 12, fill: '#a52a2a' }, count: 10 },
+            // Meats - Enhanced with textures and gradients
+            { id: 'schinken-layer', customGenerator: this.generateSchinken.bind(this), attributes: { fill: '#e9967a' }, count: 8 },
+            { id: 'speck-layer', customGenerator: this.generateSpeck.bind(this), attributes: { fill: '#cd853f' }, count: 8 },
+            { id: 'rohschinken-layer', customGenerator: this.generateSchinken.bind(this), attributes: { fill: '#e9967a' }, count: 8 },
+            { id: 'salami-layer', customGenerator: this.generateSalami.bind(this), attributes: { fill: 'url(#salamiGradient)' }, count: 10 },
+            { id: 'scharfe-salami-layer', customGenerator: this.generateSalami.bind(this), attributes: { fill: '#a52a2a' }, count: 10 },
             { id: 'kaminwurze-layer', customGenerator: this.generateKaminwurz.bind(this), attributes: { fill: '#8b4513' }, count: 8 },
             { id: 'kaminwurz-layer', customGenerator: this.generateKaminwurz.bind(this), attributes: { fill: '#8b4513' }, count: 8 },
-            { id: 'wurstel-layer', elementType: 'circle', attributes: { r: 10, fill: '#f5a623' }, count: 15 },
-            { id: 'bresaola-layer', elementType: 'ellipse', attributes: { rx: 20, ry: 10, fill: '#8b0000' }, count: 8, rotation: true },
+            { id: 'wurstel-layer', customGenerator: this.generateWurstel.bind(this), attributes: { fill: '#f5a623' }, count: 15 },
+            { id: 'bresaola-layer', customGenerator: this.generateBresaola.bind(this), attributes: { fill: '#8b0000' }, count: 8 },
 
-            // Seafood
+            // Seafood - Enhanced
             { id: 'tonno-layer', customGenerator: this.generateTonno.bind(this), attributes: { fill: '#b0c4de' }, count: 12 },
             { id: 'thunfisch-layer', customGenerator: this.generateTonno.bind(this), attributes: { fill: '#b0c4de' }, count: 12 },
             { id: 'sardellen-layer', customGenerator: this.generateSardellen.bind(this), attributes: { fill: '#708090' }, count: 8 },
             { id: 'shrimps-layer', customGenerator: this.generateShrimps.bind(this), attributes: { fill: '#ffa07a' }, count: 10 },
             { id: 'meeresfruchte-layer', customGenerator: this.generateMeeresfruchte.bind(this), attributes: { fill: '#ff7f50' }, count: 15 },
 
-            // Vegetables
-            { id: 'pilze-layer', customGenerator: this.generatePilze.bind(this), attributes: { fill: '#deb887' }, count: 12 },
+            // Vegetables - Enhanced with realistic shapes
+            { id: 'pilze-layer', customGenerator: this.generatePilze.bind(this), attributes: { fill: 'url(#mushroomGradient)' }, count: 12 },
             { id: 'steinpilze-layer', customGenerator: this.generatePilze.bind(this), attributes: { fill: '#c2a383' }, count: 8 },
             { id: 'pfifferlinge-layer', customGenerator: this.generatePilze.bind(this), attributes: { fill: '#ffd700' }, count: 12 },
-            { id: 'champignon-layer', customGenerator: this.generatePilze.bind(this), attributes: { fill: '#deb887' }, count: 12 },
-            { id: 'artischocken-layer', elementType: 'ellipse', attributes: { rx: 20, ry: 10, fill: '#a2c523' }, count: 8, rotation: true },
-            { id: 'spinat-layer', customGenerator: this.generateSpinach.bind(this), attributes: { fill: '#2E8B57' }, count: 15 },
-            { id: 'spinach-layer', customGenerator: this.generateSpinach.bind(this), attributes: { fill: '#2E8B57' }, count: 15 },
-            { id: 'paprika-layer', elementType: 'ellipse', attributes: { rx: 10, ry: 5, fill: '#ff4500' }, count: 10, rotation: true },
-            { id: 'zucchini-layer', elementType: 'ellipse', attributes: { rx: 10, ry: 5, fill: '#9acd32' }, count: 10, rotation: true },
-            { id: 'melanzane-layer', elementType: 'ellipse', attributes: { rx: 15, ry: 8, fill: '#800080' }, count: 10, rotation: true },
-            { id: 'zwiebel-layer', elementType: 'circle', attributes: { r: 15, stroke: '#d2b48c', 'stroke-width': 3, fill: 'none' }, count: 8 },
+            { id: 'champignon-layer', customGenerator: this.generatePilze.bind(this), attributes: { fill: 'url(#mushroomGradient)' }, count: 12 },
+            { id: 'artischocken-layer', customGenerator: this.generateArtischocken.bind(this), attributes: { fill: '#a2c523' }, count: 8 },
+            { id: 'spinat-layer', customGenerator: this.generateSpinach.bind(this), attributes: { fill: 'url(#spinachGradient)' }, count: 15 },
+            { id: 'spinach-layer', customGenerator: this.generateSpinach.bind(this), attributes: { fill: 'url(#spinachGradient)' }, count: 15 },
+            { id: 'paprika-layer', customGenerator: this.generatePaprika.bind(this), attributes: { fill: '#ff4500' }, count: 10 },
+            { id: 'zucchini-layer', customGenerator: this.generateZucchini.bind(this), attributes: { fill: '#9acd32' }, count: 10 },
+            { id: 'melanzane-layer', customGenerator: this.generateMelanzane.bind(this), attributes: { fill: '#800080' }, count: 10 },
+            { id: 'zwiebel-layer', customGenerator: this.generateZwiebel.bind(this), attributes: { stroke: '#d2b48c', fill: 'none' }, count: 8 },
             { id: 'lombardi-layer', customGenerator: this.generateLombardi.bind(this), attributes: { fill: '#ff0000' }, count: 8 },
-            { id: 'peperonata-layer', elementType: 'ellipse', attributes: { rx: 15, ry: 25, fill: '#ffcc00' }, count: 8, rotation: true },
+            { id: 'peperonata-layer', customGenerator: this.generatePeperonata.bind(this), attributes: { fill: '#ffcc00' }, count: 8 },
             { id: 'rucola-layer', customGenerator: this.generateRucola.bind(this), attributes: { fill: '#228b22' }, count: 12 },
-            { id: 'cocktail-tomaten-layer', elementType: 'circle', attributes: { r: 8, fill: '#ff6347' }, count: 15 },
-            { id: 'marinierte-tomaten-layer', elementType: 'circle', attributes: { r: 8, fill: '#ff6347' }, count: 15 },
-            { id: 'tomaten-layer', elementType: 'circle', attributes: { r: 10, fill: '#ff6347' }, count: 10 },
+            { id: 'cocktail-tomaten-layer', customGenerator: this.generateTomato.bind(this), attributes: { fill: '#ff6347' }, count: 15 },
+            { id: 'marinierte-tomaten-layer', customGenerator: this.generateTomato.bind(this), attributes: { fill: '#ff6347' }, count: 15 },
+            { id: 'tomaten-layer', customGenerator: this.generateTomato.bind(this), attributes: { fill: '#ff6347' }, count: 10 },
 
-            // Miscellaneous
-            { id: 'oliven-layer', elementType: 'ellipse', attributes: { rx: 8, ry: 12, fill: '#556b2f' }, count: 10 },
-            { id: 'taggiasca-oliven-layer', elementType: 'ellipse', attributes: { rx: 8, ry: 12, fill: '#556b2f' }, count: 10 },
-            { id: 'kapern-layer', elementType: 'ellipse', attributes: { rx: 4, ry: 6, fill: '#6b8e23' }, count: 15 },
-            { id: 'riesen-kapern-layer', elementType: 'ellipse', attributes: { rx: 4, ry: 6, fill: '#6b8e23' }, count: 15 },
-            { id: 'mais-layer', elementType: 'circle', attributes: { r: 3, fill: '#ffd700' }, count: 70 },
-            { id: 'paprikapulver-layer', elementType: 'circle', attributes: { r: 2, fill: '#ff6347', opacity: 0.5 }, count: 100 },
+            // Miscellaneous - Enhanced
+            { id: 'oliven-layer', customGenerator: this.generateOlive.bind(this), attributes: { fill: 'url(#oliveGradient)' }, count: 10 },
+            { id: 'taggiasca-oliven-layer', customGenerator: this.generateOlive.bind(this), attributes: { fill: 'url(#oliveGradient)' }, count: 10 },
+            { id: 'kapern-layer', customGenerator: this.generateKapern.bind(this), attributes: { fill: '#6b8e23' }, count: 15 },
+            { id: 'riesen-kapern-layer', customGenerator: this.generateKapern.bind(this), attributes: { fill: '#6b8e23' }, count: 15 },
+            { id: 'mais-layer', customGenerator: this.generateMais.bind(this), attributes: { fill: '#ffd700' }, count: 70, minDistance: 4 },
+            { id: 'paprikapulver-layer', customGenerator: this.generatePaprikapulver.bind(this), attributes: { fill: '#ff6347' }, count: 100, minDistance: 2 },
             { id: 'balsamico-glaze-layer', customGenerator: this.generateBalsamicoGlaze.bind(this), attributes: { stroke: '#5c3317', 'stroke-width': 3, fill: 'none' }, count: 1 },
             { id: 'cocktail-sosse-layer', customGenerator: this.generateCocktailSosse.bind(this), attributes: { stroke: '#ff69b4', 'stroke-width': 3, fill: 'none' }, count: 1 },
             { id: 'knoblauch-layer', customGenerator: this.generateKnoblauch.bind(this), attributes: { fill: '#fffacd' }, count: 12 },
@@ -172,9 +484,9 @@ export class PizzaVisualizer {
             { id: 'spiegelei-layer', customGenerator: this.generateSpiegelei.bind(this), attributes: {}, count: 2, placementRadius: 50 },
             { id: 'gekochtes-ei-layer', customGenerator: this.generateGekochtesEi.bind(this), attributes: {}, count: 2, placementRadius: 50 },
             { id: 'ei-layer', customGenerator: this.generateGekochtesEi.bind(this), attributes: {}, count: 2, placementRadius: 50 },
-            { id: 'oregano-layer', elementType: 'circle', attributes: { r: 1, fill: '#556b2f' }, count: 150 },
-            { id: 'origano-layer', elementType: 'circle', attributes: { r: 1, fill: '#556b2f' }, count: 150 },
-            { id: 'krauter-layer', elementType: 'circle', attributes: { r: 1, fill: '#556b2f' }, count: 150 },
+            { id: 'oregano-layer', customGenerator: this.generateOregano.bind(this), attributes: { fill: '#556b2f' }, count: 150, minDistance: 2 },
+            { id: 'origano-layer', customGenerator: this.generateOregano.bind(this), attributes: { fill: '#556b2f' }, count: 150, minDistance: 2 },
+            { id: 'krauter-layer', customGenerator: this.generateOregano.bind(this), attributes: { fill: '#556b2f' }, count: 150, minDistance: 2 },
             { id: 'vier-gemuse-sorten-layer', customGenerator: this.generateVierGemuse.bind(this), attributes: {}, count: 1 },
             { id: 'ananas-layer', customGenerator: this.generateAnanas.bind(this), attributes: { fill: '#ffdb58' }, count: 15 },
             { id: 'parmesansplitter-layer', customGenerator: this.generateParmesansplitter.bind(this), attributes: { fill: '#fffacd' }, count: 12 },
@@ -184,7 +496,6 @@ export class PizzaVisualizer {
 
     /**
      * Show an ingredient layer
-     * @param {string} svgLayerId - The SVG layer ID
      */
     showIngredient(svgLayerId) {
         const layer = document.getElementById(svgLayerId);
@@ -195,7 +506,6 @@ export class PizzaVisualizer {
 
     /**
      * Hide an ingredient layer
-     * @param {string} svgLayerId - The SVG layer ID
      */
     hideIngredient(svgLayerId) {
         const layer = document.getElementById(svgLayerId);
@@ -210,14 +520,12 @@ export class PizzaVisualizer {
     clearPizza() {
         const layers = this.container.querySelectorAll('.ingredient-layer');
         layers.forEach((layer, index) => {
-            // Keep base pizza visible (first layer)
             layer.style.opacity = index === 0 ? '1' : '0';
         });
     }
 
     /**
      * Render pizza with given ingredient layer IDs
-     * @param {Array<string>} ingredientSvgLayers - Array of SVG layer IDs
      */
     renderPizza(ingredientSvgLayers) {
         this.clearPizza();
@@ -272,244 +580,1134 @@ export class PizzaVisualizer {
         return this.getRandomPositionInCircle(defaultPizzaRadius / 4);
     }
 
-    // === Custom Ingredient Generators ===
+    // === Enhanced Custom Ingredient Generators ===
 
+    /**
+     * Generate enhanced mozzarella with melted cheese effect
+     */
+    generateMozzarella(attributes, position) {
+        const group = this.createSvgElement('g', {
+            filter: 'url(#cheeseShadow)',
+            transform: `rotate(${Math.random() * 360} ${position.x} ${position.y})`
+        });
+
+        const size = 12 + Math.random() * 6;
+
+        // Main cheese blob with irregular shape
+        const cheeseBlob = this.createSvgElement('ellipse', {
+            cx: position.x,
+            cy: position.y,
+            rx: size,
+            ry: size * (0.8 + Math.random() * 0.3),
+            fill: attributes.fill || 'url(#mozzarellaGradient)',
+            opacity: 0.85 + Math.random() * 0.1,
+            filter: 'url(#cheeseTexture)'
+        });
+
+        group.appendChild(cheeseBlob);
+
+        // Add grease spot occasionally
+        if (Math.random() > 0.7) {
+            const greaseSpot = this.createSvgElement('circle', {
+                cx: position.x + (Math.random() * 4 - 2),
+                cy: position.y + (Math.random() * 4 - 2),
+                r: size * 0.3,
+                fill: '#f5f5e8',
+                opacity: '0.4'
+            });
+            group.appendChild(greaseSpot);
+        }
+
+        return group;
+    }
+
+    /**
+     * Generate gorgonzola with blue veins
+     */
+    generateGorgonzola(attributes, position) {
+        const group = this.createSvgElement('g', {
+            filter: 'url(#cheeseShadow)'
+        });
+
+        const size = 10 + Math.random() * 4;
+
+        const base = this.createSvgElement('circle', {
+            cx: position.x,
+            cy: position.y,
+            r: size,
+            fill: '#a8b8c0',
+            opacity: '0.8'
+        });
+        group.appendChild(base);
+
+        // Add blue-green veins
+        for (let i = 0; i < 3; i++) {
+            const veinPath = `M${position.x - size * 0.6},${position.y + Math.random() * 4 - 2}
+                             Q${position.x},${position.y + Math.random() * 4 - 2}
+                             ${position.x + size * 0.6},${position.y + Math.random() * 4 - 2}`;
+            const vein = this.createSvgElement('path', {
+                d: veinPath,
+                stroke: '#4a6278',
+                'stroke-width': '1',
+                fill: 'none',
+                opacity: '0.6'
+            });
+            group.appendChild(vein);
+        }
+
+        return group;
+    }
+
+    /**
+     * Enhanced parmesan shavings
+     */
     generateParmesan(attributes, position) {
-        const size = 6;
+        const size = 4 + Math.random() * 4;
         const points = [
             `${position.x},${position.y - size / 2}`,
-            `${position.x + size / 2},${position.y + size / 2}`,
-            `${position.x - size / 2},${position.y + size / 2}`
+            `${position.x + size / 2 + Math.random() * 2},${position.y + size / 2}`,
+            `${position.x - size / 2 - Math.random() * 2},${position.y + size / 2}`
         ].join(' ');
-        return this.createSvgElement('polygon', { points, ...attributes });
-    }
 
-    generateBrie(attributes, position) {
-        const size = 12;
-        const d = `M${position.x - size},${position.y} A${size},${size} 0 0,1 ${position.x + size},${position.y} L${position.x},${position.y + size} Z`;
-        return this.createSvgElement('path', { d, ...attributes });
-    }
-
-    generateTonno(attributes, position) {
-        const size = 10;
-        const points = [
-            `${position.x},${position.y - size}`,
-            `${position.x - size},${position.y + size}`,
-            `${position.x + size},${position.y + size}`
-        ].join(' ');
-        return this.createSvgElement('polygon', { points, ...attributes });
-    }
-
-    generatePilze(attributes, position) {
-        const capWidth = 20, capHeight = 10, stemWidth = 6, stemHeight = 12;
-        const x = position.x, y = position.y;
-        const capPath = `M${x - capWidth / 2},${y} C${x - capWidth / 2 + 5},${y - capHeight} ${x + capWidth / 2 - 5},${y - capHeight} ${x + capWidth / 2},${y} Z`;
-        const stemPath = `M${x - stemWidth / 2},${y} L${x - stemWidth / 2},${y + stemHeight} L${x + stemWidth / 2},${y + stemHeight} L${x + stemWidth / 2},${y} Z`;
-        const group = this.createSvgElement('g', {});
-        const cap = this.createSvgElement('path', { d: capPath, fill: attributes.fill });
-        const stem = this.createSvgElement('path', { d: stemPath, fill: '#f5deb3' });
-        group.appendChild(cap);
-        group.appendChild(stem);
-        const rotation = Math.random() * 360;
-        group.setAttribute('transform', `rotate(${rotation} ${x} ${y})`);
-        return group;
-    }
-
-    generateSpinach(attributes, position) {
-        const size = 10;
-        const d = `M${position.x - size},${position.y} Q${position.x},${position.y - size * 2} ${position.x + size},${position.y} T${position.x - size},${position.y}`;
-        const leaf = this.createSvgElement('path', { d, ...attributes });
-        const rotation = Math.random() * 360;
-        leaf.setAttribute('transform', `rotate(${rotation} ${position.x} ${position.y})`);
-        return leaf;
-    }
-
-    generateLombardi(attributes, position) {
-        const x = position.x, y = position.y, size = 10;
-        const pathData = `M ${x},${y} q ${size / 2},-${size} ${size},0 c ${size / 2},${size} -${size / 2},${size * 1.5} -${size},${size} s -${size / 2},-${size} 0,-${size} z`;
-        const chili = this.createSvgElement('path', { d: pathData, ...attributes });
-        const rotation = Math.random() * 360;
-        chili.setAttribute('transform', `rotate(${rotation} ${x} ${y})`);
-        return chili;
-    }
-
-    generateKnoblauch(attributes, position) {
-        const size = 6;
-        const d = `M${position.x},${position.y} Q${position.x - size},${position.y - size} ${position.x},${position.y - size * 2} Q${position.x + size},${position.y - size} ${position.x},${position.y}`;
-        return this.createSvgElement('path', { d, ...attributes });
-    }
-
-    generateBasilikum(attributes, position) {
-        const size = 5;
-        const d = `M${position.x},${position.y} Q${position.x - size},${position.y - size} ${position.x},${position.y - size * 2} Q${position.x + size},${position.y - size} ${position.x},${position.y}`;
-        const leaf = this.createSvgElement('path', { d, ...attributes });
-        const rotation = Math.random() * 360;
-        leaf.setAttribute('transform', `rotate(${rotation} ${position.x} ${position.y})`);
-        return leaf;
-    }
-
-    generateSpiegelei(attributes, position) {
-        const group = this.createSvgElement('g', {});
-        const white = this.createSvgElement('circle', { cx: position.x, cy: position.y, r: 20, fill: 'white' });
-        const yolk = this.createSvgElement('circle', { cx: position.x, cy: position.y, r: 10, fill: 'yellow' });
-        group.appendChild(white);
-        group.appendChild(yolk);
-        return group;
-    }
-
-    generateGekochtesEi(attributes, position) {
-        const group = this.createSvgElement('g', {});
-        const egg = this.createSvgElement('ellipse', { cx: position.x, cy: position.y, rx: 15, ry: 25, fill: 'white' });
-        const yolk = this.createSvgElement('circle', { cx: position.x, cy: position.y, r: 8, fill: '#FFD700' });
-        group.appendChild(egg);
-        group.appendChild(yolk);
-        return group;
-    }
-
-    generateAnanas(attributes, position) {
-        const size = 20;
-        const x = position.x, y = position.y;
-        const d = `M${x},${y} L${x + size},${y} A${size},${size} 0 0,0 ${x},${y - size} Z`;
-        const path = this.createSvgElement('path', { d, ...attributes });
-        const rotation = Math.random() * 360;
-        path.setAttribute('transform', `rotate(${rotation} ${x} ${y})`);
-        return path;
-    }
-
-    generateSardellen(attributes, position) {
-        const size = 15;
-        const d = `M${position.x - size},${position.y} Q${position.x},${position.y - size / 2} ${position.x + size},${position.y} Q${position.x},${position.y + size / 2} ${position.x - size},${position.y}`;
-        const fish = this.createSvgElement('path', { d, ...attributes });
-        const rotation = Math.random() * 360;
-        fish.setAttribute('transform', `rotate(${rotation} ${position.x} ${position.y})`);
-        return fish;
-    }
-
-    generateShrimps(attributes, position) {
-        const size = 10;
-        const d = `M${position.x},${position.y} C${position.x + size},${position.y - size} ${position.x + size},${position.y + size} ${position.x},${position.y + size} C${position.x - size},${position.y + size} ${position.x - size},${position.y - size} ${position.x},${position.y}`;
-        const shrimp = this.createSvgElement('path', { d, ...attributes });
-        const rotation = Math.random() * 360;
-        shrimp.setAttribute('transform', `rotate(${rotation} ${position.x} ${position.y})`);
-        return shrimp;
-    }
-
-    generateMeeresfruchte(attributes, position) {
-        return this.generateShrimps(attributes, position);
-    }
-
-    generateRucola(attributes, position) {
-        const pathData = `M ${position.x},${position.y} c -5,-15 -10,-30 0,-45 c 10,15 5,30 0,45 z`;
-        const leaf = this.createSvgElement('path', { d: pathData, ...attributes });
-        const rotation = Math.random() * 360;
-        leaf.setAttribute('transform', `rotate(${rotation} ${position.x} ${position.y})`);
-        return leaf;
-    }
-
-    generateBalsamicoGlaze(attributes) {
-        const d = `M50,200 C150,100 150,100 250,200`;
-        return this.createSvgElement('path', { d, ...attributes });
-    }
-
-    generateCocktailSosse(attributes) {
-        const d = `M50,220 C150,120 150,120 250,220`;
-        return this.createSvgElement('path', { d, ...attributes });
-    }
-
-    generateVierGemuse(attributes, position) {
-        const group = this.createSvgElement('g', {});
-        const vegetables = [
-            { generator: this.generatePaprika.bind(this), count: 5 },
-            { generator: this.generateZucchini.bind(this), count: 5 },
-            { generator: this.generateMelanzane.bind(this), count: 5 },
-            { generator: this.generatePilze.bind(this), count: 5 }
-        ];
-        vegetables.forEach(veg => {
-            for (let i = 0; i < veg.count; i++) {
-                const vegPosition = this.getRandomPositionInCircle();
-                const vegElement = veg.generator({}, vegPosition);
-                group.appendChild(vegElement);
-            }
+        const parmesan = this.createSvgElement('polygon', {
+            points,
+            fill: attributes.fill,
+            opacity: 0.7 + Math.random() * 0.2,
+            filter: 'url(#ingredientShadow)',
+            transform: `rotate(${Math.random() * 360} ${position.x} ${position.y})`
         });
+
+        return parmesan;
+    }
+
+    /**
+     * Enhanced brie cheese
+     */
+    generateBrie(attributes, position) {
+        const size = 10 + Math.random() * 4;
+        const d = `M${position.x - size},${position.y}
+                   A${size},${size} 0 0,1 ${position.x + size},${position.y}
+                   L${position.x},${position.y + size} Z`;
+
+        return this.createSvgElement('path', {
+            d,
+            fill: attributes.fill,
+            opacity: '0.85',
+            filter: 'url(#cheeseShadow)',
+            transform: `rotate(${Math.random() * 360} ${position.x} ${position.y})`
+        });
+    }
+
+    /**
+     * Enhanced ricotta
+     */
+    generateRicotta(attributes, position) {
+        const group = this.createSvgElement('g', {});
+        const size = 8 + Math.random() * 4;
+
+        const ricotta = this.createSvgElement('circle', {
+            cx: position.x,
+            cy: position.y,
+            r: size,
+            fill: attributes.fill,
+            opacity: '0.9',
+            filter: 'url(#cheeseTexture)'
+        });
+
+        group.appendChild(ricotta);
         return group;
     }
 
-    generatePaprika(attributes, position) {
-        const ellipse = this.createSvgElement('ellipse', { cx: position.x, cy: position.y, rx: 10, ry: 5, fill: '#ff4500' });
-        const rotation = Math.random() * 360;
-        ellipse.setAttribute('transform', `rotate(${rotation} ${position.x} ${position.y})`);
-        return ellipse;
+    /**
+     * Enhanced feta chunks
+     */
+    generateFeta(attributes, position) {
+        const size = 12 + Math.random() * 6;
+        const feta = this.createSvgElement('rect', {
+            x: position.x - size / 2,
+            y: position.y - size / 2,
+            width: size,
+            height: size * (0.8 + Math.random() * 0.4),
+            fill: attributes.fill,
+            opacity: '0.85',
+            rx: '2',
+            filter: 'url(#ingredientShadow)',
+            transform: `rotate(${Math.random() * 360} ${position.x} ${position.y})`
+        });
+
+        return feta;
     }
 
-    generateZucchini(attributes, position) {
-        const ellipse = this.createSvgElement('ellipse', { cx: position.x, cy: position.y, rx: 10, ry: 5, fill: '#9acd32' });
-        const rotation = Math.random() * 360;
-        ellipse.setAttribute('transform', `rotate(${rotation} ${position.x} ${position.y})`);
-        return ellipse;
+    /**
+     * Enhanced Krauterkase (herb cheese)
+     */
+    generateKrauterkase(attributes, position) {
+        const group = this.createSvgElement('g', {
+            filter: 'url(#ingredientShadow)',
+            transform: `rotate(${Math.random() * 360} ${position.x} ${position.y})`
+        });
+
+        const size = 18;
+        const rect = this.createSvgElement('rect', {
+            x: position.x - size / 2,
+            y: position.y - size / 2,
+            width: size,
+            height: size,
+            fill: attributes.fill,
+            rx: 4,
+            ry: 4,
+            opacity: '0.85'
+        });
+        group.appendChild(rect);
+
+        // Add herb specks
+        for (let i = 0; i < 5; i++) {
+            const herb = this.createSvgElement('circle', {
+                cx: position.x + (Math.random() * size - size / 2),
+                cy: position.y + (Math.random() * size - size / 2),
+                r: 0.5 + Math.random() * 0.5,
+                fill: '#2d5016',
+                opacity: '0.6'
+            });
+            group.appendChild(herb);
+        }
+
+        return group;
     }
 
-    generateMelanzane(attributes, position) {
-        const ellipse = this.createSvgElement('ellipse', { cx: position.x, cy: position.y, rx: 15, ry: 8, fill: '#800080' });
-        const rotation = Math.random() * 360;
-        ellipse.setAttribute('transform', `rotate(${rotation} ${position.x} ${position.y})`);
-        return ellipse;
-    }
-
+    /**
+     * Enhanced Krautertopfen
+     */
     generateKrautertopfenkase(attributes, position) {
-        const circle = this.createSvgElement('circle', { cx: position.x, cy: position.y, r: 12, fill: '#f5deb3' });
-        const rotation = Math.random() * 360;
-        circle.setAttribute('transform', `rotate(${rotation} ${position.x} ${position.y})`);
+        const circle = this.createSvgElement('circle', {
+            cx: position.x,
+            cy: position.y,
+            r: 10 + Math.random() * 4,
+            fill: attributes.fill,
+            opacity: '0.9',
+            filter: 'url(#cheeseTexture)'
+        });
+
         return circle;
     }
 
-    generateKrauterkase(attributes, position) {
-        const rect = this.createSvgElement('rect', {
-            x: position.x - 10,
-            y: position.y - 10,
-            width: 20,
-            height: 20,
-            fill: '#f4a460',
-            rx: 4,
-            ry: 4
+    /**
+     * Enhanced ham slices
+     */
+    generateSchinken(attributes, position) {
+        const group = this.createSvgElement('g', {
+            filter: 'url(#ingredientShadow)',
+            transform: `rotate(${Math.random() * 360} ${position.x} ${position.y})`
         });
-        const rotation = Math.random() * 360;
-        rect.setAttribute('transform', `rotate(${rotation} ${position.x} ${position.y})`);
-        return rect;
+
+        const width = 35 + Math.random() * 10;
+        const height = 18 + Math.random() * 6;
+
+        const ham = this.createSvgElement('ellipse', {
+            cx: position.x,
+            cy: position.y,
+            rx: width / 2,
+            ry: height / 2,
+            fill: attributes.fill,
+            opacity: '0.85',
+            filter: 'url(#meatTexture)'
+        });
+        group.appendChild(ham);
+
+        // Add fat marbling
+        const marbling = this.createSvgElement('ellipse', {
+            cx: position.x + 5,
+            cy: position.y,
+            rx: 6,
+            ry: 4,
+            fill: '#f5deb3',
+            opacity: '0.4'
+        });
+        group.appendChild(marbling);
+
+        return group;
     }
 
+    /**
+     * Enhanced speck (bacon)
+     */
+    generateSpeck(attributes, position) {
+        const group = this.createSvgElement('g', {
+            filter: 'url(#ingredientShadow)',
+            transform: `rotate(${Math.random() * 360} ${position.x} ${position.y})`
+        });
+
+        const width = 45 + Math.random() * 10;
+        const height = 8 + Math.random() * 4;
+
+        // Meat part
+        const meat = this.createSvgElement('rect', {
+            x: position.x - width / 2,
+            y: position.y - height / 2,
+            width: width,
+            height: height,
+            fill: '#8b4513',
+            opacity: '0.85',
+            rx: 2
+        });
+        group.appendChild(meat);
+
+        // Fat stripe
+        const fat = this.createSvgElement('rect', {
+            x: position.x - width / 2,
+            y: position.y - height / 2,
+            width: width,
+            height: height / 3,
+            fill: '#f5deb3',
+            opacity: '0.7',
+            rx: 1
+        });
+        group.appendChild(fat);
+
+        return group;
+    }
+
+    /**
+     * Enhanced salami with pepperoni details
+     */
+    generateSalami(attributes, position) {
+        const group = this.createSvgElement('g', {
+            filter: 'url(#ingredientShadow)',
+            transform: `rotate(${Math.random() * 360} ${position.x} ${position.y})`
+        });
+
+        const size = 11 + Math.random() * 3;
+
+        // Main salami circle
+        const salami = this.createSvgElement('circle', {
+            cx: position.x,
+            cy: position.y,
+            r: size,
+            fill: attributes.fill || 'url(#salamiGradient)',
+            filter: 'url(#meatTexture)'
+        });
+        group.appendChild(salami);
+
+        // Edge casing
+        const casing = this.createSvgElement('circle', {
+            cx: position.x,
+            cy: position.y,
+            r: size,
+            fill: 'none',
+            stroke: '#8b2f2f',
+            'stroke-width': '1',
+            opacity: '0.6'
+        });
+        group.appendChild(casing);
+
+        // Fat spots
+        const fatCount = 2 + Math.floor(Math.random() * 3);
+        for (let i = 0; i < fatCount; i++) {
+            const angle = (i / fatCount) * Math.PI * 2;
+            const distance = size * 0.4 * Math.random();
+            const fatX = position.x + distance * Math.cos(angle);
+            const fatY = position.y + distance * Math.sin(angle);
+
+            const fat = this.createSvgElement('circle', {
+                cx: fatX,
+                cy: fatY,
+                r: 1 + Math.random() * 1.5,
+                fill: '#f5deb3',
+                opacity: '0.7'
+            });
+            group.appendChild(fat);
+        }
+
+        return group;
+    }
+
+    /**
+     * Enhanced wurstel (sausage slices)
+     */
+    generateWurstel(attributes, position) {
+        const size = 9 + Math.random() * 3;
+
+        const wurstel = this.createSvgElement('circle', {
+            cx: position.x,
+            cy: position.y,
+            r: size,
+            fill: attributes.fill,
+            filter: 'url(#ingredientShadow)',
+            opacity: '0.9'
+        });
+
+        return wurstel;
+    }
+
+    /**
+     * Enhanced bresaola
+     */
+    generateBresaola(attributes, position) {
+        const group = this.createSvgElement('g', {
+            filter: 'url(#ingredientShadow)',
+            transform: `rotate(${Math.random() * 360} ${position.x} ${position.y})`
+        });
+
+        const ellipse = this.createSvgElement('ellipse', {
+            cx: position.x,
+            cy: position.y,
+            rx: 18 + Math.random() * 6,
+            ry: 9 + Math.random() * 3,
+            fill: attributes.fill,
+            opacity: '0.85',
+            filter: 'url(#meatTexture)'
+        });
+
+        group.appendChild(ellipse);
+        return group;
+    }
+
+    /**
+     * Enhanced Kaminwurz
+     */
     generateKaminwurz(attributes, position) {
         const ellipse = this.createSvgElement('ellipse', {
             cx: position.x,
             cy: position.y,
             rx: 5,
-            ry: 20,
-            fill: '#8b4513'
+            ry: 18 + Math.random() * 6,
+            fill: attributes.fill,
+            filter: 'url(#ingredientShadow)',
+            opacity: '0.85',
+            transform: `rotate(${Math.random() * 360} ${position.x} ${position.y})`
         });
-        const rotation = Math.random() * 360;
-        ellipse.setAttribute('transform', `rotate(${rotation} ${position.x} ${position.y})`);
+
         return ellipse;
     }
 
+    /**
+     * Enhanced tuna chunks
+     */
+    generateTonno(attributes, position) {
+        const group = this.createSvgElement('g', {
+            filter: 'url(#ingredientShadow)',
+            transform: `rotate(${Math.random() * 360} ${position.x} ${position.y})`
+        });
+
+        const size = 9 + Math.random() * 4;
+        const points = [
+            `${position.x},${position.y - size}`,
+            `${position.x - size},${position.y + size}`,
+            `${position.x + size},${position.y + size}`
+        ].join(' ');
+
+        const tuna = this.createSvgElement('polygon', {
+            points,
+            fill: attributes.fill,
+            opacity: '0.8'
+        });
+        group.appendChild(tuna);
+
+        return group;
+    }
+
+    /**
+     * Enhanced mushrooms with cap details
+     */
+    generatePilze(attributes, position) {
+        const group = this.createSvgElement('g', {
+            filter: 'url(#ingredientShadow)',
+            transform: `rotate(${Math.random() * 360} ${position.x} ${position.y})`
+        });
+
+        const capWidth = 18 + Math.random() * 6;
+        const capHeight = 9 + Math.random() * 3;
+        const stemWidth = 5 + Math.random() * 2;
+        const stemHeight = 11 + Math.random() * 3;
+
+        const x = position.x;
+        const y = position.y;
+
+        // Mushroom cap with bezier curves for organic shape
+        const capPath = `M${x - capWidth / 2},${y}
+                        Q${x - capWidth / 3},${y - capHeight}
+                        ${x},${y - capHeight - 2}
+                        Q${x + capWidth / 3},${y - capHeight}
+                        ${x + capWidth / 2},${y} Z`;
+
+        const cap = this.createSvgElement('path', {
+            d: capPath,
+            fill: attributes.fill || 'url(#mushroomGradient)',
+            filter: 'url(#mushroomTexture)'
+        });
+        group.appendChild(cap);
+
+        // Stem
+        const stemPath = `M${x - stemWidth / 2},${y}
+                         L${x - stemWidth / 2},${y + stemHeight}
+                         L${x + stemWidth / 2},${y + stemHeight}
+                         L${x + stemWidth / 2},${y} Z`;
+
+        const stem = this.createSvgElement('path', {
+            d: stemPath,
+            fill: '#f5deb3',
+            opacity: '0.9'
+        });
+        group.appendChild(stem);
+
+        // Add gill details under cap
+        for (let i = 0; i < 3; i++) {
+            const gillY = y - 2;
+            const gillX = x - capWidth / 3 + (i * capWidth / 3);
+            const gill = this.createSvgElement('line', {
+                x1: gillX,
+                y1: gillY,
+                x2: gillX,
+                y2: gillY + 3,
+                stroke: '#d2a679',
+                'stroke-width': '0.5',
+                opacity: '0.4'
+            });
+            group.appendChild(gill);
+        }
+
+        return group;
+    }
+
+    /**
+     * Enhanced spinach leaves
+     */
+    generateSpinach(attributes, position) {
+        const size = 9 + Math.random() * 4;
+        const d = `M${position.x - size},${position.y}
+                  Q${position.x - size / 2},${position.y - size * 2}
+                  ${position.x},${position.y - size * 1.5}
+                  Q${position.x + size / 2},${position.y - size * 2}
+                  ${position.x + size},${position.y}
+                  Q${position.x},${position.y + size / 2}
+                  ${position.x - size},${position.y}`;
+
+        const leaf = this.createSvgElement('path', {
+            d,
+            fill: attributes.fill,
+            opacity: 0.7 + Math.random() * 0.2,
+            filter: 'url(#ingredientShadow)',
+            transform: `rotate(${Math.random() * 360} ${position.x} ${position.y})`
+        });
+
+        return leaf;
+    }
+
+    /**
+     * Enhanced artichokes
+     */
+    generateArtischocken(attributes, position) {
+        const group = this.createSvgElement('g', {
+            filter: 'url(#ingredientShadow)',
+            transform: `rotate(${Math.random() * 360} ${position.x} ${position.y})`
+        });
+
+        const ellipse = this.createSvgElement('ellipse', {
+            cx: position.x,
+            cy: position.y,
+            rx: 18 + Math.random() * 6,
+            ry: 9 + Math.random() * 3,
+            fill: attributes.fill,
+            opacity: '0.85'
+        });
+        group.appendChild(ellipse);
+
+        // Add leaf details
+        for (let i = 0; i < 3; i++) {
+            const leafLine = this.createSvgElement('line', {
+                x1: position.x - 10 + i * 10,
+                y1: position.y - 5,
+                x2: position.x - 10 + i * 10,
+                y2: position.y + 5,
+                stroke: '#7a9f1a',
+                'stroke-width': '1',
+                opacity: '0.5'
+            });
+            group.appendChild(leafLine);
+        }
+
+        return group;
+    }
+
+    /**
+     * Enhanced peppers
+     */
+    generatePaprika(attributes, position) {
+        const ellipse = this.createSvgElement('ellipse', {
+            cx: position.x,
+            cy: position.y,
+            rx: 9 + Math.random() * 3,
+            ry: 5 + Math.random() * 2,
+            fill: attributes.fill,
+            opacity: '0.85',
+            filter: 'url(#ingredientShadow)',
+            transform: `rotate(${Math.random() * 360} ${position.x} ${position.y})`
+        });
+
+        return ellipse;
+    }
+
+    /**
+     * Enhanced zucchini
+     */
+    generateZucchini(attributes, position) {
+        const ellipse = this.createSvgElement('ellipse', {
+            cx: position.x,
+            cy: position.y,
+            rx: 9 + Math.random() * 3,
+            ry: 5 + Math.random() * 2,
+            fill: attributes.fill,
+            opacity: '0.85',
+            filter: 'url(#ingredientShadow)',
+            transform: `rotate(${Math.random() * 360} ${position.x} ${position.y})`
+        });
+
+        return ellipse;
+    }
+
+    /**
+     * Enhanced eggplant
+     */
+    generateMelanzane(attributes, position) {
+        const ellipse = this.createSvgElement('ellipse', {
+            cx: position.x,
+            cy: position.y,
+            rx: 14 + Math.random() * 4,
+            ry: 7 + Math.random() * 3,
+            fill: attributes.fill,
+            opacity: '0.85',
+            filter: 'url(#ingredientShadow)',
+            transform: `rotate(${Math.random() * 360} ${position.x} ${position.y})`
+        });
+
+        return ellipse;
+    }
+
+    /**
+     * Enhanced onion rings
+     */
+    generateZwiebel(attributes, position) {
+        const group = this.createSvgElement('g', {
+            filter: 'url(#ingredientShadow)',
+            transform: `rotate(${Math.random() * 360} ${position.x} ${position.y})`
+        });
+
+        const size = 13 + Math.random() * 5;
+
+        // Outer ring
+        const outer = this.createSvgElement('circle', {
+            cx: position.x,
+            cy: position.y,
+            r: size,
+            stroke: attributes.stroke || '#d2b48c',
+            'stroke-width': 3,
+            fill: 'none',
+            opacity: '0.7'
+        });
+        group.appendChild(outer);
+
+        // Inner ring for depth
+        const inner = this.createSvgElement('circle', {
+            cx: position.x,
+            cy: position.y,
+            r: size * 0.6,
+            stroke: '#c9a97a',
+            'stroke-width': 1.5,
+            fill: 'none',
+            opacity: '0.5'
+        });
+        group.appendChild(inner);
+
+        return group;
+    }
+
+    /**
+     * Enhanced chili peppers (Lombardi)
+     */
+    generateLombardi(attributes, position) {
+        const x = position.x;
+        const y = position.y;
+        const size = 9 + Math.random() * 3;
+
+        const pathData = `M ${x},${y}
+                         q ${size / 2},-${size} ${size},0
+                         c ${size / 2},${size} -${size / 2},${size * 1.5} -${size},${size}
+                         s -${size / 2},-${size} 0,-${size} z`;
+
+        const chili = this.createSvgElement('path', {
+            d: pathData,
+            fill: attributes.fill,
+            opacity: '0.85',
+            filter: 'url(#ingredientShadow)',
+            transform: `rotate(${Math.random() * 360} ${x} ${y})`
+        });
+
+        return chili;
+    }
+
+    /**
+     * Enhanced peperonata
+     */
+    generatePeperonata(attributes, position) {
+        const ellipse = this.createSvgElement('ellipse', {
+            cx: position.x,
+            cy: position.y,
+            rx: 13 + Math.random() * 5,
+            ry: 23 + Math.random() * 6,
+            fill: attributes.fill,
+            opacity: '0.8',
+            filter: 'url(#ingredientShadow)',
+            transform: `rotate(${Math.random() * 360} ${position.x} ${position.y})`
+        });
+
+        return ellipse;
+    }
+
+    /**
+     * Enhanced arugula leaves
+     */
+    generateRucola(attributes, position) {
+        const pathData = `M ${position.x},${position.y}
+                         c -5,-15 -10,-30 0,-45
+                         c 10,15 5,30 0,45 z`;
+
+        const leaf = this.createSvgElement('path', {
+            d: pathData,
+            fill: attributes.fill,
+            opacity: 0.7 + Math.random() * 0.2,
+            filter: 'url(#ingredientShadow)',
+            transform: `rotate(${Math.random() * 360} ${position.x} ${position.y})`
+        });
+
+        return leaf;
+    }
+
+    /**
+     * Enhanced tomatoes
+     */
+    generateTomato(attributes, position) {
+        const group = this.createSvgElement('g', {
+            filter: 'url(#ingredientShadow)'
+        });
+
+        const size = 7 + Math.random() * 3;
+
+        const tomato = this.createSvgElement('circle', {
+            cx: position.x,
+            cy: position.y,
+            r: size,
+            fill: attributes.fill,
+            opacity: '0.9'
+        });
+        group.appendChild(tomato);
+
+        // Highlight
+        const highlight = this.createSvgElement('circle', {
+            cx: position.x - size * 0.3,
+            cy: position.y - size * 0.3,
+            r: size * 0.3,
+            fill: '#ff8c7a',
+            opacity: '0.5'
+        });
+        group.appendChild(highlight);
+
+        return group;
+    }
+
+    /**
+     * Enhanced olives
+     */
+    generateOlive(attributes, position) {
+        const group = this.createSvgElement('g', {
+            filter: 'url(#ingredientShadow)',
+            transform: `rotate(${Math.random() * 360} ${position.x} ${position.y})`
+        });
+
+        const olive = this.createSvgElement('ellipse', {
+            cx: position.x,
+            cy: position.y,
+            rx: 7 + Math.random() * 2,
+            ry: 11 + Math.random() * 3,
+            fill: attributes.fill,
+            opacity: '0.85'
+        });
+        group.appendChild(olive);
+
+        // Pimento center (for green olives)
+        if (Math.random() > 0.5) {
+            const pimento = this.createSvgElement('ellipse', {
+                cx: position.x,
+                cy: position.y,
+                rx: 2,
+                ry: 3,
+                fill: '#ff4444',
+                opacity: '0.7'
+            });
+            group.appendChild(pimento);
+        }
+
+        return group;
+    }
+
+    /**
+     * Enhanced capers
+     */
+    generateKapern(attributes, position) {
+        const caper = this.createSvgElement('ellipse', {
+            cx: position.x,
+            cy: position.y,
+            rx: 3 + Math.random() * 2,
+            ry: 5 + Math.random() * 2,
+            fill: attributes.fill,
+            opacity: '0.8',
+            filter: 'url(#ingredientShadow)',
+            transform: `rotate(${Math.random() * 360} ${position.x} ${position.y})`
+        });
+
+        return caper;
+    }
+
+    /**
+     * Enhanced corn kernels
+     */
+    generateMais(attributes, position) {
+        const size = 2.5 + Math.random() * 1;
+
+        const corn = this.createSvgElement('ellipse', {
+            cx: position.x,
+            cy: position.y,
+            rx: size,
+            ry: size * 1.3,
+            fill: attributes.fill,
+            opacity: 0.8 + Math.random() * 0.2,
+            transform: `rotate(${Math.random() * 360} ${position.x} ${position.y})`
+        });
+
+        return corn;
+    }
+
+    /**
+     * Enhanced paprika powder
+     */
+    generatePaprikapulver(attributes, position) {
+        const size = 1.5 + Math.random() * 1;
+
+        const powder = this.createSvgElement('circle', {
+            cx: position.x,
+            cy: position.y,
+            r: size,
+            fill: attributes.fill,
+            opacity: 0.3 + Math.random() * 0.3
+        });
+
+        return powder;
+    }
+
+    /**
+     * Enhanced oregano/herb specks
+     */
+    generateOregano(attributes, position) {
+        const size = 0.8 + Math.random() * 0.8;
+
+        const oregano = this.createSvgElement('ellipse', {
+            cx: position.x,
+            cy: position.y,
+            rx: size,
+            ry: size * 1.5,
+            fill: attributes.fill,
+            opacity: 0.5 + Math.random() * 0.3,
+            transform: `rotate(${Math.random() * 360} ${position.x} ${position.y})`
+        });
+
+        return oregano;
+    }
+
+    /**
+     * Enhanced balsamico glaze drizzle
+     */
+    generateBalsamicoGlaze(attributes) {
+        const path1 = `M50,200 Q100,150 150,180 T250,200`;
+        const path2 = `M60,210 Q110,165 155,190 T245,215`;
+
+        const group = this.createSvgElement('g', {});
+
+        const drizzle1 = this.createSvgElement('path', {
+            d: path1,
+            ...attributes,
+            opacity: '0.7'
+        });
+
+        const drizzle2 = this.createSvgElement('path', {
+            d: path2,
+            ...attributes,
+            opacity: '0.5'
+        });
+
+        group.appendChild(drizzle1);
+        group.appendChild(drizzle2);
+
+        return group;
+    }
+
+    /**
+     * Enhanced cocktail sauce drizzle
+     */
+    generateCocktailSosse(attributes) {
+        const path = `M50,220 Q100,175 150,200 T250,220`;
+
+        return this.createSvgElement('path', {
+            d: path,
+            ...attributes,
+            opacity: '0.7'
+        });
+    }
+
+    /**
+     * Enhanced garlic
+     */
+    generateKnoblauch(attributes, position) {
+        const size = 5 + Math.random() * 2;
+        const d = `M${position.x},${position.y}
+                  Q${position.x - size},${position.y - size}
+                  ${position.x},${position.y - size * 2}
+                  Q${position.x + size},${position.y - size}
+                  ${position.x},${position.y}`;
+
+        return this.createSvgElement('path', {
+            d,
+            fill: attributes.fill,
+            opacity: '0.8',
+            filter: 'url(#ingredientShadow)',
+            transform: `rotate(${Math.random() * 360} ${position.x} ${position.y})`
+        });
+    }
+
+    /**
+     * Enhanced basil leaves
+     */
+    generateBasilikum(attributes, position) {
+        const size = 4 + Math.random() * 2;
+        const d = `M${position.x},${position.y}
+                  Q${position.x - size},${position.y - size}
+                  ${position.x},${position.y - size * 2}
+                  Q${position.x + size},${position.y - size}
+                  ${position.x},${position.y}`;
+
+        const leaf = this.createSvgElement('path', {
+            d,
+            fill: attributes.fill,
+            opacity: 0.7 + Math.random() * 0.2,
+            filter: 'url(#ingredientShadow)',
+            transform: `rotate(${Math.random() * 360} ${position.x} ${position.y})`
+        });
+
+        return leaf;
+    }
+
+    /**
+     * Enhanced fried egg
+     */
+    generateSpiegelei(attributes, position) {
+        const group = this.createSvgElement('g', {
+            filter: 'url(#ingredientShadow)'
+        });
+
+        // Irregular white shape
+        const whitePath = `M${position.x - 20},${position.y}
+                          Q${position.x - 25},${position.y - 15} ${position.x - 15},${position.y - 20}
+                          Q${position.x},${position.y - 22} ${position.x + 15},${position.y - 18}
+                          Q${position.x + 23},${position.y - 10} ${position.x + 20},${position.y + 5}
+                          Q${position.x + 15},${position.y + 20} ${position.x},${position.y + 22}
+                          Q${position.x - 15},${position.y + 18} ${position.x - 20},${position.y} Z`;
+
+        const white = this.createSvgElement('path', {
+            d: whitePath,
+            fill: 'white',
+            opacity: '0.95'
+        });
+        group.appendChild(white);
+
+        const yolk = this.createSvgElement('circle', {
+            cx: position.x,
+            cy: position.y,
+            r: 9,
+            fill: '#ffd700',
+            opacity: '0.95'
+        });
+        group.appendChild(yolk);
+
+        // Yolk highlight
+        const highlight = this.createSvgElement('circle', {
+            cx: position.x - 3,
+            cy: position.y - 3,
+            r: 3,
+            fill: '#ffed4e',
+            opacity: '0.6'
+        });
+        group.appendChild(highlight);
+
+        return group;
+    }
+
+    /**
+     * Enhanced boiled egg
+     */
+    generateGekochtesEi(attributes, position) {
+        const group = this.createSvgElement('g', {
+            filter: 'url(#ingredientShadow)'
+        });
+
+        const egg = this.createSvgElement('ellipse', {
+            cx: position.x,
+            cy: position.y,
+            rx: 14,
+            ry: 23,
+            fill: 'white',
+            opacity: '0.95'
+        });
+        group.appendChild(egg);
+
+        const yolk = this.createSvgElement('circle', {
+            cx: position.x,
+            cy: position.y,
+            r: 7,
+            fill: '#FFD700',
+            opacity: '0.9'
+        });
+        group.appendChild(yolk);
+
+        return group;
+    }
+
+    /**
+     * Enhanced pineapple chunks
+     */
+    generateAnanas(attributes, position) {
+        const size = 18 + Math.random() * 6;
+        const x = position.x;
+        const y = position.y;
+
+        const d = `M${x},${y}
+                  L${x + size},${y}
+                  A${size},${size} 0 0,0 ${x},${y - size} Z`;
+
+        const path = this.createSvgElement('path', {
+            d,
+            fill: attributes.fill,
+            opacity: '0.85',
+            filter: 'url(#ingredientShadow)',
+            transform: `rotate(${Math.random() * 360} ${x} ${y})`
+        });
+
+        return path;
+    }
+
+    /**
+     * Enhanced sardellen (anchovies)
+     */
+    generateSardellen(attributes, position) {
+        const size = 14 + Math.random() * 4;
+        const d = `M${position.x - size},${position.y}
+                  Q${position.x},${position.y - size / 2} ${position.x + size},${position.y}
+                  Q${position.x},${position.y + size / 2} ${position.x - size},${position.y}`;
+
+        const fish = this.createSvgElement('path', {
+            d,
+            fill: attributes.fill,
+            opacity: '0.85',
+            filter: 'url(#ingredientShadow)',
+            transform: `rotate(${Math.random() * 360} ${position.x} ${position.y})`
+        });
+
+        return fish;
+    }
+
+    /**
+     * Enhanced shrimps
+     */
+    generateShrimps(attributes, position) {
+        const size = 9 + Math.random() * 3;
+        const d = `M${position.x},${position.y}
+                  C${position.x + size},${position.y - size}
+                  ${position.x + size},${position.y + size}
+                  ${position.x},${position.y + size}
+                  C${position.x - size},${position.y + size}
+                  ${position.x - size},${position.y - size}
+                  ${position.x},${position.y}`;
+
+        const shrimp = this.createSvgElement('path', {
+            d,
+            fill: attributes.fill,
+            opacity: '0.85',
+            filter: 'url(#ingredientShadow)',
+            transform: `rotate(${Math.random() * 360} ${position.x} ${position.y})`
+        });
+
+        return shrimp;
+    }
+
+    /**
+     * Enhanced seafood mix
+     */
+    generateMeeresfruchte(attributes, position) {
+        return this.generateShrimps(attributes, position);
+    }
+
+    /**
+     * Enhanced mixed vegetables
+     */
+    generateVierGemuse(attributes, position) {
+        const group = this.createSvgElement('g', {});
+        const vegetables = [
+            { generator: this.generatePaprika.bind(this), count: 5, attrs: { fill: '#ff4500' } },
+            { generator: this.generateZucchini.bind(this), count: 5, attrs: { fill: '#9acd32' } },
+            { generator: this.generateMelanzane.bind(this), count: 5, attrs: { fill: '#800080' } },
+            { generator: this.generatePilze.bind(this), count: 5, attrs: { fill: 'url(#mushroomGradient)' } }
+        ];
+
+        vegetables.forEach(veg => {
+            for (let i = 0; i < veg.count; i++) {
+                const vegPosition = this.getRandomPositionInCircle();
+                const vegElement = veg.generator(veg.attrs, vegPosition);
+                group.appendChild(vegElement);
+            }
+        });
+
+        return group;
+    }
+
+    /**
+     * Enhanced parmesan splinters
+     */
     generateParmesansplitter(attributes, position) {
         const polygon = this.createSvgElement('polygon', {
-            points: `${position.x},${position.y} ${position.x + 10},${position.y - 5} ${position.x + 5},${position.y + 10}`,
-            fill: '#fffacd'
+            points: `${position.x},${position.y}
+                    ${position.x + 8 + Math.random() * 4},${position.y - 4 - Math.random() * 2}
+                    ${position.x + 4 + Math.random() * 2},${position.y + 8 + Math.random() * 4}`,
+            fill: attributes.fill,
+            opacity: 0.7 + Math.random() * 0.2,
+            filter: 'url(#ingredientShadow)',
+            transform: `rotate(${Math.random() * 360} ${position.x} ${position.y})`
         });
-        const rotation = Math.random() * 360;
-        polygon.setAttribute('transform', `rotate(${rotation} ${position.x} ${position.y})`);
+
         return polygon;
     }
 
+    /**
+     * Enhanced cocktail sauce blobs
+     */
     generateCocktailsauce(attributes, position) {
         const ellipse = this.createSvgElement('ellipse', {
             cx: position.x,
             cy: position.y,
-            rx: 15,
-            ry: 8,
-            fill: '#ff6347'
+            rx: 13 + Math.random() * 5,
+            ry: 7 + Math.random() * 3,
+            fill: attributes.fill,
+            opacity: '0.8',
+            filter: 'url(#ingredientShadow)',
+            transform: `rotate(${Math.random() * 360} ${position.x} ${position.y})`
         });
-        const rotation = Math.random() * 360;
-        ellipse.setAttribute('transform', `rotate(${rotation} ${position.x} ${position.y})`);
+
         return ellipse;
     }
 }

@@ -72,7 +72,12 @@
         0 0 0 6px rgba(255, 255, 255, 0.05),
         0 0 0 7px rgba(255, 255, 255, 0.02);
 
-    transition: transform var(--transition-default);
+    /* Performance optimizations */
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    will-change: transform;
+    transform: translate3d(0, 0, 0); /* GPU acceleration */
+    backface-visibility: hidden;
+    perspective: 1000px;
 }
 
 /* Add SVG noise texture for realism */
@@ -112,46 +117,58 @@
     height: 100%;
     opacity: 0;
     pointer-events: none;
-    transition: opacity var(--transition-slow, 0.5s cubic-bezier(0.4, 0, 0.2, 1));
-    will-change: opacity;
+    transition: opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    will-change: opacity, transform;
+    transform: translate3d(0, 0, 0); /* GPU acceleration */
+    backface-visibility: hidden; /* Prevent flickering */
 }
 
-/* Visible ingredient layer */
+/* Visible ingredient layer with spring physics */
+.ingredient-layer[style*="opacity: 1"],
 .ingredient-layer.visible {
-    opacity: 1;
-    animation: ingredientFadeIn 0.4s var(--ease-spring, cubic-bezier(0.34, 1.56, 0.64, 1));
+    animation: springDrop 0.7s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 /* Hide ingredient animation */
 .ingredient-layer.hiding {
-    animation: ingredientFadeOut 0.3s ease-out forwards;
+    animation: ingredientFadeOut 0.4s cubic-bezier(0.4, 0, 1, 1) forwards;
 }
 
-/* Ingredient fade-in animation */
-@keyframes ingredientFadeIn {
+/* Spring physics drop animation - ingredients bounce when added */
+@keyframes springDrop {
     0% {
         opacity: 0;
-        transform: scale(0.9) rotate(-2deg);
+        transform: translate3d(0, -15px, 0) scale(0.85) rotate(-3deg);
     }
-    60% {
-        opacity: 0.8;
-        transform: scale(1.03) rotate(1deg);
+    50% {
+        opacity: 0.9;
+        transform: translate3d(0, 2px, 0) scale(1.05) rotate(1.5deg);
+    }
+    70% {
+        transform: translate3d(0, -1px, 0) scale(0.98) rotate(-0.5deg);
+    }
+    85% {
+        transform: translate3d(0, 0.5px, 0) scale(1.01) rotate(0.2deg);
     }
     100% {
         opacity: 1;
-        transform: scale(1) rotate(0deg);
+        transform: translate3d(0, 0, 0) scale(1) rotate(0deg);
     }
 }
 
-/* Ingredient fade-out animation */
+/* Smoother fade-out animation */
 @keyframes ingredientFadeOut {
     0% {
         opacity: 1;
-        transform: scale(1) rotate(0deg);
+        transform: translate3d(0, 0, 0) scale(1) rotate(0deg);
+    }
+    50% {
+        opacity: 0.5;
+        transform: translate3d(0, -3px, 0) scale(0.98) rotate(-0.5deg);
     }
     100% {
         opacity: 0;
-        transform: scale(0.95) rotate(-1deg);
+        transform: translate3d(0, -8px, 0) scale(0.92) rotate(-1deg);
     }
 }
 
