@@ -118,7 +118,10 @@ export class UIController {
                     restaurant.displayName || restaurant.name,
                     subtitle,
                     restaurant.tags,
-                    () => this.switchRestaurant(restaurant.id)
+                    () => {
+                        this.switchRestaurant(restaurant.id);
+                        this.hideSearchResults();
+                    }
                 );
                 item.classList.add('restaurant-result-item');
                 section.appendChild(item);
@@ -149,7 +152,10 @@ export class UIController {
                     result.pizza.name,
                     ingredientsText,
                     result.pizza.tags,
-                    () => this.selectPizza(result.pizza)
+                    () => {
+                        this.selectPizza(result.pizza);
+                        this.hideSearchResults();
+                    }
                 );
                 section.appendChild(item);
             });
@@ -201,6 +207,16 @@ export class UIController {
         const resultsContainer = document.querySelector('.search-results');
         if (resultsContainer) {
             resultsContainer.classList.remove('visible');
+        }
+
+        // Also clear search input and hide clear button
+        const searchInput = document.getElementById('search-input');
+        const searchClear = document.querySelector('.search-clear');
+        if (searchInput) {
+            searchInput.value = '';
+        }
+        if (searchClear) {
+            searchClear.classList.remove('visible');
         }
     }
 
@@ -330,9 +346,60 @@ export class UIController {
             // Hide search results
             this.hideSearchResults();
 
+            // Validate ingredients (check for missing SVG definitions)
+            this.validateIngredients();
+
         } catch (error) {
             console.error(`Failed to switch to restaurant ${restaurantId}:`, error);
             showError(`Failed to load restaurant data`, document.getElementById('ingredients-container'));
+        }
+    }
+
+    /**
+     * Validate all ingredients in current restaurant and report missing SVG definitions
+     */
+    validateIngredients() {
+        const restaurantData = this.dataLoader.getCurrentRestaurantData();
+        if (!restaurantData || !restaurantData.ingredients || !restaurantData.ingredients.categories) return;
+
+        // Get all unique ingredient SVG layers from the restaurant
+        const allIngredientLayers = new Set();
+
+        // Collect from ingredient categories
+        Object.values(restaurantData.ingredients.categories).forEach(category => {
+            if (category.items) {
+                category.items.forEach(ingredient => {
+                    allIngredientLayers.add(ingredient.svgLayer);
+                });
+            }
+        });
+
+        // Check for missing definitions
+        const missingLayers = this.visualizer.getMissingIngredients(Array.from(allIngredientLayers));
+
+        if (missingLayers.length > 0) {
+            console.group(`⚠️ Missing SVG Definitions for ${restaurantData.restaurant.name}`);
+            console.warn(`${missingLayers.length} ingredient(s) don't have SVG definitions:`);
+
+            missingLayers.forEach(layerId => {
+                // Find the ingredient name
+                let ingredientName = layerId;
+                Object.values(restaurantData.ingredients.categories).forEach(category => {
+                    if (category.items) {
+                        const ing = category.items.find(i => i.svgLayer === layerId);
+                        if (ing) ingredientName = ing.name;
+                    }
+                });
+                console.warn(`  - ${ingredientName} (${layerId})`);
+            });
+
+            console.groupEnd();
+
+            // Return the missing list for programmatic use
+            return missingLayers;
+        } else {
+            console.log(`✅ All ${allIngredientLayers.size} ingredients have SVG definitions`);
+            return [];
         }
     }
 
@@ -395,7 +462,30 @@ export class UIController {
                 });
 
                 label.appendChild(checkbox);
-                label.appendChild(document.createTextNode(ingredient.name));
+
+                // Add mini preview icon
+                const previewIcon = this.visualizer.generateMiniPreview(ingredient.svgLayer);
+                if (previewIcon) {
+                    label.appendChild(previewIcon);
+                }
+
+                // Wrap ingredient name in span for better layout
+                const nameSpan = createElement('span', { className: 'ingredient-name' }, ingredient.name);
+                label.appendChild(nameSpan);
+
+                // Check if ingredient has SVG definition
+                if (!this.visualizer.hasIngredientDefinition(ingredient.svgLayer)) {
+                    label.classList.add('missing-svg');
+                    label.title = `⚠️ No visual representation for "${ingredient.name}"`;
+
+                    // Add warning icon
+                    const warningIcon = document.createElement('i');
+                    warningIcon.className = 'ph ph-warning';
+                    warningIcon.style.color = '#ff6b6b';
+                    warningIcon.style.marginLeft = '4px';
+                    label.appendChild(warningIcon);
+                }
+
                 ingredientsDiv.appendChild(label);
             });
 
@@ -493,8 +583,17 @@ export class UIController {
         });
 
         if (closestPizza && maxMatches > 0) {
+            // Get the full ingredient list for the closest pizza
+            const closestPizzaIngredients = closestPizza.ingredients
+                .map(id => {
+                    const ing = this.dataLoader.getIngredientById(id);
+                    return ing ? ing.name : null;
+                })
+                .filter(name => name !== null);
+
             closestMatchContainer.innerHTML = `
                 <h2><i class="ph ph-target"></i> Closest Pizza: ${closestPizza.name}</h2>
+                <p style="color: var(--text-muted); font-size: 0.95em; margin-top: 8px;"><i class="ph ph-list"></i> Ingredients: ${closestPizzaIngredients.join(', ')}</p>
                 <p><i class="ph ph-plus-circle"></i> Add: ${missingIngredients.join(', ') || 'None'}</p>
                 <p><i class="ph ph-minus-circle"></i> Remove: ${additionalIngredients.join(', ') || 'None'}</p>
             `;
@@ -571,9 +670,9 @@ export class UIController {
     }
 
     /**
-     * Select a pizza and display its ingredients
+     * Select a pizza and display its ingredients with sequential animation
      */
-    selectPizza(pizza) {
+    async selectPizza(pizza) {
         // Get ingredient details
         const ingredientDetails = pizza.ingredients
             .map(id => this.dataLoader.getIngredientById(id))
@@ -594,25 +693,36 @@ export class UIController {
             checkbox.checked = false;
         });
 
-        // Clear current selection
+        // Clear current selection and pizza visualization
         this.currentSelectedIngredients = [];
         this.visualizer.clearPizza();
 
-        // Select ingredients for this pizza
-        ingredientDetails.forEach(ingredient => {
+        // Scroll to pizza visualizer first
+        document.getElementById('pizza-container')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+        // Wait for clear animation to complete
+        await new Promise(resolve => setTimeout(resolve, 650));
+
+        // Add ingredients one by one with delay
+        for (let i = 0; i < ingredientDetails.length; i++) {
+            const ingredient = ingredientDetails[i];
             const checkbox = document.querySelector(`input[data-ingredient-id="${ingredient.id}"]`);
+
             if (checkbox) {
                 checkbox.checked = true;
                 this.currentSelectedIngredients.push(ingredient.name);
                 this.visualizer.showIngredient(ingredient.svgLayer);
+
+                // Update display after each ingredient
+                this.updateCustomPizzaDisplay();
+
+                // Delay before adding next ingredient (shorter for sauce/cheese, longer for toppings)
+                const delay = i === 0 ? 200 : 150; // First ingredient (sauce) appears faster
+                await new Promise(resolve => setTimeout(resolve, delay));
             }
-        });
+        }
 
-        // Update display
-        this.updateCustomPizzaDisplay();
+        // Final display update
         this.findAndDisplayClosestPizza();
-
-        // Scroll to pizza visualizer
-        document.getElementById('pizza-container')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
 }

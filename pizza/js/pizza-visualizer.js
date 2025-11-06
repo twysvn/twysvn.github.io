@@ -13,6 +13,8 @@ export class PizzaVisualizer {
         this.container = null;
         this.initialized = false;
         this.usedPositions = [];
+        this.layerCache = {}; // Cache for pre-rendered layers
+        this.activeLayerIds = new Set(); // Track currently visible layers
     }
 
     /**
@@ -26,7 +28,7 @@ export class PizzaVisualizer {
 
         this.container.innerHTML = '';
         this.generateEnhancedBase();
-        this.generateIngredientLayers();
+        // Don't pre-generate all layers - use lazy rendering instead
         this.initialized = true;
     }
 
@@ -36,8 +38,9 @@ export class PizzaVisualizer {
     generateEnhancedBase() {
         const baseSvg = this.createSvgElement('svg', {
             viewBox: '0 0 300 300',
-            class: 'ingredient-layer',
-            style: 'display: block; position: absolute; top: 0; left: 0;'
+            class: 'ingredient-layer pizza-base',
+            id: 'pizza-base-layer',
+            style: 'display: block; position: absolute; top: 0; left: 0; opacity: 1; z-index: 0;'
         });
 
         // Create filters and gradients
@@ -337,59 +340,73 @@ export class PizzaVisualizer {
     }
 
     /**
-     * Generate all ingredient SVG layers with enhancements
+     * Generate a specific ingredient layer on-demand (lazy rendering)
      */
-    generateIngredientLayers() {
+    generateIngredientLayer(ingredientId) {
+        // Check cache first
+        if (this.layerCache[ingredientId]) {
+            return this.layerCache[ingredientId];
+        }
+
         const ingredients = this.getIngredientsDefinition();
+        const ingredient = ingredients.find(ing => ing.id === ingredientId);
 
-        ingredients.forEach(ingredient => {
-            this.usedPositions = []; // Reset for each ingredient type
+        if (!ingredient) {
+            console.warn(`Ingredient definition not found for ID: ${ingredientId}`);
+            return null;
+        }
 
-            const svg = this.createSvgElement('svg', {
-                viewBox: '0 0 300 300',
-                class: 'ingredient-layer',
-                id: ingredient.id,
-                style: 'position:absolute;top:0;left:0;opacity:0'
-            });
+        this.usedPositions = []; // Reset for this ingredient type
 
-            const count = ingredient.count || 1;
-            for (let i = 0; i < count; i++) {
-                let position;
-                let attempts = 0;
-                const maxAttempts = 50;
+        // Determine z-index based on ingredient type for proper layering
+        const zIndex = this.getIngredientZIndex(ingredient.id);
 
-                // Get non-overlapping position
-                do {
-                    // Respect explicit positions, then apply smart defaults
-                    if (ingredient.position) {
-                        // Use explicit position if provided (e.g., tomato sauce at center)
-                        position = ingredient.position;
-                    } else if (ingredient.count < 2) {
-                        // Single items without explicit position go near center
-                        position = this.getPositionNearCenter();
-                    } else {
-                        // Multiple items get random positions
-                        position = this.getRandomPositionInCircle(ingredient.placementRadius || defaultPizzaRadius);
-                    }
-                    attempts++;
-                } while (this.hasCollision(position, ingredient.minDistance || MIN_INGREDIENT_DISTANCE) && attempts < maxAttempts);
+        const svg = this.createSvgElement('svg', {
+            viewBox: '0 0 300 300',
+            class: 'ingredient-layer',
+            id: ingredient.id,
+            style: `position:absolute;top:0;left:0;opacity:0;z-index:${zIndex};`
+        });
 
-                if (attempts < maxAttempts) {
-                    this.usedPositions.push(position);
-                }
+        const count = ingredient.count || 1;
+        for (let i = 0; i < count; i++) {
+            let position;
+            let attempts = 0;
+            const maxAttempts = 50;
 
-                let element;
-                if (ingredient.customGenerator) {
-                    element = ingredient.customGenerator(ingredient.attributes, position, i);
+            // Get non-overlapping position
+            do {
+                // Respect explicit positions, then apply smart defaults
+                if (ingredient.position) {
+                    // Use explicit position if provided (e.g., tomato sauce at center)
+                    position = ingredient.position;
+                } else if (ingredient.count < 2) {
+                    // Single items without explicit position go near center
+                    position = this.getPositionNearCenter();
                 } else {
-                    element = this.createIngredientElement(ingredient, position);
+                    // Multiple items get random positions
+                    position = this.getRandomPositionInCircle(ingredient.placementRadius || defaultPizzaRadius);
                 }
+                attempts++;
+            } while (this.hasCollision(position, ingredient.minDistance || MIN_INGREDIENT_DISTANCE) && attempts < maxAttempts);
 
-                svg.appendChild(element);
+            if (attempts < maxAttempts) {
+                this.usedPositions.push(position);
             }
 
-            this.container.appendChild(svg);
-        });
+            let element;
+            if (ingredient.customGenerator) {
+                element = ingredient.customGenerator(ingredient.attributes, position, i);
+            } else {
+                element = this.createIngredientElement(ingredient, position);
+            }
+
+            svg.appendChild(element);
+        }
+
+        // Cache the generated layer
+        this.layerCache[ingredientId] = svg;
+        return svg;
     }
 
     /**
@@ -491,37 +508,205 @@ export class PizzaVisualizer {
             { id: 'ananas-layer', customGenerator: this.generateAnanas.bind(this), attributes: { fill: '#ffdb58' }, count: 15 },
             { id: 'parmesansplitter-layer', customGenerator: this.generateParmesansplitter.bind(this), attributes: { fill: '#fffacd' }, count: 12 },
             { id: 'cocktailsauce-layer', customGenerator: this.generateCocktailsauce.bind(this), attributes: { fill: '#ff6347' }, count: 10 },
+
+            // Missing Rienzbräu ingredients - Sauces
+            { id: 'truffelcreme-layer', elementType: 'circle', attributes: { r: defaultPizzaRadius, fill: '#8b7355', opacity: 0.85 }, count: 1, position: pizzaCenter },
+            { id: 'basilikum-pesto-layer', elementType: 'circle', attributes: { r: defaultPizzaRadius, fill: '#228b22', opacity: 0.8 }, count: 1, position: pizzaCenter },
+
+            // Missing Rienzbräu ingredients - Cheeses
+            { id: 'alpenkaese-layer', customGenerator: this.generateFeta.bind(this), attributes: { fill: '#f4e4c1' }, count: 12 },
+            { id: 'scamorza-layer', customGenerator: this.generateMozzarella.bind(this), attributes: { fill: '#ffe4b5' }, count: 12 },
+            { id: 'frischkaese-layer', customGenerator: this.generateRicotta.bind(this), attributes: { fill: '#fffef0' }, count: 10 },
+            { id: 'burrata-layer', customGenerator: this.generateMozzarella.bind(this), attributes: { fill: '#fffffe' }, count: 8 },
+
+            // Missing Rienzbräu ingredients - Meats
+            { id: 'salami-mild-layer', customGenerator: this.generateSalami.bind(this), attributes: { fill: '#e57373' }, count: 10 },
+            { id: 'salami-scharf-layer', customGenerator: this.generateSalami.bind(this), attributes: { fill: '#a52a2a' }, count: 10 },
+            { id: 'salsiccia-layer', customGenerator: this.generateSalami.bind(this), attributes: { fill: '#c94c4c' }, count: 12 },
+            { id: 'wuerstel-layer', customGenerator: this.generateWurstel.bind(this), attributes: { fill: '#f5a623' }, count: 15 },
+
+            // Missing Rienzbräu ingredients - Vegetables & Herbs
+            { id: 'radicchio-layer', customGenerator: this.generateRucola.bind(this), attributes: { fill: '#8b1a4a' }, count: 12 },
+            { id: 'cocktailtomaten-layer', customGenerator: this.generateTomato.bind(this), attributes: { fill: '#ff6347' }, count: 15 },
+            { id: 'getrocknete-tomaten-layer', customGenerator: this.generateTomato.bind(this), attributes: { fill: '#c93529', opacity: 0.9 }, count: 12 },
+            { id: 'grillgemuese-layer', customGenerator: this.generateVierGemuse.bind(this), attributes: {}, count: 1 },
+            { id: 'birnen-layer', customGenerator: this.generateAnanas.bind(this), attributes: { fill: '#dac79e' }, count: 10 },
+            { id: 'kresse-layer', customGenerator: this.generateOregano.bind(this), attributes: { fill: '#4a7c2e' }, count: 120, minDistance: 2 },
+            { id: 'rosmarin-layer', customGenerator: this.generateOregano.bind(this), attributes: { fill: '#5d7052' }, count: 100, minDistance: 2 },
+
+            // Missing Rienzbräu ingredients - Toppings
+            { id: 'pinienkerne-layer', customGenerator: this.generateMais.bind(this), attributes: { fill: '#f5deb3' }, count: 50, minDistance: 3 },
+            { id: 'gamberoni-layer', customGenerator: this.generateShrimps.bind(this), attributes: { fill: '#ff6b6b' }, count: 8 },
         ];
     }
 
     /**
-     * Show an ingredient layer
+     * Get z-index for proper ingredient layering
+     * Sauce -> Cheese -> Toppings
+     */
+    getIngredientZIndex(ingredientId) {
+        // All sauces should always be at the bottom (z-index 1)
+        if (ingredientId.includes('tomatensauce') ||
+            ingredientId.includes('sauce') ||
+            ingredientId.includes('creme') ||
+            ingredientId.includes('pesto')) {
+            return 1;
+        }
+        // Cheese layers above sauce (z-index 2)
+        if (ingredientId.includes('mozzarella') ||
+            ingredientId.includes('kase') ||
+            ingredientId.includes('cheese') ||
+            ingredientId.includes('parmesan') ||
+            ingredientId.includes('gorgonzola') ||
+            ingredientId.includes('brie') ||
+            ingredientId.includes('ricotta') ||
+            ingredientId.includes('feta') ||
+            ingredientId.includes('philadelphia') ||
+            ingredientId.includes('schafskase') ||
+            ingredientId.includes('krauterkase') ||
+            ingredientId.includes('krautertopfen')) {
+            return 2;
+        }
+        // All other toppings above cheese (z-index 3)
+        return 3;
+    }
+
+    /**
+     * Generate a mini preview icon for ingredient checkbox
+     * @param {string} svgLayerId - The ingredient layer ID
+     * @returns {SVGElement|null} - Mini SVG icon (24×24px) or null if not found
+     */
+    generateMiniPreview(svgLayerId) {
+        const ingredients = this.getIngredientsDefinition();
+        const ingredient = ingredients.find(ing => ing.id === svgLayerId);
+
+        if (!ingredient) return null;
+
+        // Create mini SVG with smaller viewBox
+        const miniSvg = this.createSvgElement('svg', {
+            viewBox: '0 0 50 50',
+            width: '32',
+            height: '32',
+            class: 'ingredient-preview-icon'
+        });
+
+        // Copy filters and gradients from main base (needed for references)
+        const defs = this.createSvgElement('defs', {});
+        this.addFilters(defs);
+        this.addGradients(defs);
+        miniSvg.appendChild(defs);
+
+        // Center position for mini preview
+        const centerPos = { x: 25, y: 25 };
+
+        // Generate single instance at center
+        this.usedPositions = []; // Reset collision detection
+        let element;
+
+        try {
+            if (ingredient.customGenerator) {
+                element = ingredient.customGenerator(ingredient.attributes, centerPos, 0);
+            } else {
+                element = this.createIngredientElement(ingredient, centerPos);
+            }
+
+            // Scale down for better fit
+            const scale = 0.8;
+            const translateX = 25 * (1 - scale);
+            const translateY = 25 * (1 - scale);
+            element.setAttribute('transform', `translate(${translateX}, ${translateY}) scale(${scale})`);
+
+            miniSvg.appendChild(element);
+        } catch (error) {
+            console.warn(`Failed to generate mini preview for ${svgLayerId}:`, error);
+            return null;
+        }
+
+        return miniSvg;
+    }
+
+    /**
+     * Validate if an ingredient has an SVG definition
+     * @param {string} svgLayerId - The ingredient layer ID to check
+     * @returns {boolean} - True if definition exists, false otherwise
+     */
+    hasIngredientDefinition(svgLayerId) {
+        const ingredients = this.getIngredientsDefinition();
+        return ingredients.some(ing => ing.id === svgLayerId);
+    }
+
+    /**
+     * Get all missing ingredient definitions
+     * @param {Array<string>} svgLayerIds - Array of layer IDs to validate
+     * @returns {Array<string>} - Array of missing layer IDs
+     */
+    getMissingIngredients(svgLayerIds) {
+        return svgLayerIds.filter(layerId => !this.hasIngredientDefinition(layerId));
+    }
+
+    /**
+     * Show an ingredient layer (lazy render and append to DOM)
      */
     showIngredient(svgLayerId) {
-        const layer = document.getElementById(svgLayerId);
-        if (layer) {
+        // Skip if already visible
+        if (this.activeLayerIds.has(svgLayerId)) {
+            return;
+        }
+
+        // Generate layer if needed (lazy rendering)
+        let layer = this.layerCache[svgLayerId];
+        if (!layer) {
+            layer = this.generateIngredientLayer(svgLayerId);
+            if (!layer) return; // Failed to generate
+        }
+
+        // Append to DOM if not already present
+        if (!layer.parentNode) {
+            this.container.appendChild(layer);
+            // Force reflow to ensure initial state is rendered
+            layer.offsetHeight;
+            // Then animate
+            layer.style.opacity = '1';
+        } else {
+            // Layer already in DOM, just show it
             layer.style.opacity = '1';
         }
+
+        this.activeLayerIds.add(svgLayerId);
     }
 
     /**
-     * Hide an ingredient layer
+     * Hide an ingredient layer (remove from DOM but keep in cache)
      */
     hideIngredient(svgLayerId) {
-        const layer = document.getElementById(svgLayerId);
-        if (layer) {
+        const layer = this.layerCache[svgLayerId];
+
+        if (layer && layer.parentNode) {
+            // Fade out, then remove from DOM
             layer.style.opacity = '0';
+
+            // Remove from DOM after transition completes
+            setTimeout(() => {
+                if (layer.parentNode && !this.activeLayerIds.has(svgLayerId)) {
+                    layer.parentNode.removeChild(layer);
+                }
+            }, 600); // Match CSS transition duration
         }
+
+        this.activeLayerIds.delete(svgLayerId);
     }
 
     /**
-     * Clear all ingredient layers
+     * Clear all ingredient layers (remove from DOM but keep in cache)
      */
     clearPizza() {
-        const layers = this.container.querySelectorAll('.ingredient-layer');
-        layers.forEach((layer, index) => {
-            layer.style.opacity = index === 0 ? '1' : '0';
+        // Remove all layers except the base (first child)
+        const layersToRemove = Array.from(this.activeLayerIds);
+        layersToRemove.forEach(layerId => {
+            this.hideIngredient(layerId);
         });
+
+        this.activeLayerIds.clear();
     }
 
     /**

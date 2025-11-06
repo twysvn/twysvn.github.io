@@ -140,6 +140,7 @@
 /* Force dark color scheme */
 html {
     color-scheme: dark;
+    background: var(--dark-bg-primary);
 }
 
 /* ==========================================================================
@@ -564,6 +565,19 @@ p {
     opacity: 0.05;
 }
 
+/* Missing SVG definition styling */
+.ingredient.missing-svg {
+    opacity: 0.65;
+    border-color: #ff6b6b;
+    background: rgba(255, 107, 107, 0.08);
+}
+
+.ingredient.missing-svg:hover {
+    opacity: 0.85;
+    background: rgba(255, 107, 107, 0.12);
+    border-color: #ff5252;
+}
+
 .ingredient input[type="checkbox"] {
     width: 24px;
     height: 24px;
@@ -572,6 +586,30 @@ p {
     position: relative;
     z-index: 1;
     accent-color: var(--accent-orange);
+}
+
+/* Ingredient preview icon styling */
+.ingredient-preview-icon {
+    flex-shrink: 0;
+    margin-right: var(--space-2);
+    filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.3));
+    pointer-events: none;
+    opacity: 0.7;
+    transition: opacity var(--transition-base), filter var(--transition-base);
+}
+
+.ingredient:hover .ingredient-preview-icon {
+    opacity: 0.9;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.4));
+}
+
+.ingredient:has(input:checked) .ingredient-preview-icon {
+    opacity: 1;
+    filter: drop-shadow(0 2px 6px rgba(255, 71, 87, 0.5));
+}
+
+.ingredient-name {
+    flex: 1;
 }
 
 .ingredient:has(input:checked) {
