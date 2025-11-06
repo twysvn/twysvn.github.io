@@ -230,6 +230,12 @@ export class UIController {
         chevron.className = 'ph ph-caret-down';
         dropdownButton.appendChild(chevron);
 
+        // Create backdrop for mobile
+        const backdrop = createElement('div', {
+            className: 'dropdown-backdrop',
+            id: 'dropdown-backdrop'
+        });
+
         // Create dropdown menu
         const dropdown = createElement('div', {
             className: 'restaurant-dropdown',
@@ -265,6 +271,7 @@ export class UIController {
                 item.addEventListener('click', () => {
                     this.switchRestaurant(restaurant.id);
                     dropdown.classList.remove('visible');
+                    backdrop.classList.remove('visible');
                 });
 
                 dropdown.appendChild(item);
@@ -274,7 +281,14 @@ export class UIController {
         // Toggle dropdown
         dropdownButton.addEventListener('click', (e) => {
             e.stopPropagation();
-            dropdown.classList.toggle('visible');
+            const isVisible = dropdown.classList.toggle('visible');
+            backdrop.classList.toggle('visible', isVisible);
+        });
+
+        // Close dropdown when clicking backdrop
+        backdrop.addEventListener('click', () => {
+            dropdown.classList.remove('visible');
+            backdrop.classList.remove('visible');
         });
 
         // Close dropdown when clicking outside
@@ -286,11 +300,13 @@ export class UIController {
         this._restaurantDropdownDocumentClickHandler = (e) => {
             if (!dropdown.contains(e.target) && !dropdownButton.contains(e.target)) {
                 dropdown.classList.remove('visible');
+                backdrop.classList.remove('visible');
             }
         };
         document.addEventListener('click', this._restaurantDropdownDocumentClickHandler);
 
         menuButtons.appendChild(dropdownButton);
+        menuButtons.appendChild(backdrop);
         menuButtons.appendChild(dropdown);
     }
 

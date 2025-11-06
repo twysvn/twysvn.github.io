@@ -785,33 +785,58 @@ p {
 }
 
 @media (max-width: 768px) {
-    /* Mobile Navigation */
+    /* Mobile Navigation - Keep Horizontal */
     #nav-bar {
-        flex-direction: column;
+        flex-direction: row;
+        flex-wrap: wrap;
         height: auto;
-        padding: var(--space-3);
-        gap: var(--space-3);
+        padding: var(--space-2) var(--space-3);
+        gap: var(--space-2);
+        align-items: center;
     }
 
     .nav-brand {
-        font-size: var(--font-size-lg);
+        font-size: var(--font-size-base);
+        flex-shrink: 0;
+    }
+
+    .nav-brand img {
+        width: 32px;
+        height: 32px;
     }
 
     .nav-search {
-        max-width: 100%;
+        flex: 1;
+        min-width: 120px;
         order: 2;
     }
 
+    #search-input {
+        font-size: 14px;
+        padding: var(--space-1) var(--space-8);
+    }
+
     .nav-buttons {
-        width: 100%;
-        justify-content: center;
-        flex-wrap: wrap;
+        flex-shrink: 0;
         order: 3;
     }
 
     .nav-buttons button {
         font-size: var(--font-size-xs);
-        padding: var(--space-1) var(--space-3);
+        padding: var(--space-1) var(--space-2);
+        gap: var(--space-1);
+    }
+
+    .nav-buttons button .ph-storefront {
+        font-size: 14px;
+    }
+
+    .nav-buttons button span {
+        display: none; /* Hide text on mobile, keep icon only */
+    }
+
+    .nav-buttons button .ph-caret-down {
+        font-size: 12px;
     }
 
     /* Simplify glassmorphism for performance */
