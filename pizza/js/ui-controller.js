@@ -230,6 +230,12 @@ export class UIController {
         chevron.className = 'ph ph-caret-down';
         dropdownButton.appendChild(chevron);
 
+        // Create backdrop for mobile
+        const backdrop = createElement('div', {
+            className: 'dropdown-backdrop',
+            id: 'dropdown-backdrop'
+        });
+
         // Create dropdown menu
         const dropdown = createElement('div', {
             className: 'restaurant-dropdown',
@@ -265,6 +271,7 @@ export class UIController {
                 item.addEventListener('click', () => {
                     this.switchRestaurant(restaurant.id);
                     dropdown.classList.remove('visible');
+                    backdrop.classList.remove('visible');
                 });
 
                 dropdown.appendChild(item);
@@ -274,23 +281,32 @@ export class UIController {
         // Toggle dropdown
         dropdownButton.addEventListener('click', (e) => {
             e.stopPropagation();
-            dropdown.classList.toggle('visible');
+            const isVisible = dropdown.classList.toggle('visible');
+            backdrop.classList.toggle('visible', isVisible);
         });
 
-        // Close dropdown when clicking outside
+        // Close dropdown when clicking backdrop
+        backdrop.addEventListener('click', () => {
+            dropdown.classList.remove('visible');
+            backdrop.classList.remove('visible');
+        });
+
+        // Close dropdown when clicking outside (desktop)
         // Remove previous document click handler if it exists
         if (this._restaurantDropdownDocumentClickHandler) {
             document.removeEventListener('click', this._restaurantDropdownDocumentClickHandler);
         }
         // Create and store the new handler
         this._restaurantDropdownDocumentClickHandler = (e) => {
-            if (!dropdown.contains(e.target) && !dropdownButton.contains(e.target)) {
+            if (!dropdown.contains(e.target) && !dropdownButton.contains(e.target) && !backdrop.contains(e.target)) {
                 dropdown.classList.remove('visible');
+                backdrop.classList.remove('visible');
             }
         };
         document.addEventListener('click', this._restaurantDropdownDocumentClickHandler);
 
         menuButtons.appendChild(dropdownButton);
+        menuButtons.appendChild(backdrop);
         menuButtons.appendChild(dropdown);
     }
 
