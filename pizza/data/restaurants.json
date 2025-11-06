@@ -6,6 +6,9 @@
       "name": "Jochtal",
       "displayName": "Pizzeria Jochtal",
       "location": "Jochtal, South Tyrol",
+      "country": "Italy",
+      "region": "South Tyrol",
+      "pizzaCount": 18,
       "dataFile": "restaurants/jochtal.json",
       "enabled": true,
       "tags": ["italian", "south-tyrol", "mountain"]
@@ -15,6 +18,9 @@
       "name": "Winkler",
       "displayName": "Winkler Pizzeria",
       "location": "Winkler, South Tyrol",
+      "country": "Italy",
+      "region": "South Tyrol",
+      "pizzaCount": 42,
       "dataFile": "restaurants/winkler.json",
       "enabled": true,
       "tags": ["italian", "south-tyrol"]
@@ -24,6 +30,9 @@
       "name": "Issing",
       "displayName": "Pizzeria Issing",
       "location": "Issing, Germany",
+      "country": "Germany",
+      "region": "Bavaria",
+      "pizzaCount": 16,
       "dataFile": "restaurants/issing.json",
       "enabled": true,
       "tags": ["german", "bavarian"]

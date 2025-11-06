@@ -100,23 +100,27 @@ export class UIController {
 
         clearElement(resultsContainer);
 
-        // Show restaurants
+        // Show restaurants prominently
         if (restaurantResults.length > 0) {
-            const section = createElement('div', { className: 'search-results-section' });
+            const section = createElement('div', { className: 'search-results-section restaurant-section' });
             const header = createElement('div', { className: 'search-results-header' });
             const icon = document.createElement('i');
             icon.className = 'ph ph-storefront';
             header.appendChild(icon);
-            header.appendChild(document.createTextNode(' Restaurants'));
+            header.appendChild(document.createTextNode(' Switch Restaurant'));
             section.appendChild(header);
 
             restaurantResults.slice(0, 5).forEach(result => {
+                const restaurant = result.restaurant;
+                const subtitle = `${restaurant.location} • ${restaurant.pizzaCount || 0} pizzas`;
+
                 const item = this.createSearchResultItem(
-                    result.restaurant.displayName || result.restaurant.name,
-                    result.restaurant.location,
-                    result.restaurant.tags,
-                    () => this.switchRestaurant(result.restaurant.id)
+                    restaurant.displayName || restaurant.name,
+                    subtitle,
+                    restaurant.tags,
+                    () => this.switchRestaurant(restaurant.id)
                 );
+                item.classList.add('restaurant-result-item');
                 section.appendChild(item);
             });
 
@@ -209,24 +213,79 @@ export class UIController {
 
         clearElement(menuButtons);
 
-        const restaurants = this.dataLoader.getAllRestaurants();
-        restaurants.forEach(restaurant => {
-            const button = createElement('button', {
-                dataset: { restaurantId: restaurant.id }
-            });
-
-            // Add map pin icon and restaurant name
-            const icon = document.createElement('i');
-            icon.className = 'ph ph-map-pin';
-            button.appendChild(icon);
-            button.appendChild(document.createTextNode(' ' + restaurant.name));
-
-            button.addEventListener('click', () => {
-                this.switchRestaurant(restaurant.id);
-            });
-
-            menuButtons.appendChild(button);
+        // Create dropdown button
+        const dropdownButton = createElement('button', {
+            className: 'restaurant-selector-btn',
+            id: 'restaurant-selector-btn'
         });
+
+        const icon = document.createElement('i');
+        icon.className = 'ph ph-storefront';
+        dropdownButton.appendChild(icon);
+
+        const label = createElement('span', { id: 'current-restaurant-label' }, 'Select Restaurant');
+        dropdownButton.appendChild(label);
+
+        const chevron = document.createElement('i');
+        chevron.className = 'ph ph-caret-down';
+        dropdownButton.appendChild(chevron);
+
+        // Create dropdown menu
+        const dropdown = createElement('div', {
+            className: 'restaurant-dropdown',
+            id: 'restaurant-dropdown'
+        });
+
+        // Group restaurants by region
+        const restaurants = this.dataLoader.getAllRestaurants();
+        const grouped = {};
+        restaurants.forEach(r => {
+            const key = r.country;
+            if (!grouped[key]) grouped[key] = [];
+            grouped[key].push(r);
+        });
+
+        // Render grouped restaurants
+        Object.keys(grouped).sort().forEach(country => {
+            const regionHeader = createElement('div', { className: 'dropdown-region-header' }, country);
+            dropdown.appendChild(regionHeader);
+
+            grouped[country].forEach(restaurant => {
+                const item = createElement('div', { className: 'dropdown-item' });
+                item.dataset.restaurantId = restaurant.id;
+
+                const nameDiv = createElement('div', { className: 'dropdown-item-name' });
+                nameDiv.textContent = restaurant.displayName || restaurant.name;
+                item.appendChild(nameDiv);
+
+                const metaDiv = createElement('div', { className: 'dropdown-item-meta' });
+                metaDiv.textContent = `${restaurant.region} • ${restaurant.pizzaCount} pizzas`;
+                item.appendChild(metaDiv);
+
+                item.addEventListener('click', () => {
+                    this.switchRestaurant(restaurant.id);
+                    dropdown.classList.remove('visible');
+                });
+
+                dropdown.appendChild(item);
+            });
+        });
+
+        // Toggle dropdown
+        dropdownButton.addEventListener('click', (e) => {
+            e.stopPropagation();
+            dropdown.classList.toggle('visible');
+        });
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!dropdown.contains(e.target) && !dropdownButton.contains(e.target)) {
+                dropdown.classList.remove('visible');
+            }
+        });
+
+        menuButtons.appendChild(dropdownButton);
+        menuButtons.appendChild(dropdown);
     }
 
     /**
@@ -241,9 +300,16 @@ export class UIController {
             // Load restaurant data
             await this.dataLoader.loadRestaurantData(restaurantId);
 
-            // Update active button
-            document.querySelectorAll('#menu-buttons button').forEach(btn => {
-                btn.classList.toggle('active', btn.dataset.restaurantId === restaurantId);
+            // Update dropdown button label
+            const restaurant = this.dataLoader.getRestaurantById(restaurantId);
+            const label = document.getElementById('current-restaurant-label');
+            if (label && restaurant) {
+                label.textContent = restaurant.name;
+            }
+
+            // Update active dropdown item
+            document.querySelectorAll('.dropdown-item').forEach(item => {
+                item.classList.toggle('active', item.dataset.restaurantId === restaurantId);
             });
 
             // Clear current selection
