@@ -259,7 +259,7 @@ export class UIController {
                 item.appendChild(nameDiv);
 
                 const metaDiv = createElement('div', { className: 'dropdown-item-meta' });
-                metaDiv.textContent = `${restaurant.region} • ${restaurant.pizzaCount} pizzas`;
+                metaDiv.textContent = `${restaurant.region} • ${restaurant.pizzaCount || 0} pizzas`;
                 item.appendChild(metaDiv);
 
                 item.addEventListener('click', () => {
