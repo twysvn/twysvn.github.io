@@ -44,7 +44,7 @@
       "location": "Bruneck, South Tyrol",
       "country": "Italy",
       "region": "South Tyrol",
-      "pizzaCount": 44,
+      "pizzaCount": 45,
       "dataFile": "restaurants/rienzbraeu.json",
       "enabled": true,
       "tags": ["italian", "south-tyrol", "brewery"]
