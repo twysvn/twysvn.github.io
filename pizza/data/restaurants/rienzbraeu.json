@@ -2,7 +2,8 @@
   "restaurant": {
     "id": "rienzbraeu",
     "name": "Rienzbräu",
-    "version": "1.0"
+    "version": "1.0",
+    "lastUpdated": "2025-11-06"
   },
   "ingredients": {
     "categories": {
