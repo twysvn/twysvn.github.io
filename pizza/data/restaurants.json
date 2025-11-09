@@ -48,6 +48,18 @@
       "dataFile": "restaurants/rienzbraeu.json",
       "enabled": true,
       "tags": ["italian", "south-tyrol", "brewery"]
+    },
+    {
+      "id": "muehle",
+      "name": "Mühle",
+      "displayName": "Pizzeria Mühle",
+      "location": "Vals, South Tyrol",
+      "country": "Italy",
+      "region": "South Tyrol",
+      "pizzaCount": 52,
+      "dataFile": "restaurants/muehle.json",
+      "enabled": true,
+      "tags": ["italian", "south-tyrol"]
     }
   ]
 }
