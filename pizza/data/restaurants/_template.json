@@ -1,0 +1,97 @@
+{
+  "_comment": "This is a template for adding new restaurants to the pizza editor",
+  "_instructions": [
+    "1. Copy this file and rename it to your restaurant's ID (e.g., 'yourrestaurant.json')",
+    "2. Fill in the restaurant metadata",
+    "3. Build ingredient categories based ONLY on ingredients actually used in pizzas",
+    "4. Add all pizzas with their exact ingredients",
+    "5. Run validation to ensure all ingredients are used and no duplicates exist",
+    "6. Add the restaurant entry to restaurants.json",
+    "7. Delete these comment fields (_comment, _instructions, _validation_tips)"
+  ],
+  "_validation_tips": [
+    "Every ingredient defined MUST be used in at least one pizza",
+    "Every ingredient used in pizzas MUST be defined in categories",
+    "No duplicate ingredient IDs across all categories",
+    "Ingredient IDs should be lowercase, hyphenated (e.g., 'scharfe-salami')",
+    "Use specific ingredients (e.g., 'kirschtomaten') not generic ones (e.g., 'tomaten') if that's what the menu shows",
+    "Avoid template contamination - don't copy ingredients from other restaurants unless they're actually on this menu"
+  ],
+
+  "restaurant": {
+    "id": "your-restaurant-id",
+    "name": "Restaurant Short Name",
+    "version": "1.0",
+    "lastUpdated": "YYYY-MM-DD"
+  },
+
+  "ingredients": {
+    "categories": {
+      "sauce": {
+        "name": "Choose Your Sauce",
+        "order": 1,
+        "items": [
+          {
+            "id": "tomatensauce",
+            "name": "Tomatensauce",
+            "svgLayer": "tomatensauce-layer"
+          }
+        ]
+      },
+      "cheese": {
+        "name": "Choose Your Cheese",
+        "order": 2,
+        "items": [
+          {
+            "id": "mozzarella",
+            "name": "Mozzarella",
+            "svgLayer": "mozzarella-layer"
+          }
+        ]
+      },
+      "meat": {
+        "name": "Choose Your Proteins",
+        "order": 3,
+        "items": [
+          {
+            "id": "schinken",
+            "name": "Schinken",
+            "svgLayer": "schinken-layer"
+          }
+        ]
+      },
+      "vegetable": {
+        "name": "Choose Your Vegetables",
+        "order": 4,
+        "items": [
+          {
+            "id": "pilze",
+            "name": "Pilze",
+            "svgLayer": "pilze-layer"
+          }
+        ]
+      },
+      "topping": {
+        "name": "Choose Your Other Toppings",
+        "order": 5,
+        "items": [
+          {
+            "id": "origano",
+            "name": "Origano",
+            "svgLayer": "origano-layer"
+          }
+        ]
+      }
+    }
+  },
+
+  "pizzas": [
+    {
+      "id": "margherita",
+      "name": "Margherita",
+      "description": "Classic pizza with mozzarella, tomato sauce, and oregano",
+      "ingredients": ["mozzarella", "tomatensauce", "origano"],
+      "tags": ["classic", "vegetarian"]
+    }
+  ]
+}
