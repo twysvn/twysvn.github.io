@@ -60,6 +60,18 @@
       "dataFile": "restaurants/muehle.json",
       "enabled": true,
       "tags": ["italian", "south-tyrol"]
+    },
+    {
+      "id": "muhlbacher-klause",
+      "name": "Mühlbacher Klause",
+      "displayName": "Pizzeria Mühlbacher Klause",
+      "location": "Mühlbach, South Tyrol",
+      "country": "Italy",
+      "region": "South Tyrol",
+      "pizzaCount": 40,
+      "dataFile": "restaurants/muhlbacher-klause.json",
+      "enabled": true,
+      "tags": ["italian", "south-tyrol"]
     }
   ]
 }

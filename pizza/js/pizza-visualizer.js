@@ -537,6 +537,52 @@ export class PizzaVisualizer {
             // Missing Rienzbräu ingredients - Toppings
             { id: 'pinienkerne-layer', customGenerator: this.generateMais.bind(this), attributes: { fill: '#f5deb3' }, count: 50, minDistance: 3 },
             { id: 'gamberoni-layer', customGenerator: this.generateShrimps.bind(this), attributes: { fill: '#ff6b6b' }, count: 8 },
+
+            // Missing Mühle ingredients - Sauces
+            { id: 'vierkasesauce-layer', elementType: 'circle', attributes: { r: defaultPizzaRadius, fill: '#ffd89b', opacity: 0.85 }, count: 1, position: pizzaCenter },
+            { id: 'mayonnaise-layer', customGenerator: this.generateMayonnaise.bind(this), attributes: { stroke: '#f5f5dc', 'stroke-width': 3, fill: 'none' }, count: 1 },
+
+            // Missing Mühle ingredients - Cheeses
+            { id: 'mascarpone-layer', customGenerator: this.generateRicotta.bind(this), attributes: { fill: '#fffef8' }, count: 10 },
+
+            // Missing Mühle ingredients - Meats & Seafood
+            { id: 'hirschschinken-layer', customGenerator: this.generateSchinken.bind(this), attributes: { fill: '#8b4513' }, count: 8 },
+            { id: 'garnelen-layer', customGenerator: this.generateShrimps.bind(this), attributes: { fill: '#ffa07a' }, count: 10 },
+            { id: 'meeresfruechte-layer', customGenerator: this.generateMeeresfruchte.bind(this), attributes: { fill: '#ff7f50' }, count: 15 },
+
+            // Missing Mühle ingredients - Vegetables
+            { id: 'kirschtomaten-layer', customGenerator: this.generateTomato.bind(this), attributes: { fill: '#ff6347' }, count: 15 },
+            { id: 'auberginen-layer', customGenerator: this.generateMelanzane.bind(this), attributes: { fill: '#800080' }, count: 10 },
+            { id: 'gegrillte-zucchini-layer', customGenerator: this.generateZucchini.bind(this), attributes: { fill: '#6b8e23' }, count: 10 },
+            { id: 'gegrillte-paprikastreifen-layer', customGenerator: this.generatePaprika.bind(this), attributes: { fill: '#cd5c5c' }, count: 10 },
+            { id: 'peperoncino-layer', customGenerator: this.generateLombardi.bind(this), attributes: { fill: '#ff0000' }, count: 8 },
+            { id: 'gegrilltes-gemuse-layer', customGenerator: this.generateVierGemuse.bind(this), attributes: {}, count: 1 },
+
+            // Missing Mühle ingredients - Toppings
+            { id: 'schwarze-oliven-layer', customGenerator: this.generateOlive.bind(this), attributes: { fill: '#2c2c2c' }, count: 10 },
+            { id: 'nusse-layer', customGenerator: this.generateMais.bind(this), attributes: { fill: '#d2691e' }, count: 40, minDistance: 5 },
+            { id: 'parmesanspane-layer', customGenerator: this.generateParmesansplitter.bind(this), attributes: { fill: '#fffacd' }, count: 12 },
+            { id: 'cocktailsauce-layer', customGenerator: this.generateCocktailsauce.bind(this), attributes: { fill: '#ff69b4' }, count: 10 },
+
+            // Missing Mühlbacher Klause ingredients - Sauces
+            { id: 'basilikumpesto-layer', elementType: 'circle', attributes: { r: defaultPizzaRadius, fill: '#228b22', opacity: 0.8 }, count: 1, position: pizzaCenter },
+            { id: 'sriracha-chili-mayo-layer', customGenerator: this.generateSrirachaMayo.bind(this), attributes: { stroke: '#ff4500', 'stroke-width': 3, fill: 'none' }, count: 1 },
+
+            // Missing Mühlbacher Klause ingredients - Cheeses
+            { id: 'vierkase-layer', customGenerator: this.generateMozzarella.bind(this), attributes: { fill: '#ffd89b' }, count: 12 },
+            { id: 'kasescheiben-layer', customGenerator: this.generateKasescheiben.bind(this), attributes: { fill: '#ffeb9c' }, count: 8 },
+
+            // Missing Mühlbacher Klause ingredients - Meats
+            { id: 'sudtiroler-wurst-layer', customGenerator: this.generateKaminwurz.bind(this), attributes: { fill: '#8b4513' }, count: 8 },
+
+            // Missing Mühlbacher Klause ingredients - Vegetables
+            { id: 'spargel-layer', customGenerator: this.generateSpargel.bind(this), attributes: { fill: '#90ee90' }, count: 8 },
+            { id: 'grune-paprika-layer', customGenerator: this.generatePaprika.bind(this), attributes: { fill: '#32cd32' }, count: 10 },
+            { id: 'scharfe-peperoni-layer', customGenerator: this.generateLombardi.bind(this), attributes: { fill: '#ff0000' }, count: 8 },
+
+            // Missing Mühlbacher Klause ingredients - Toppings
+            { id: 'salz-layer', customGenerator: this.generateSalz.bind(this), attributes: { fill: '#ffffff' }, count: 80, minDistance: 2 },
+            { id: 'chili-flocken-layer', customGenerator: this.generateOregano.bind(this), attributes: { fill: '#dc143c' }, count: 100, minDistance: 2 },
         ];
     }
 
@@ -1894,5 +1940,155 @@ export class PizzaVisualizer {
         });
 
         return ellipse;
+    }
+
+    /**
+     * Enhanced mayonnaise drizzle
+     */
+    generateMayonnaise(attributes) {
+        const path1 = `M50,200 Q100,150 150,180 T250,200`;
+        const path2 = `M60,210 Q110,165 155,190 T245,215`;
+
+        const group = this.createSvgElement('g', {});
+
+        const drizzle1 = this.createSvgElement('path', {
+            d: path1,
+            ...attributes,
+            opacity: '0.8'
+        });
+
+        const drizzle2 = this.createSvgElement('path', {
+            d: path2,
+            ...attributes,
+            opacity: '0.6'
+        });
+
+        group.appendChild(drizzle1);
+        group.appendChild(drizzle2);
+
+        return group;
+    }
+
+    /**
+     * Enhanced sriracha chili mayo drizzle
+     */
+    generateSrirachaMayo(attributes) {
+        const path = `M50,220 Q100,175 150,200 T250,220`;
+
+        return this.createSvgElement('path', {
+            d: path,
+            ...attributes,
+            opacity: '0.8'
+        });
+    }
+
+    /**
+     * Enhanced cheese slices
+     */
+    generateKasescheiben(attributes, position) {
+        const group = this.createSvgElement('g', {
+            filter: 'url(#ingredientShadow)',
+            transform: `rotate(${Math.random() * 360} ${position.x} ${position.y})`
+        });
+
+        const width = 30 + Math.random() * 10;
+        const height = 25 + Math.random() * 8;
+
+        // Cheese slice base
+        const slice = this.createSvgElement('rect', {
+            x: position.x - width / 2,
+            y: position.y - height / 2,
+            width: width,
+            height: height,
+            fill: attributes.fill,
+            opacity: '0.85',
+            rx: 3
+        });
+        group.appendChild(slice);
+
+        // Add holes (Swiss cheese effect)
+        const holeCount = 2 + Math.floor(Math.random() * 3);
+        for (let i = 0; i < holeCount; i++) {
+            const holeX = position.x - width / 4 + Math.random() * width / 2;
+            const holeY = position.y - height / 4 + Math.random() * height / 2;
+            const holeR = 2 + Math.random() * 3;
+
+            const hole = this.createSvgElement('circle', {
+                cx: holeX,
+                cy: holeY,
+                r: holeR,
+                fill: '#f5deb3',
+                opacity: '0.6'
+            });
+            group.appendChild(hole);
+        }
+
+        return group;
+    }
+
+    /**
+     * Enhanced asparagus spears
+     */
+    generateSpargel(attributes, position) {
+        const group = this.createSvgElement('g', {
+            filter: 'url(#ingredientShadow)',
+            transform: `rotate(${Math.random() * 360} ${position.x} ${position.y})`
+        });
+
+        const length = 35 + Math.random() * 10;
+        const width = 4 + Math.random() * 2;
+
+        // Asparagus spear
+        const spear = this.createSvgElement('rect', {
+            x: position.x - width / 2,
+            y: position.y - length / 2,
+            width: width,
+            height: length,
+            fill: attributes.fill,
+            opacity: '0.85',
+            rx: width / 2
+        });
+        group.appendChild(spear);
+
+        // Tip (darker)
+        const tip = this.createSvgElement('ellipse', {
+            cx: position.x,
+            cy: position.y - length / 2,
+            rx: width / 2 + 1,
+            ry: 5,
+            fill: '#6b8e23',
+            opacity: '0.9'
+        });
+        group.appendChild(tip);
+
+        return group;
+    }
+
+    /**
+     * Enhanced salt crystals
+     */
+    generateSalz(attributes, position) {
+        const size = 1 + Math.random() * 1.5;
+
+        // Random crystal shape (square or diamond)
+        if (Math.random() > 0.5) {
+            return this.createSvgElement('rect', {
+                x: position.x - size / 2,
+                y: position.y - size / 2,
+                width: size,
+                height: size,
+                fill: attributes.fill,
+                opacity: 0.4 + Math.random() * 0.4,
+                transform: `rotate(${Math.random() * 45} ${position.x} ${position.y})`
+            });
+        } else {
+            return this.createSvgElement('circle', {
+                cx: position.x,
+                cy: position.y,
+                r: size,
+                fill: attributes.fill,
+                opacity: 0.4 + Math.random() * 0.4
+            });
+        }
     }
 }

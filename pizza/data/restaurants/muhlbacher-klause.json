@@ -1,0 +1,544 @@
+{
+  "restaurant": {
+    "id": "muhlbacher-klause",
+    "name": "Mühlbacher Klause",
+    "version": "1.0",
+    "lastUpdated": "2025-11-09"
+  },
+  "ingredients": {
+    "categories": {
+      "sauce": {
+        "name": "Choose Your Sauce",
+        "order": 1,
+        "items": [
+          {
+            "id": "tomatensauce",
+            "name": "Tomatensauce",
+            "svgLayer": "tomatensauce-layer"
+          },
+          {
+            "id": "basilikumpesto",
+            "name": "Basilikumpesto",
+            "svgLayer": "basilikumpesto-layer"
+          }
+        ]
+      },
+      "cheese": {
+        "name": "Choose Your Cheese",
+        "order": 2,
+        "items": [
+          {
+            "id": "mozzarella",
+            "name": "Mozzarella",
+            "svgLayer": "mozzarella-layer"
+          },
+          {
+            "id": "buffelmozzarella",
+            "name": "Büffelmozzarella",
+            "svgLayer": "buffelmozzarella-layer"
+          },
+          {
+            "id": "feta",
+            "name": "Feta",
+            "svgLayer": "feta-layer"
+          },
+          {
+            "id": "brie",
+            "name": "Brie",
+            "svgLayer": "brie-layer"
+          },
+          {
+            "id": "ricotta",
+            "name": "Ricotta",
+            "svgLayer": "ricotta-layer"
+          },
+          {
+            "id": "gorgonzola",
+            "name": "Gorgonzola",
+            "svgLayer": "gorgonzola-layer"
+          },
+          {
+            "id": "vierkase",
+            "name": "Vier Käse",
+            "svgLayer": "vierkase-layer"
+          },
+          {
+            "id": "kasescheiben",
+            "name": "Käsescheiben",
+            "svgLayer": "kasescheiben-layer"
+          }
+        ]
+      },
+      "meat": {
+        "name": "Choose Your Proteins",
+        "order": 3,
+        "items": [
+          {
+            "id": "schinken",
+            "name": "Schinken",
+            "svgLayer": "schinken-layer"
+          },
+          {
+            "id": "rohschinken",
+            "name": "Rohschinken",
+            "svgLayer": "rohschinken-layer"
+          },
+          {
+            "id": "salami",
+            "name": "Salami",
+            "svgLayer": "salami-layer"
+          },
+          {
+            "id": "scharfe-salami",
+            "name": "Scharfe Salami",
+            "svgLayer": "scharfe-salami-layer"
+          },
+          {
+            "id": "speck",
+            "name": "Speck",
+            "svgLayer": "speck-layer"
+          },
+          {
+            "id": "sudtiroler-wurst",
+            "name": "Südtiroler Wurst",
+            "svgLayer": "sudtiroler-wurst-layer"
+          },
+          {
+            "id": "bresaola",
+            "name": "Bresaola",
+            "svgLayer": "bresaola-layer"
+          },
+          {
+            "id": "thunfisch",
+            "name": "Thunfisch",
+            "svgLayer": "thunfisch-layer"
+          },
+          {
+            "id": "sardellen",
+            "name": "Sardellen",
+            "svgLayer": "sardellen-layer"
+          },
+          {
+            "id": "garnelen",
+            "name": "Garnelen",
+            "svgLayer": "garnelen-layer"
+          },
+          {
+            "id": "ei",
+            "name": "Ei",
+            "svgLayer": "ei-layer"
+          }
+        ]
+      },
+      "vegetable": {
+        "name": "Choose Your Vegetables",
+        "order": 4,
+        "items": [
+          {
+            "id": "champignon",
+            "name": "Champignon",
+            "svgLayer": "champignon-layer"
+          },
+          {
+            "id": "artischocken",
+            "name": "Artischocken",
+            "svgLayer": "artischocken-layer"
+          },
+          {
+            "id": "spargel",
+            "name": "Spargel",
+            "svgLayer": "spargel-layer"
+          },
+          {
+            "id": "spinat",
+            "name": "Spinat",
+            "svgLayer": "spinat-layer"
+          },
+          {
+            "id": "oliven",
+            "name": "Oliven",
+            "svgLayer": "oliven-layer"
+          },
+          {
+            "id": "grune-paprika",
+            "name": "Grüne Paprika",
+            "svgLayer": "grune-paprika-layer"
+          },
+          {
+            "id": "scharfe-peperoni",
+            "name": "Scharfe Peperoni",
+            "svgLayer": "scharfe-peperoni-layer"
+          },
+          {
+            "id": "gegrillte-zucchini",
+            "name": "Gegrillte Zucchini",
+            "svgLayer": "gegrillte-zucchini-layer"
+          },
+          {
+            "id": "rucola",
+            "name": "Rucola",
+            "svgLayer": "rucola-layer"
+          },
+          {
+            "id": "kirschtomaten",
+            "name": "Kirschtomaten",
+            "svgLayer": "kirschtomaten-layer"
+          },
+          {
+            "id": "tomaten",
+            "name": "Tomaten",
+            "svgLayer": "tomaten-layer"
+          },
+          {
+            "id": "mais",
+            "name": "Mais",
+            "svgLayer": "mais-layer"
+          },
+          {
+            "id": "zwiebel",
+            "name": "Zwiebel",
+            "svgLayer": "zwiebel-layer"
+          },
+          {
+            "id": "paprika",
+            "name": "Paprika",
+            "svgLayer": "paprika-layer"
+          },
+          {
+            "id": "knoblauch",
+            "name": "Knoblauch",
+            "svgLayer": "knoblauch-layer"
+          },
+          {
+            "id": "kapern",
+            "name": "Kapern",
+            "svgLayer": "kapern-layer"
+          },
+          {
+            "id": "ananas",
+            "name": "Ananas",
+            "svgLayer": "ananas-layer"
+          }
+        ]
+      },
+      "topping": {
+        "name": "Choose Your Other Toppings",
+        "order": 5,
+        "items": [
+          {
+            "id": "origano",
+            "name": "Origano",
+            "svgLayer": "origano-layer"
+          },
+          {
+            "id": "rosmarin",
+            "name": "Rosmarin",
+            "svgLayer": "rosmarin-layer"
+          },
+          {
+            "id": "salz",
+            "name": "Salz",
+            "svgLayer": "salz-layer"
+          },
+          {
+            "id": "cocktailsauce",
+            "name": "Cocktailsauce",
+            "svgLayer": "cocktailsauce-layer"
+          },
+          {
+            "id": "sriracha-chili-mayo",
+            "name": "Sriracha Chili Mayo",
+            "svgLayer": "sriracha-chili-mayo-layer"
+          },
+          {
+            "id": "chili-flocken",
+            "name": "Chili Flocken",
+            "svgLayer": "chili-flocken-layer"
+          }
+        ]
+      }
+    }
+  },
+  "pizzas": [
+    {
+      "id": "margherita",
+      "name": "Margherita",
+      "description": "Classic pizza with mozzarella, tomato sauce, and oregano",
+      "ingredients": ["mozzarella", "tomatensauce", "origano"],
+      "tags": ["classic", "vegetarian"]
+    },
+    {
+      "id": "focaccia",
+      "name": "Focaccia",
+      "description": "Pizza bread with rosemary and salt",
+      "ingredients": ["rosmarin", "salz"],
+      "tags": ["classic", "vegan"]
+    },
+    {
+      "id": "sommer-pizza",
+      "name": "Sommer Pizza",
+      "description": "Pizza with buffalo mozzarella, cherry tomatoes, and basil pesto",
+      "ingredients": ["tomatensauce", "buffelmozzarella", "kirschtomaten", "basilikumpesto", "origano"],
+      "tags": ["specialty", "vegetarian"]
+    },
+    {
+      "id": "napoletana",
+      "name": "Napoletana",
+      "description": "Pizza with mozzarella, tomato sauce, anchovies, and oregano",
+      "ingredients": ["mozzarella", "tomatensauce", "sardellen", "origano"],
+      "tags": ["classic"]
+    },
+    {
+      "id": "siciliana",
+      "name": "Siciliana",
+      "description": "Pizza with mozzarella, olives, anchovies, capers, and oregano",
+      "ingredients": ["mozzarella", "tomatensauce", "oliven", "sardellen", "kapern", "origano"],
+      "tags": ["classic"]
+    },
+    {
+      "id": "prosciutto",
+      "name": "Prosciutto",
+      "description": "Ham pizza with mozzarella, tomato sauce, and oregano",
+      "ingredients": ["mozzarella", "tomatensauce", "schinken", "origano"],
+      "tags": ["classic"]
+    },
+    {
+      "id": "san-daniele",
+      "name": "San Daniele",
+      "description": "Pizza with mozzarella, raw ham, and oregano",
+      "ingredients": ["mozzarella", "tomatensauce", "rohschinken", "origano"],
+      "tags": ["classic"]
+    },
+    {
+      "id": "salame",
+      "name": "Salame",
+      "description": "Pizza with mild salami and oregano",
+      "ingredients": ["mozzarella", "tomatensauce", "salami", "origano"],
+      "tags": ["classic"]
+    },
+    {
+      "id": "salamino",
+      "name": "Salamino",
+      "description": "Pizza with hot salami and oregano",
+      "ingredients": ["mozzarella", "tomatensauce", "scharfe-salami", "origano"],
+      "tags": ["spicy"]
+    },
+    {
+      "id": "capricciosa",
+      "name": "Capricciosa",
+      "description": "Pizza with ham, mushrooms, and artichokes",
+      "ingredients": ["mozzarella", "tomatensauce", "schinken", "champignon", "artischocken", "origano"],
+      "tags": ["classic"]
+    },
+    {
+      "id": "prosciutto-e-funghi",
+      "name": "Prosciutto e Funghi",
+      "description": "Pizza with ham and mushrooms",
+      "ingredients": ["mozzarella", "tomatensauce", "schinken", "champignon", "origano"],
+      "tags": ["classic"]
+    },
+    {
+      "id": "hawaii",
+      "name": "Hawaii",
+      "description": "Pizza with ham and pineapple",
+      "ingredients": ["mozzarella", "tomatensauce", "schinken", "ananas", "origano"],
+      "tags": ["specialty"]
+    },
+    {
+      "id": "luna",
+      "name": "Luna",
+      "description": "Pizza with asparagus, spinach, ham, and egg",
+      "ingredients": ["mozzarella", "tomatensauce", "spargel", "spinat", "schinken", "ei", "origano"],
+      "tags": ["specialty"]
+    },
+    {
+      "id": "diavola",
+      "name": "Diavola",
+      "description": "Spicy pizza with hot pepperoni, hot salami, and olives",
+      "ingredients": ["mozzarella", "tomatensauce", "scharfe-peperoni", "scharfe-salami", "oliven", "origano"],
+      "tags": ["spicy"]
+    },
+    {
+      "id": "zingara",
+      "name": "Zingara",
+      "description": "Pizza with hot salami, olives, and green peppers",
+      "ingredients": ["mozzarella", "tomatensauce", "scharfe-salami", "oliven", "grune-paprika", "origano"],
+      "tags": ["spicy"]
+    },
+    {
+      "id": "pizza-verdure",
+      "name": "Pizza Verdure",
+      "description": "Pizza with grilled zucchini, rocket, and cherry tomatoes (no mozzarella)",
+      "ingredients": ["tomatensauce", "gegrillte-zucchini", "rucola", "kirschtomaten", "origano"],
+      "tags": ["vegetarian", "vegan"]
+    },
+    {
+      "id": "vegetariana",
+      "name": "Vegetariana",
+      "description": "Vegetarian pizza with tomatoes, corn, asparagus, and spinach",
+      "ingredients": ["mozzarella", "tomatensauce", "tomaten", "mais", "spargel", "spinat", "origano"],
+      "tags": ["vegetarian"]
+    },
+    {
+      "id": "de-luxe",
+      "name": "De Luxe",
+      "description": "Pizza with grilled zucchini, brie, and cherry tomatoes",
+      "ingredients": ["mozzarella", "tomatensauce", "gegrillte-zucchini", "brie", "kirschtomaten", "origano"],
+      "tags": ["vegetarian", "specialty"]
+    },
+    {
+      "id": "verdure",
+      "name": "Verdure",
+      "description": "Pizza with artichokes, tomatoes, spinach, and corn",
+      "ingredients": ["mozzarella", "tomatensauce", "artischocken", "tomaten", "spinat", "mais", "origano"],
+      "tags": ["vegetarian"]
+    },
+    {
+      "id": "asparagi-spinaci",
+      "name": "Asparagi - Spinaci",
+      "description": "Pizza with asparagus and spinach",
+      "ingredients": ["mozzarella", "tomatensauce", "spargel", "spinat", "origano"],
+      "tags": ["vegetarian"]
+    },
+    {
+      "id": "rustica",
+      "name": "Rustica",
+      "description": "Pizza with spinach and ricotta",
+      "ingredients": ["mozzarella", "tomatensauce", "spinat", "ricotta", "origano"],
+      "tags": ["vegetarian"]
+    },
+    {
+      "id": "fitness",
+      "name": "Fitness",
+      "description": "Pizza with spinach, tuna, corn, egg, and cherry tomatoes",
+      "ingredients": ["mozzarella", "tomatensauce", "spinat", "thunfisch", "mais", "ei", "kirschtomaten", "origano"],
+      "tags": ["seafood"]
+    },
+    {
+      "id": "greca",
+      "name": "Greca",
+      "description": "Greek pizza with fresh tomatoes, olives, and feta cheese",
+      "ingredients": ["mozzarella", "tomatensauce", "tomaten", "oliven", "feta", "origano"],
+      "tags": ["vegetarian"]
+    },
+    {
+      "id": "filoncino-spinaci",
+      "name": "Filoncino Spinaci",
+      "description": "Closed pizza with spinach and ricotta",
+      "ingredients": ["mozzarella", "tomatensauce", "spinat", "ricotta", "origano"],
+      "tags": ["calzone", "vegetarian"]
+    },
+    {
+      "id": "filoncino-tonno",
+      "name": "Filoncino Tonno",
+      "description": "Closed pizza with tuna and cocktail sauce",
+      "ingredients": ["mozzarella", "tomatensauce", "thunfisch", "cocktailsauce", "origano"],
+      "tags": ["calzone", "seafood"]
+    },
+    {
+      "id": "filoncino-primavera",
+      "name": "Filoncino Primavera",
+      "description": "Closed pizza with fresh tomatoes and brie",
+      "ingredients": ["mozzarella", "tomatensauce", "tomaten", "brie", "origano"],
+      "tags": ["calzone", "vegetarian"]
+    },
+    {
+      "id": "filoncino-gourmet",
+      "name": "Filoncino Gourmet",
+      "description": "Closed pizza with king prawns, cocktail sauce, and rocket",
+      "ingredients": ["mozzarella", "tomatensauce", "garnelen", "cocktailsauce", "rucola", "origano"],
+      "tags": ["calzone", "seafood", "specialty"]
+    },
+    {
+      "id": "filoncino-pizzaiolo",
+      "name": "Filoncino Pizzaiolo",
+      "description": "Closed pizza with ham and mushrooms",
+      "ingredients": ["mozzarella", "tomatensauce", "schinken", "champignon", "origano"],
+      "tags": ["calzone"]
+    },
+    {
+      "id": "fantasia",
+      "name": "Fantasia",
+      "description": "Pizza with four cheeses, peppers, onion, salami, and olives",
+      "ingredients": ["mozzarella", "tomatensauce", "vierkase", "paprika", "zwiebel", "salami", "oliven", "origano"],
+      "tags": ["specialty"]
+    },
+    {
+      "id": "chef",
+      "name": "Chef",
+      "description": "Pizza with tuna, onion, and egg",
+      "ingredients": ["mozzarella", "tomatensauce", "thunfisch", "zwiebel", "ei", "origano"],
+      "tags": ["specialty", "signature"]
+    },
+    {
+      "id": "geschmack",
+      "name": "Geschmack",
+      "description": "Pizza with ham, garlic, mushrooms, hot salami, and gorgonzola",
+      "ingredients": ["mozzarella", "tomatensauce", "schinken", "knoblauch", "champignon", "scharfe-salami", "gorgonzola", "origano"],
+      "tags": ["specialty"]
+    },
+    {
+      "id": "haus",
+      "name": "Haus",
+      "description": "House pizza with ham, mushrooms, egg, artichokes, and salami",
+      "ingredients": ["mozzarella", "tomatensauce", "schinken", "champignon", "ei", "artischocken", "salami", "origano"],
+      "tags": ["specialty", "signature"]
+    },
+    {
+      "id": "tiramisu",
+      "name": "Tiramisu",
+      "description": "Pizza with mushrooms, ham, hot salami, capers, anchovies, olives, garlic, and chili flakes",
+      "ingredients": ["mozzarella", "tomatensauce", "champignon", "schinken", "scharfe-salami", "kapern", "sardellen", "oliven", "knoblauch", "chili-flocken", "origano"],
+      "tags": ["specialty", "signature", "spicy"]
+    },
+    {
+      "id": "mare-gambas",
+      "name": "Mare Gambas",
+      "description": "Pizza with king prawns and sriracha chili mayo",
+      "ingredients": ["mozzarella", "tomatensauce", "garnelen", "sriracha-chili-mayo", "origano"],
+      "tags": ["seafood", "specialty", "spicy"]
+    },
+    {
+      "id": "pizza-alpina",
+      "name": "Pizza Alpina",
+      "description": "South Tyrolean pizza with sausage, rocket, and cheese slices",
+      "ingredients": ["mozzarella", "tomatensauce", "sudtiroler-wurst", "rucola", "kasescheiben", "origano"],
+      "tags": ["specialty", "south-tyrol"]
+    },
+    {
+      "id": "bauern",
+      "name": "Bauern",
+      "description": "Farmer pizza with sausage, onion, and bacon",
+      "ingredients": ["mozzarella", "tomatensauce", "sudtiroler-wurst", "zwiebel", "speck", "origano"],
+      "tags": ["specialty"]
+    },
+    {
+      "id": "tiroler",
+      "name": "Tiroler",
+      "description": "Tyrolean pizza with bacon",
+      "ingredients": ["mozzarella", "tomatensauce", "speck", "origano"],
+      "tags": ["specialty"]
+    },
+    {
+      "id": "italia",
+      "name": "Italia",
+      "description": "Pizza with raw ham and rocket",
+      "ingredients": ["mozzarella", "tomatensauce", "rohschinken", "rucola", "origano"],
+      "tags": ["specialty"]
+    },
+    {
+      "id": "deliziosa",
+      "name": "Deliziosa",
+      "description": "Pizza with buffalo mozzarella and raw ham",
+      "ingredients": ["mozzarella", "tomatensauce", "buffelmozzarella", "rohschinken", "origano"],
+      "tags": ["specialty"]
+    },
+    {
+      "id": "bresaola-rucola",
+      "name": "Bresaola - Rucola",
+      "description": "Pizza with bresaola, rocket, cheese slices, and cherry tomatoes",
+      "ingredients": ["mozzarella", "tomatensauce", "bresaola", "rucola", "kasescheiben", "kirschtomaten", "origano"],
+      "tags": ["specialty"]
+    }
+  ]
+}
