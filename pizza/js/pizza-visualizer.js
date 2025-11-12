@@ -722,7 +722,7 @@ export class PizzaVisualizer {
     }
 
     /**
-     * Hide an ingredient layer (remove from DOM but keep in cache)
+     * Hide an ingredient layer (remove from DOM and clear cache for fresh randomization)
      */
     hideIngredient(svgLayerId) {
         const layer = this.layerCache[svgLayerId];
@@ -738,6 +738,9 @@ export class PizzaVisualizer {
                 }
             }, 600); // Match CSS transition duration
         }
+
+        // Clear cache to force fresh randomization when ingredient is added again
+        delete this.layerCache[svgLayerId];
 
         this.activeLayerIds.delete(svgLayerId);
     }
