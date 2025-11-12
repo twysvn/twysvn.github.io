@@ -1660,8 +1660,14 @@ export class PizzaVisualizer {
      * Enhanced balsamico glaze drizzle
      */
     generateBalsamicoGlaze(attributes) {
-        const path1 = `M50,200 Q100,150 150,180 T250,200`;
-        const path2 = `M60,210 Q110,165 155,190 T245,215`;
+        // Add random variations to create unique drizzle patterns
+        const v1 = Math.random() * 20 - 10; // -10 to 10
+        const v2 = Math.random() * 20 - 10;
+        const v3 = Math.random() * 15 - 7.5;
+        const v4 = Math.random() * 15 - 7.5;
+
+        const path1 = `M50,${200 + v1} Q${100 + v3},${150 + v2} ${150 + v3},${180 + v1} T250,${200 + v2}`;
+        const path2 = `M60,${210 + v4} Q${110 + v3},${165 + v2} ${155 + v4},${190 + v1} T245,${215 + v2}`;
 
         const group = this.createSvgElement('g', {});
 
@@ -1687,7 +1693,12 @@ export class PizzaVisualizer {
      * Enhanced cocktail sauce drizzle
      */
     generateCocktailSosse(attributes) {
-        const path = `M50,220 Q100,175 150,200 T250,220`;
+        // Add random variations to create unique drizzle patterns
+        const v1 = Math.random() * 20 - 10;
+        const v2 = Math.random() * 20 - 10;
+        const v3 = Math.random() * 15 - 7.5;
+
+        const path = `M50,${220 + v1} Q${100 + v3},${175 + v2} ${150 + v3},${200 + v1} T250,${220 + v2}`;
 
         return this.createSvgElement('path', {
             d: path,
@@ -1949,8 +1960,14 @@ export class PizzaVisualizer {
      * Enhanced mayonnaise drizzle
      */
     generateMayonnaise(attributes) {
-        const path1 = `M50,200 Q100,150 150,180 T250,200`;
-        const path2 = `M60,210 Q110,165 155,190 T245,215`;
+        // Add random variations to create unique drizzle patterns
+        const v1 = Math.random() * 20 - 10;
+        const v2 = Math.random() * 20 - 10;
+        const v3 = Math.random() * 15 - 7.5;
+        const v4 = Math.random() * 15 - 7.5;
+
+        const path1 = `M50,${200 + v1} Q${100 + v3},${150 + v2} ${150 + v3},${180 + v1} T250,${200 + v2}`;
+        const path2 = `M60,${210 + v4} Q${110 + v3},${165 + v2} ${155 + v4},${190 + v1} T245,${215 + v2}`;
 
         const group = this.createSvgElement('g', {});
 
@@ -1976,7 +1993,12 @@ export class PizzaVisualizer {
      * Enhanced sriracha chili mayo drizzle
      */
     generateSrirachaMayo(attributes) {
-        const path = `M50,220 Q100,175 150,200 T250,220`;
+        // Add random variations to create unique drizzle patterns
+        const v1 = Math.random() * 20 - 10;
+        const v2 = Math.random() * 20 - 10;
+        const v3 = Math.random() * 15 - 7.5;
+
+        const path = `M50,${220 + v1} Q${100 + v3},${175 + v2} ${150 + v3},${200 + v1} T250,${220 + v2}`;
 
         return this.createSvgElement('path', {
             d: path,
