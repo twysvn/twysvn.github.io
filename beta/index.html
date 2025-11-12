@@ -471,13 +471,18 @@
     <script src="https://cdn.jsdelivr.net/npm/@studio-freight/lenis@1.0.42/dist/lenis.min.js"></script>
 
     <!-- Import Map for THREE.js ES6 Modules -->
-    <script type="importmap">
-    {
-        "imports": {
-            "three": "https://cdn.jsdelivr.net/npm/[email protected]/build/three.module.js",
-            "three/addons/": "https://cdn.jsdelivr.net/npm/[email protected]/examples/jsm/"
-        }
-    }
+    <script>
+        // Dynamically create import map to avoid email protection filters
+        const importMap = document.createElement('script');
+        importMap.type = 'importmap';
+        const version = '0.152.2';
+        importMap.textContent = JSON.stringify({
+            imports: {
+                'three': `https://cdn.jsdelivr.net/npm/three${'@'}${version}/build/three.module.js`,
+                'three/addons/': `https://cdn.jsdelivr.net/npm/three${'@'}${version}/examples/jsm/`
+            }
+        });
+        document.currentScript.parentNode.insertBefore(importMap, document.currentScript.nextSibling);
     </script>
 
     <!-- Main Script -->
