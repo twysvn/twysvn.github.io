@@ -463,9 +463,6 @@
         </footer>
     </div>
 
-    <!-- Three.js -->
-    <script src="https://cdn.jsdelivr.net/gh/mrdoob/three.js@r152/build/three.min.js"></script>
-
     <!-- GSAP + Plugins -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
@@ -473,16 +470,35 @@
     <!-- Lenis Smooth Scroll -->
     <script src="https://cdn.jsdelivr.net/npm/@studio-freight/lenis@1.0.42/dist/lenis.min.js"></script>
 
-    <!-- Post-Processing (EffectComposer, Passes) -->
-    <script src="https://cdn.jsdelivr.net/gh/mrdoob/three.js@r152/examples/js/postprocessing/EffectComposer.js"></script>
-    <script src="https://cdn.jsdelivr.net/gh/mrdoob/three.js@r152/examples/js/postprocessing/RenderPass.js"></script>
-    <script src="https://cdn.jsdelivr.net/gh/mrdoob/three.js@r152/examples/js/postprocessing/UnrealBloomPass.js"></script>
-    <script src="https://cdn.jsdelivr.net/gh/mrdoob/three.js@r152/examples/js/postprocessing/ShaderPass.js"></script>
-    <script src="https://cdn.jsdelivr.net/gh/mrdoob/three.js@r152/examples/js/shaders/CopyShader.js"></script>
-    <script src="https://cdn.jsdelivr.net/gh/mrdoob/three.js@r152/examples/js/shaders/LuminosityHighPassShader.js"></script>
+    <!-- Import Map for THREE.js ES6 Modules -->
+    <script>
+        // Dynamically create import map to avoid email protection filters
+        const importMap = document.createElement('script');
+        importMap.type = 'importmap';
+        const version = '0.152.0';
+        importMap.textContent = JSON.stringify({
+            imports: {
+                'three': `https://cdn.jsdelivr.net/npm/three@${version}/build/three.module.js`,
+                'three/addons/': `https://cdn.jsdelivr.net/npm/three@${version}/examples/jsm/`
+            }
+        });
+        document.currentScript.parentNode.insertBefore(importMap, document.currentScript.nextSibling);
+    </script>
 
     <!-- Main Script -->
-    <script>
+    <script type="module">
+        // ===========================
+        // ES6 IMPORTS
+        // ===========================
+        import * as THREE from 'three';
+        import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+        import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+        import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+        import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
+
+        // Make THREE available globally for compatibility
+        window.THREE = THREE;
+
         // ===========================
         // CUSTOM CURSOR
         // ===========================
@@ -761,14 +777,14 @@
         // ===========================
         // POST-PROCESSING SETUP
         // ===========================
-        const composer = new THREE.EffectComposer(renderer);
+        const composer = new EffectComposer(renderer);
 
         // Render pass
-        const renderPass = new THREE.RenderPass(scene, camera);
+        const renderPass = new RenderPass(scene, camera);
         composer.addPass(renderPass);
 
         // Bloom pass
-        const bloomPass = new THREE.UnrealBloomPass(
+        const bloomPass = new UnrealBloomPass(
             new THREE.Vector2(window.innerWidth, window.innerHeight),
             1.5,  // strength
             0.4,  // radius
@@ -806,7 +822,7 @@
             `
         };
 
-        const rgbShiftPass = new THREE.ShaderPass(RGBShiftShader);
+        const rgbShiftPass = new ShaderPass(RGBShiftShader);
         rgbShiftPass.uniforms['amount'].value = 0.0015;
         composer.addPass(rgbShiftPass);
 
