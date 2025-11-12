@@ -736,12 +736,10 @@ export class PizzaVisualizer {
                 if (layer.parentNode && !this.activeLayerIds.has(svgLayerId)) {
                     layer.parentNode.removeChild(layer);
                 }
+                    // Clear cache to force fresh randomization when ingredient is added again
+                    delete this.layerCache[svgLayerId];
             }, 600); // Match CSS transition duration
         }
-
-        // Clear cache to force fresh randomization when ingredient is added again
-        delete this.layerCache[svgLayerId];
-
         this.activeLayerIds.delete(svgLayerId);
     }
 
