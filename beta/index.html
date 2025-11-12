@@ -478,8 +478,8 @@
         const version = '0.152.2';
         importMap.textContent = JSON.stringify({
             imports: {
-                'three': `https://cdn.jsdelivr.net/npm/three${'@'}${version}/build/three.module.js`,
-                'three/addons/': `https://cdn.jsdelivr.net/npm/three${'@'}${version}/examples/jsm/`
+                'three': `https://cdn.jsdelivr.net/npm/three@${version}/build/three.module.js`,
+                'three/addons/': `https://cdn.jsdelivr.net/npm/three@${version}/examples/jsm/`
             }
         });
         document.currentScript.parentNode.insertBefore(importMap, document.currentScript.nextSibling);
