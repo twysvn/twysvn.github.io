@@ -350,6 +350,30 @@
             }
         }
 
+        /* Scanlines Effect */
+        .scanlines {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 9998;
+            background: repeating-linear-gradient(
+                0deg,
+                rgba(0, 0, 0, 0.15),
+                rgba(0, 0, 0, 0.15) 1px,
+                transparent 1px,
+                transparent 2px
+            );
+            animation: scanline 8s linear infinite;
+        }
+
+        @keyframes scanline {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(10px); }
+        }
+
         /* Responsive */
         @media (max-width: 768px) {
             .projects {
@@ -360,6 +384,10 @@
                 grid-template-columns: 1fr;
                 gap: 2rem;
             }
+
+            .scanlines {
+                opacity: 0.5;
+            }
         }
     </style>
 </head>
@@ -369,6 +397,9 @@
         <div class="loader"></div>
         <div class="loading-text">Loading Experience...</div>
     </div>
+
+    <!-- Scanlines -->
+    <div class="scanlines"></div>
 
     <!-- Custom Cursor -->
     <div id="cursor"></div>
@@ -435,12 +466,19 @@
     <!-- Three.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r152/three.min.js"></script>
 
-    <!-- GSAP + Plugins (FREE since 2024!) -->
+    <!-- GSAP + Plugins -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
 
     <!-- Lenis Smooth Scroll -->
     <script src="https://cdn.jsdelivr.net/npm/@studio-freight/lenis@1.0.42/dist/lenis.min.js"></script>
+
+    <!-- Post-Processing (EffectComposer, Passes) -->
+    <script src="https://cdn.jsdelivr.net/npm/three@0.152.0/examples/js/postprocessing/EffectComposer.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.152.0/examples/js/postprocessing/RenderPass.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.152.0/examples/js/postprocessing/UnrealBloomPass.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.152.0/examples/js/postprocessing/ShaderPass.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.152.0/examples/js/shaders/CopyShader.js"></script>
 
     <!-- Main Script -->
     <script>
@@ -488,7 +526,7 @@
         camera.position.z = 5;
 
         // ===========================
-        // SHADER BACKGROUND
+        // ADVANCED SHADER BACKGROUND
         // ===========================
         const backgroundGeometry = new THREE.PlaneGeometry(20, 20);
         const backgroundMaterial = new THREE.ShaderMaterial({
@@ -499,9 +537,17 @@
             },
             vertexShader: `
                 varying vec2 vUv;
+                uniform float uTime;
+
                 void main() {
                     vUv = uv;
-                    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+                    vec3 pos = position;
+
+                    // Displacement
+                    float displacement = sin(pos.x * 2.0 + uTime) * cos(pos.y * 2.0 + uTime) * 0.1;
+                    pos.z += displacement;
+
+                    gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
                 }
             `,
             fragmentShader: `
@@ -542,31 +588,53 @@
                 void main() {
                     vec2 uv = vUv;
 
-                    // Animated noise
+                    // Multi-layered noise
                     float noise = snoise(uv * 3.0 + uTime * 0.2);
                     noise += snoise(uv * 6.0 - uTime * 0.3) * 0.5;
                     noise += snoise(uv * 12.0 + uTime * 0.4) * 0.25;
+                    noise += snoise(uv * 24.0 + uTime * 0.5) * 0.125;
 
-                    // Mouse interaction
+                    // Mouse interaction with distortion
                     vec2 mouseInfluence = uMouse - uv;
                     float dist = length(mouseInfluence);
-                    noise += (1.0 - smoothstep(0.0, 0.5, dist)) * 0.3;
+                    float distortionStrength = (1.0 - smoothstep(0.0, 0.5, dist)) * 0.5;
 
-                    // Glitch effect (subtle)
-                    float glitch = step(0.98, snoise(vec2(uTime * 10.0, uv.y * 20.0)));
-                    noise += glitch * 0.5;
+                    // Apply distortion
+                    vec2 distortedUV = uv + mouseInfluence * distortionStrength;
+                    noise += snoise(distortedUV * 8.0 + uTime) * distortionStrength;
+
+                    // RGB Shift glitch effect
+                    float rgbShift = step(0.97, snoise(vec2(uTime * 5.0, uv.y * 30.0)));
+                    vec2 rOffset = vec2(rgbShift * 0.02, 0.0);
+                    vec2 bOffset = vec2(-rgbShift * 0.02, 0.0);
+
+                    // Stronger glitch effect
+                    float glitch = step(0.95, snoise(vec2(uTime * 10.0, uv.y * 20.0)));
+                    noise += glitch * 0.8;
 
                     // Color gradient
                     vec3 color1 = vec3(0.039, 0.039, 0.039); // Dark
                     vec3 color2 = vec3(0.988, 0.114, 0.525); // Primary pink
                     vec3 color3 = vec3(0.0, 1.0, 0.941);     // Accent cyan
 
-                    vec3 finalColor = mix(color1, color2, smoothstep(-0.5, 0.5, noise));
+                    // R channel
+                    float noiseR = snoise((distortedUV + rOffset) * 3.0 + uTime * 0.2);
+                    vec3 colorR = mix(color1, color2, smoothstep(-0.5, 0.5, noise + noiseR));
+
+                    // B channel
+                    float noiseB = snoise((distortedUV + bOffset) * 3.0 + uTime * 0.2);
+                    vec3 colorB = mix(color1, color3, smoothstep(-0.5, 0.5, noise + noiseB));
+
+                    vec3 finalColor = mix(colorR, colorB, 0.5);
                     finalColor = mix(finalColor, color3, smoothstep(0.3, 0.8, noise) * 0.3);
 
                     // Vignette
                     float vignette = 1.0 - length(uv - 0.5) * 0.8;
                     finalColor *= vignette;
+
+                    // Scanline effect
+                    float scanline = sin(uv.y * 800.0 + uTime * 10.0) * 0.04;
+                    finalColor += scanline;
 
                     gl_FragColor = vec4(finalColor, 1.0);
                 }
@@ -582,41 +650,41 @@
         // ===========================
         const primitives = [];
 
-        // Create floating primitives
         function createPrimitives() {
             const geometries = [
                 new THREE.BoxGeometry(0.5, 0.5, 0.5),
                 new THREE.SphereGeometry(0.3, 16, 16),
                 new THREE.TorusGeometry(0.3, 0.1, 16, 32),
                 new THREE.OctahedronGeometry(0.3),
-                new THREE.TetrahedronGeometry(0.4)
+                new THREE.TetrahedronGeometry(0.4),
+                new THREE.ConeGeometry(0.3, 0.6, 16),
+                new THREE.CylinderGeometry(0.2, 0.2, 0.6, 16)
             ];
 
-            for (let i = 0; i < 15; i++) {
+            for (let i = 0; i < 20; i++) {
                 const geometry = geometries[Math.floor(Math.random() * geometries.length)];
                 const material = new THREE.MeshPhongMaterial({
                     color: Math.random() > 0.5 ? 0xFC1D86 : 0x00fff0,
                     wireframe: Math.random() > 0.5,
                     transparent: true,
-                    opacity: 0.6
+                    opacity: 0.7,
+                    emissive: Math.random() > 0.5 ? 0xFC1D86 : 0x00fff0,
+                    emissiveIntensity: 0.2
                 });
 
                 const mesh = new THREE.Mesh(geometry, material);
 
-                // Random position
-                mesh.position.x = (Math.random() - 0.5) * 15;
-                mesh.position.y = (Math.random() - 0.5) * 15;
+                mesh.position.x = (Math.random() - 0.5) * 20;
+                mesh.position.y = (Math.random() - 0.5) * 20;
                 mesh.position.z = (Math.random() - 0.5) * 10;
 
-                // Random rotation
                 mesh.rotation.x = Math.random() * Math.PI;
                 mesh.rotation.y = Math.random() * Math.PI;
 
-                // Store animation data
                 mesh.userData = {
-                    rotationSpeed: (Math.random() - 0.5) * 0.02,
-                    floatSpeed: (Math.random() - 0.5) * 0.01,
-                    floatRange: Math.random() * 2
+                    rotationSpeed: (Math.random() - 0.5) * 0.03,
+                    floatSpeed: (Math.random() - 0.5) * 0.02,
+                    floatRange: Math.random() * 3
                 };
 
                 scene.add(mesh);
@@ -627,31 +695,42 @@
         createPrimitives();
 
         // ===========================
-        // 3D LOGO
+        // 3D SVG LOGO
         // ===========================
         let logo3D = null;
+        const textureLoader = new THREE.TextureLoader();
+
+        // Load logo as texture
+        const logoTexture = textureLoader.load('/favicon.ico');
 
         function create3DLogo() {
             const group = new THREE.Group();
 
-            // Create "27" in 3D
-            const textGeometry = new THREE.BoxGeometry(1.5, 2, 0.3);
-            const textMaterial = new THREE.MeshPhongMaterial({
-                color: 0xFC1D86,
+            // Create extruded logo shape
+            const logoGeometry = new THREE.BoxGeometry(3, 3, 0.5);
+            const logoMaterial = new THREE.MeshPhongMaterial({
+                map: logoTexture,
+                color: 0xffffff,
                 emissive: 0xFC1D86,
-                emissiveIntensity: 0.3,
-                shininess: 100
+                emissiveIntensity: 0.5,
+                shininess: 100,
+                transparent: true,
+                opacity: 0.9
             });
 
-            // "2"
-            const two = new THREE.Mesh(textGeometry, textMaterial);
-            two.position.x = -1;
-            group.add(two);
+            const logoMesh = new THREE.Mesh(logoGeometry, logoMaterial);
+            group.add(logoMesh);
 
-            // "7"
-            const seven = new THREE.Mesh(textGeometry, textMaterial);
-            seven.position.x = 1;
-            group.add(seven);
+            // Add glow ring around logo
+            const ringGeometry = new THREE.TorusGeometry(2, 0.05, 16, 100);
+            const ringMaterial = new THREE.MeshBasicMaterial({
+                color: 0x00fff0,
+                transparent: true,
+                opacity: 0.6
+            });
+            const ring = new THREE.Mesh(ringGeometry, ringMaterial);
+            ring.rotation.x = Math.PI / 2;
+            group.add(ring);
 
             group.position.z = 2;
             scene.add(group);
@@ -663,16 +742,72 @@
         // ===========================
         // LIGHTING
         // ===========================
-        const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
         scene.add(ambientLight);
 
-        const pointLight1 = new THREE.PointLight(0xFC1D86, 1, 100);
+        const pointLight1 = new THREE.PointLight(0xFC1D86, 2, 100);
         pointLight1.position.set(5, 5, 5);
         scene.add(pointLight1);
 
-        const pointLight2 = new THREE.PointLight(0x00fff0, 1, 100);
+        const pointLight2 = new THREE.PointLight(0x00fff0, 2, 100);
         pointLight2.position.set(-5, -5, 5);
         scene.add(pointLight2);
+
+        const pointLight3 = new THREE.PointLight(0xffffff, 1, 50);
+        pointLight3.position.set(0, 0, 10);
+        scene.add(pointLight3);
+
+        // ===========================
+        // POST-PROCESSING SETUP
+        // ===========================
+        const composer = new THREE.EffectComposer(renderer);
+
+        // Render pass
+        const renderPass = new THREE.RenderPass(scene, camera);
+        composer.addPass(renderPass);
+
+        // Bloom pass
+        const bloomPass = new THREE.UnrealBloomPass(
+            new THREE.Vector2(window.innerWidth, window.innerHeight),
+            1.5,  // strength
+            0.4,  // radius
+            0.85  // threshold
+        );
+        composer.addPass(bloomPass);
+
+        // RGB Shift / Chromatic Aberration Pass
+        const RGBShiftShader = {
+            uniforms: {
+                'tDiffuse': { value: null },
+                'amount': { value: 0.005 },
+                'angle': { value: 0.0 }
+            },
+            vertexShader: `
+                varying vec2 vUv;
+                void main() {
+                    vUv = uv;
+                    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+                }
+            `,
+            fragmentShader: `
+                uniform sampler2D tDiffuse;
+                uniform float amount;
+                uniform float angle;
+                varying vec2 vUv;
+
+                void main() {
+                    vec2 offset = amount * vec2(cos(angle), sin(angle));
+                    vec4 cr = texture2D(tDiffuse, vUv + offset);
+                    vec4 cga = texture2D(tDiffuse, vUv);
+                    vec4 cb = texture2D(tDiffuse, vUv - offset);
+                    gl_FragColor = vec4(cr.r, cga.g, cb.b, cga.a);
+                }
+            `
+        };
+
+        const rgbShiftPass = new THREE.ShaderPass(RGBShiftShader);
+        rgbShiftPass.uniforms['amount'].value = 0.0015;
+        composer.addPass(rgbShiftPass);
 
         // ===========================
         // MOUSE INTERACTION
@@ -683,11 +818,13 @@
             mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
             mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
 
-            // Update shader uniform
             backgroundMaterial.uniforms.uMouse.value.set(
                 e.clientX / window.innerWidth,
                 1 - e.clientY / window.innerHeight
             );
+
+            // Dynamic RGB shift based on mouse movement
+            rgbShiftPass.uniforms['amount'].value = 0.0015 + Math.abs(mouse.x) * 0.003;
         });
 
         // ===========================
@@ -707,23 +844,49 @@
             primitives.forEach((primitive, i) => {
                 primitive.rotation.x += primitive.userData.rotationSpeed;
                 primitive.rotation.y += primitive.userData.rotationSpeed * 0.5;
-                primitive.position.y += Math.sin(elapsedTime + i) * 0.002;
+                primitive.position.y += Math.sin(elapsedTime + i) * 0.003;
+
+                // Glitch effect on random primitives
+                if (Math.random() > 0.99) {
+                    primitive.position.x += (Math.random() - 0.5) * 0.1;
+                }
             });
 
             // Animate logo with mouse
             if (logo3D) {
-                logo3D.rotation.y = mouse.x * 0.5;
+                logo3D.rotation.y = mouse.x * 0.5 + elapsedTime * 0.1;
                 logo3D.rotation.x = mouse.y * 0.3;
-                logo3D.position.y = Math.sin(elapsedTime * 0.5) * 0.2;
+                logo3D.position.y = Math.sin(elapsedTime * 0.5) * 0.3;
+
+                // Glow ring animation
+                if (logo3D.children[1]) {
+                    logo3D.children[1].rotation.z = elapsedTime * 0.5;
+                    logo3D.children[1].scale.set(
+                        1 + Math.sin(elapsedTime * 2) * 0.1,
+                        1 + Math.sin(elapsedTime * 2) * 0.1,
+                        1
+                    );
+                }
             }
 
             // Animate lights
-            pointLight1.position.x = Math.sin(elapsedTime) * 5;
-            pointLight1.position.y = Math.cos(elapsedTime) * 5;
-            pointLight2.position.x = Math.cos(elapsedTime) * 5;
-            pointLight2.position.y = Math.sin(elapsedTime) * 5;
+            pointLight1.position.x = Math.sin(elapsedTime) * 7;
+            pointLight1.position.y = Math.cos(elapsedTime) * 7;
+            pointLight2.position.x = Math.cos(elapsedTime * 0.7) * 7;
+            pointLight2.position.y = Math.sin(elapsedTime * 0.7) * 7;
 
-            renderer.render(scene, camera);
+            // Pulsing bloom effect
+            bloomPass.strength = 1.5 + Math.sin(elapsedTime * 2) * 0.3;
+
+            // Glitch RGB shift occasionally
+            if (Math.random() > 0.98) {
+                rgbShiftPass.uniforms['amount'].value = 0.01;
+                rgbShiftPass.uniforms['angle'].value = Math.random() * Math.PI * 2;
+            } else {
+                rgbShiftPass.uniforms['amount'].value *= 0.95;
+            }
+
+            composer.render();
         }
 
         // ===========================
@@ -758,8 +921,6 @@
         // GSAP ANIMATIONS
         // ===========================
         gsap.registerPlugin(ScrollTrigger);
-
-        // Update ScrollTrigger with Lenis
         lenis.on('scroll', ScrollTrigger.update);
 
         // Hero animations
@@ -834,6 +995,7 @@
             camera.aspect = window.innerWidth / window.innerHeight;
             camera.updateProjectionMatrix();
             renderer.setSize(window.innerWidth, window.innerHeight);
+            composer.setSize(window.innerWidth, window.innerHeight);
             backgroundMaterial.uniforms.uResolution.value.set(window.innerWidth, window.innerHeight);
         });
 
@@ -848,7 +1010,7 @@
             }, 1500);
         });
 
-        // Start animation immediately for development
+        // Start animation
         animate();
     </script>
 
