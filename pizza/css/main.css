@@ -413,6 +413,8 @@ p {
 }
 
 #result {
+    /* Clear the plate image, which overflows its 400px container */
+    margin-top: 200px;
     text-align: center;
     margin-bottom: var(--space-6);
 }
@@ -435,7 +437,7 @@ p {
 }
 
 #closest-match {
-    margin-top: 200px;
+    margin-top: var(--space-6);
     padding: var(--space-5);
     background: rgba(255, 167, 38, 0.1);
     border: 1px solid var(--accent-orange);

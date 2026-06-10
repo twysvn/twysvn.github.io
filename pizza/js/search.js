@@ -95,8 +95,8 @@ export class SearchEngine {
 
         for (const restaurant of restaurants) {
             try {
-                // Load restaurant data if not already loaded
-                const restaurantData = await this.dataLoader.loadRestaurantData(restaurant.id);
+                // Fetch restaurant data (cached) without changing the current restaurant
+                const restaurantData = await this.dataLoader.fetchRestaurantData(restaurant.id);
                 const results = this.searchPizzasInRestaurantData(query, restaurantData, restaurant.id);
                 allResults.push(...results);
             } catch (error) {

@@ -30,9 +30,12 @@ export class UIController {
             this.setupSearch();
             this.setupRestaurantSelector();
 
-            // Load default restaurant
-            const defaultRestaurant = 'issing';
-            await this.switchRestaurant(defaultRestaurant);
+            // Load default restaurant, falling back to the first enabled one
+            const restaurants = this.dataLoader.getAllRestaurants();
+            const defaultRestaurant = this.dataLoader.getRestaurantById('issing') || restaurants[0];
+            if (defaultRestaurant) {
+                await this.switchRestaurant(defaultRestaurant.id);
+            }
 
         } catch (error) {
             console.error('Failed to initialize UI:', error);
@@ -82,9 +85,9 @@ export class UIController {
         const resultsContainer = document.querySelector('.search-results');
         if (!resultsContainer) return;
 
-        // Search restaurants and pizzas
+        // Search restaurants and pizzas across all restaurants
         const restaurantResults = this.searchEngine.searchRestaurants(query);
-        const pizzaResults = this.searchEngine.searchPizzasInCurrentRestaurant(query);
+        const pizzaResults = await this.searchEngine.searchPizzasGlobally(query);
 
         // Render results
         this.renderSearchResults(restaurantResults, pizzaResults);
@@ -120,7 +123,6 @@ export class UIController {
                     restaurant.tags,
                     () => {
                         this.switchRestaurant(restaurant.id);
-                        this.hideSearchResults();
                     }
                 );
                 item.classList.add('restaurant-result-item');
@@ -141,20 +143,28 @@ export class UIController {
             section.appendChild(header);
 
             pizzaResults.slice(0, 10).forEach(result => {
+                // Resolve ingredient names from the pizza's own restaurant data
+                const restaurantData = this.dataLoader.getCachedRestaurantData(result.restaurantId);
                 const ingredientsText = result.pizza.ingredients
                     .map(id => {
-                        const ing = this.dataLoader.getIngredientById(id);
+                        const ing = restaurantData
+                            ? this.searchEngine.getIngredientById(id, restaurantData)
+                            : null;
                         return ing ? ing.name : id;
                     })
                     .join(', ');
 
+                const subtitle = `${result.restaurantName} • ${ingredientsText}`;
+
                 const item = this.createSearchResultItem(
                     result.pizza.name,
-                    ingredientsText,
+                    subtitle,
                     result.pizza.tags,
-                    () => {
+                    async () => {
+                        if (result.restaurantId !== this.dataLoader.getCurrentRestaurantId()) {
+                            await this.switchRestaurant(result.restaurantId);
+                        }
                         this.selectPizza(result.pizza);
-                        this.hideSearchResults();
                     }
                 );
                 section.appendChild(item);
@@ -431,6 +441,7 @@ export class UIController {
                 'meat': 'hamburger',
                 'vegetable': 'leaf',
                 'topping': 'sparkle',
+                'seafood': 'fish',
                 'extras': 'plus-circle'
             };
 
