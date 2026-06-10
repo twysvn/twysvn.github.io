@@ -5,6 +5,8 @@
 
 const pizzaCenter = { x: 150, y: 150 };
 const defaultPizzaRadius = 120;
+// Toppings stay inside the sauce area rather than spilling onto the crust
+const defaultPlacementRadius = 102;
 const MIN_INGREDIENT_DISTANCE = 8; // Minimum distance between ingredients
 
 export class PizzaVisualizer {
@@ -129,6 +131,7 @@ export class PizzaVisualizer {
             <feComponentTransfer>
                 <feFuncA type="linear" slope="0.15"/>
             </feComponentTransfer>
+            <feComposite in2="SourceAlpha" operator="in"/>
             <feBlend in="SourceGraphic" mode="overlay"/>
         `;
         defs.appendChild(cheeseTexture);
@@ -141,6 +144,7 @@ export class PizzaVisualizer {
             <feComponentTransfer>
                 <feFuncA type="linear" slope="0.1"/>
             </feComponentTransfer>
+            <feComposite in2="SourceAlpha" operator="in"/>
             <feBlend in="SourceGraphic" mode="multiply"/>
         `;
         defs.appendChild(mushroomTexture);
@@ -153,9 +157,17 @@ export class PizzaVisualizer {
             <feComponentTransfer>
                 <feFuncA type="linear" slope="0.12"/>
             </feComponentTransfer>
+            <feComposite in2="SourceAlpha" operator="in"/>
             <feBlend in="SourceGraphic" mode="multiply"/>
         `;
         defs.appendChild(meatTexture);
+
+        // Soft edge for the melted cheese layer
+        const meltEdge = this.createSvgElement('filter', { id: 'meltEdge' });
+        meltEdge.innerHTML = `
+            <feGaussianBlur in="SourceGraphic" stdDeviation="2.5"/>
+        `;
+        defs.appendChild(meltEdge);
     }
 
     /**
@@ -274,7 +286,7 @@ export class PizzaVisualizer {
             const distance = 125 + Math.random() * 10;
             const x = pizzaCenter.x + distance * Math.cos(angle);
             const y = pizzaCenter.y + distance * Math.sin(angle);
-            const size = 4 + Math.random() * 6;
+            const size = 2.5 + Math.random() * 3.5;
 
             const bubble = this.createSvgElement('ellipse', {
                 cx: x,
@@ -282,7 +294,7 @@ export class PizzaVisualizer {
                 rx: size,
                 ry: size * 0.8,
                 fill: '#e8c090',
-                opacity: '0.6',
+                opacity: '0.35',
                 transform: `rotate(${Math.random() * 360} ${x} ${y})`
             });
 
@@ -368,6 +380,11 @@ export class PizzaVisualizer {
             style: `position:absolute;top:0;left:0;opacity:0;z-index:${zIndex};`
         });
 
+        // Full-coverage cheeses get an irregular melted layer under the blobs
+        if (ingredient.meltedBase) {
+            svg.appendChild(this.generateMeltedCheeseBase(ingredient.attributes));
+        }
+
         const count = ingredient.count || 1;
         for (let i = 0; i < count; i++) {
             let position;
@@ -385,7 +402,7 @@ export class PizzaVisualizer {
                     position = this.getPositionNearCenter();
                 } else {
                     // Multiple items get random positions
-                    position = this.getRandomPositionInCircle(ingredient.placementRadius || defaultPizzaRadius);
+                    position = this.getRandomPositionInCircle(ingredient.placementRadius || defaultPlacementRadius);
                 }
                 attempts++;
             } while (this.hasCollision(position, ingredient.minDistance || MIN_INGREDIENT_DISTANCE) && attempts < maxAttempts);
@@ -436,16 +453,16 @@ export class PizzaVisualizer {
             },
 
             // Cheeses - Enhanced with gradients and textures
-            { id: 'mozzarella-fior-di-latte-layer', customGenerator: this.generateMozzarella.bind(this), attributes: { fill: 'url(#mozzarellaGradient)' }, count: 12 },
-            { id: 'mozzarella-layer', customGenerator: this.generateMozzarella.bind(this), attributes: { fill: 'url(#mozzarellaGradient)' }, count: 12 },
-            { id: 'buffelmozzarella-layer', customGenerator: this.generateMozzarella.bind(this), attributes: { fill: '#f8f8f2' }, count: 10 },
+            { id: 'mozzarella-fior-di-latte-layer', customGenerator: this.generateMozzarella.bind(this), attributes: { fill: 'url(#mozzarellaGradient)' }, count: 12, meltedBase: true },
+            { id: 'mozzarella-layer', customGenerator: this.generateMozzarella.bind(this), attributes: { fill: 'url(#mozzarellaGradient)' }, count: 12, meltedBase: true },
+            { id: 'buffelmozzarella-layer', customGenerator: this.generateMozzarella.bind(this), attributes: { fill: '#f8f8f2' }, count: 10, meltedBase: true },
             { id: 'gorgonzola-layer', customGenerator: this.generateGorgonzola.bind(this), attributes: { fill: '#7f8c8d' }, count: 8 },
             { id: 'parmesan-layer', customGenerator: this.generateParmesan.bind(this), attributes: { fill: '#f1c40f' }, count: 30 },
             { id: 'brie-layer', customGenerator: this.generateBrie.bind(this), attributes: { fill: '#f5f5dc' }, count: 10 },
             { id: 'ricotta-layer', customGenerator: this.generateRicotta.bind(this), attributes: { fill: '#fefefe' }, count: 10 },
             { id: 'feta-layer', customGenerator: this.generateFeta.bind(this), attributes: { fill: '#fdf5e6' }, count: 12 },
             { id: 'philadelphia-layer', customGenerator: this.generateMozzarella.bind(this), attributes: { fill: '#fff' }, count: 10 },
-            { id: 'kase-layer', customGenerator: this.generateMozzarella.bind(this), attributes: { fill: 'url(#mozzarellaGradient)' }, count: 12 },
+            { id: 'kase-layer', customGenerator: this.generateMozzarella.bind(this), attributes: { fill: 'url(#mozzarellaGradient)' }, count: 12, meltedBase: true },
             { id: 'schafskase-layer', customGenerator: this.generateFeta.bind(this), attributes: { fill: '#fffacd' }, count: 10 },
             { id: 'krauterkase-layer', customGenerator: this.generateKrauterkase.bind(this), attributes: { fill: '#f4a460' }, count: 10 },
             { id: 'krautertopfen-layer', customGenerator: this.generateKrautertopfenkase.bind(this), attributes: { fill: '#f5deb3' }, count: 10 },
@@ -817,6 +834,63 @@ export class PizzaVisualizer {
     /**
      * Generate enhanced mozzarella with melted cheese effect
      */
+    /**
+     * Generate an irregular melted cheese layer covering most of the pizza
+     * Drawn beneath the individual cheese blobs for full-coverage cheeses
+     */
+    generateMeltedCheeseBase(attributes) {
+        const group = this.createSvgElement('g', {});
+
+        const blob = (radiusBase, radiusJitter, fill, opacity) => {
+            const n = 14;
+            const pts = [];
+            for (let i = 0; i < n; i++) {
+                const angle = (i / n) * Math.PI * 2;
+                const r = radiusBase + Math.random() * radiusJitter;
+                pts.push({
+                    x: pizzaCenter.x + r * Math.cos(angle),
+                    y: pizzaCenter.y + r * Math.sin(angle)
+                });
+            }
+            let d = `M${(pts[0].x + pts[n - 1].x) / 2},${(pts[0].y + pts[n - 1].y) / 2}`;
+            for (let i = 0; i < n; i++) {
+                const p = pts[i];
+                const next = pts[(i + 1) % n];
+                d += ` Q${p.x},${p.y} ${(p.x + next.x) / 2},${(p.y + next.y) / 2}`;
+            }
+            return this.createSvgElement('path', {
+                d: d + ' Z',
+                fill,
+                opacity,
+                filter: 'url(#meltEdge)'
+            });
+        };
+
+        // Creamy melt under the individual blobs
+        group.appendChild(blob(94, 16, '#f6eed9', '0.78'));
+
+        // A few golden browned patches where the cheese baked
+        const patchCount = 4 + Math.floor(Math.random() * 3);
+        for (let i = 0; i < patchCount; i++) {
+            const angle = Math.random() * Math.PI * 2;
+            const distance = Math.random() * 80;
+            const px = pizzaCenter.x + distance * Math.cos(angle);
+            const py = pizzaCenter.y + distance * Math.sin(angle);
+            const patch = this.createSvgElement('ellipse', {
+                cx: px,
+                cy: py,
+                rx: 6 + Math.random() * 8,
+                ry: 4 + Math.random() * 6,
+                fill: '#e8c170',
+                opacity: 0.25 + Math.random() * 0.15,
+                transform: `rotate(${Math.random() * 360} ${px} ${py})`
+            });
+            group.appendChild(patch);
+        }
+
+        return group;
+    }
+
     generateMozzarella(attributes, position) {
         const group = this.createSvgElement('g', {
             filter: 'url(#cheeseShadow)',
@@ -1108,7 +1182,7 @@ export class PizzaVisualizer {
             transform: `rotate(${Math.random() * 360} ${position.x} ${position.y})`
         });
 
-        const size = 11 + Math.random() * 3;
+        const size = 14 + Math.random() * 3;
 
         // Main salami circle
         const salami = this.createSvgElement('circle', {
@@ -1124,28 +1198,43 @@ export class PizzaVisualizer {
         const casing = this.createSvgElement('circle', {
             cx: position.x,
             cy: position.y,
-            r: size,
+            r: size - 0.75,
             fill: 'none',
             stroke: '#8b2f2f',
-            'stroke-width': '1',
-            opacity: '0.6'
+            'stroke-width': '1.5',
+            opacity: '0.7'
         });
         group.appendChild(casing);
 
-        // Fat spots
-        const fatCount = 2 + Math.floor(Math.random() * 3);
+        // Slight sheen on the upper edge
+        const sheen = this.createSvgElement('path', {
+            d: `M${position.x - size * 0.6},${position.y - size * 0.5}
+                Q${position.x},${position.y - size * 0.85}
+                ${position.x + size * 0.6},${position.y - size * 0.5}`,
+            fill: 'none',
+            stroke: '#e8807d',
+            'stroke-width': '2',
+            'stroke-linecap': 'round',
+            opacity: '0.5'
+        });
+        group.appendChild(sheen);
+
+        // Fat marbling
+        const fatCount = 5 + Math.floor(Math.random() * 4);
         for (let i = 0; i < fatCount; i++) {
-            const angle = (i / fatCount) * Math.PI * 2;
-            const distance = size * 0.4 * Math.random();
+            const angle = Math.random() * Math.PI * 2;
+            const distance = size * 0.65 * Math.random();
             const fatX = position.x + distance * Math.cos(angle);
             const fatY = position.y + distance * Math.sin(angle);
 
-            const fat = this.createSvgElement('circle', {
+            const fat = this.createSvgElement('ellipse', {
                 cx: fatX,
                 cy: fatY,
-                r: 1 + Math.random() * 1.5,
-                fill: '#f5deb3',
-                opacity: '0.7'
+                rx: 1.2 + Math.random() * 1.8,
+                ry: 0.9 + Math.random() * 1.3,
+                fill: '#f0d8b8',
+                opacity: 0.6 + Math.random() * 0.25,
+                transform: `rotate(${Math.random() * 360} ${fatX} ${fatY})`
             });
             group.appendChild(fat);
         }
@@ -1729,7 +1818,13 @@ export class PizzaVisualizer {
      * Enhanced basil leaves
      */
     generateBasilikum(attributes, position) {
-        const size = 4 + Math.random() * 2;
+        const size = 6 + Math.random() * 3;
+        const rotation = Math.random() * 360;
+        const group = this.createSvgElement('g', {
+            filter: 'url(#ingredientShadow)',
+            transform: `rotate(${rotation} ${position.x} ${position.y})`
+        });
+
         const d = `M${position.x},${position.y}
                   Q${position.x - size},${position.y - size}
                   ${position.x},${position.y - size * 2}
@@ -1739,12 +1834,20 @@ export class PizzaVisualizer {
         const leaf = this.createSvgElement('path', {
             d,
             fill: attributes.fill,
-            opacity: 0.7 + Math.random() * 0.2,
-            filter: 'url(#ingredientShadow)',
-            transform: `rotate(${Math.random() * 360} ${position.x} ${position.y})`
+            opacity: 0.8 + Math.random() * 0.15
         });
+        group.appendChild(leaf);
 
-        return leaf;
+        // Center vein
+        const vein = this.createSvgElement('path', {
+            d: `M${position.x},${position.y - size * 0.2} L${position.x},${position.y - size * 1.7}`,
+            stroke: '#0a5c0a',
+            'stroke-width': '0.7',
+            opacity: '0.6'
+        });
+        group.appendChild(vein);
+
+        return group;
     }
 
     /**
