@@ -726,6 +726,81 @@ button.chip {
 }
 
 /* ==========================================================================
+   Floating Mini Pizza Preview (mobile)
+   ========================================================================== */
+
+#mini-preview {
+    position: fixed;
+    right: var(--space-4);
+    bottom: var(--space-4);
+    width: 84px;
+    height: 84px;
+    border-radius: 50%;
+    background: var(--dark-bg-tertiary);
+    border: 1px solid var(--glass-border-strong);
+    box-shadow: 0 8px 24px var(--glass-shadow);
+    z-index: 900;
+    cursor: pointer;
+    display: none;
+    padding: 6px;
+}
+
+.mini-preview-stage {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    overflow: hidden;
+}
+
+/* Cloned layers: fill the stage, no re-animation */
+.mini-preview-stage svg {
+    position: absolute !important;
+    inset: 0;
+    width: 100% !important;
+    height: 100% !important;
+    animation: none !important;
+    transition: none !important;
+}
+
+.mini-preview-count {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    min-width: 22px;
+    height: 22px;
+    padding: 0 var(--space-1);
+    border-radius: var(--radius-full);
+    background: var(--accent-orange);
+    color: var(--accent-orange-ink);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-bold);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Only in single-column layout, when the plate is off-screen and
+   something is selected */
+@media (max-width: 1024px) {
+    #mini-preview.visible.away {
+        display: block;
+        animation: miniPop var(--transition-slow) backwards;
+    }
+}
+
+@keyframes miniPop {
+    from {
+        transform: scale(0.6);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+/* ==========================================================================
    Toast Notifications
    ========================================================================== */
 
@@ -937,6 +1012,10 @@ button.chip {
 
 @media (prefers-reduced-motion: reduce) {
     .skeleton-line {
+        animation: none;
+    }
+
+    #mini-preview.visible.away {
         animation: none;
     }
 
