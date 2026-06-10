@@ -2,14 +2,20 @@
  * UIController - Manages all UI interactions and rendering
  */
 
-import { generateLayerId, debounce, createElement, clearElement, showLoading, showError } from './utils.js';
+import { debounce, createElement, clearElement, showSkeleton, showError, showToast } from './utils.js';
 
 export class UIController {
     constructor(dataLoader, visualizer, searchEngine) {
         this.dataLoader = dataLoader;
         this.visualizer = visualizer;
         this.searchEngine = searchEngine;
+
+        // Selected ingredients as objects: { id, name, svgLayer }
         this.currentSelectedIngredients = [];
+
+        // Pizza list card references for live match ranking
+        // Map<pizzaId, { element, badge, ingredientIds, originalIndex, pizza }>
+        this.pizzaCards = new Map();
 
         // Debounced search function
         this.handleSearchDebounced = debounce(this.handleSearch.bind(this), 300);
@@ -30,9 +36,12 @@ export class UIController {
             this.setupSearch();
             this.setupRestaurantSelector();
 
-            // Load default restaurant
-            const defaultRestaurant = 'issing';
-            await this.switchRestaurant(defaultRestaurant);
+            // Load default restaurant, falling back to the first enabled one
+            const restaurants = this.dataLoader.getAllRestaurants();
+            const defaultRestaurant = this.dataLoader.getRestaurantById('issing') || restaurants[0];
+            if (defaultRestaurant) {
+                await this.switchRestaurant(defaultRestaurant.id);
+            }
 
         } catch (error) {
             console.error('Failed to initialize UI:', error);
@@ -82,9 +91,9 @@ export class UIController {
         const resultsContainer = document.querySelector('.search-results');
         if (!resultsContainer) return;
 
-        // Search restaurants and pizzas
+        // Search restaurants and pizzas across all restaurants
         const restaurantResults = this.searchEngine.searchRestaurants(query);
-        const pizzaResults = this.searchEngine.searchPizzasInCurrentRestaurant(query);
+        const pizzaResults = await this.searchEngine.searchPizzasGlobally(query);
 
         // Render results
         this.renderSearchResults(restaurantResults, pizzaResults);
@@ -120,7 +129,6 @@ export class UIController {
                     restaurant.tags,
                     () => {
                         this.switchRestaurant(restaurant.id);
-                        this.hideSearchResults();
                     }
                 );
                 item.classList.add('restaurant-result-item');
@@ -141,20 +149,28 @@ export class UIController {
             section.appendChild(header);
 
             pizzaResults.slice(0, 10).forEach(result => {
+                // Resolve ingredient names from the pizza's own restaurant data
+                const restaurantData = this.dataLoader.getCachedRestaurantData(result.restaurantId);
                 const ingredientsText = result.pizza.ingredients
                     .map(id => {
-                        const ing = this.dataLoader.getIngredientById(id);
+                        const ing = restaurantData
+                            ? this.searchEngine.getIngredientById(id, restaurantData)
+                            : null;
                         return ing ? ing.name : id;
                     })
                     .join(', ');
 
+                const subtitle = `${result.restaurantName} • ${ingredientsText}`;
+
                 const item = this.createSearchResultItem(
                     result.pizza.name,
-                    ingredientsText,
+                    subtitle,
                     result.pizza.tags,
-                    () => {
+                    async () => {
+                        if (result.restaurantId !== this.dataLoader.getCurrentRestaurantId()) {
+                            await this.switchRestaurant(result.restaurantId);
+                        }
                         this.selectPizza(result.pizza);
-                        this.hideSearchResults();
                     }
                 );
                 section.appendChild(item);
@@ -315,9 +331,9 @@ export class UIController {
      */
     async switchRestaurant(restaurantId) {
         try {
-            // Show loading
+            // Show skeleton placeholders while loading
             const container = document.getElementById('ingredients-container');
-            if (container) showLoading(container);
+            if (container) showSkeleton(container);
 
             // Load restaurant data
             await this.dataLoader.loadRestaurantData(restaurantId);
@@ -342,6 +358,7 @@ export class UIController {
             this.renderIngredientSelector();
             this.renderPizzaList();
             this.updateCustomPizzaDisplay();
+            this.updateMatchUI();
 
             // Hide search results
             this.hideSearchResults();
@@ -431,6 +448,7 @@ export class UIController {
                 'meat': 'hamburger',
                 'vegetable': 'leaf',
                 'topping': 'sparkle',
+                'seafood': 'fish',
                 'extras': 'plus-circle'
             };
 
@@ -453,12 +471,7 @@ export class UIController {
                 });
 
                 checkbox.addEventListener('change', (e) => {
-                    this.handleIngredientToggle(
-                        ingredient.id,
-                        ingredient.name,
-                        ingredient.svgLayer,
-                        e.target.checked
-                    );
+                    this.handleIngredientToggle(ingredient, e.target.checked);
                 });
 
                 label.appendChild(checkbox);
@@ -481,8 +494,6 @@ export class UIController {
                     // Add warning icon
                     const warningIcon = document.createElement('i');
                     warningIcon.className = 'ph ph-warning';
-                    warningIcon.style.color = '#ff6b6b';
-                    warningIcon.style.marginLeft = '4px';
                     label.appendChild(warningIcon);
                 }
 
@@ -496,54 +507,193 @@ export class UIController {
 
     /**
      * Handle ingredient toggle
+     * @param {Object} ingredient - Ingredient object: { id, name, svgLayer }
+     * @param {boolean} isChecked - Whether the ingredient was selected
      */
-    handleIngredientToggle(ingredientId, ingredientName, svgLayer, isChecked) {
-        // Update selected ingredients list
+    handleIngredientToggle(ingredient, isChecked) {
         if (isChecked) {
-            if (!this.currentSelectedIngredients.includes(ingredientName)) {
-                this.currentSelectedIngredients.push(ingredientName);
+            if (!this.currentSelectedIngredients.some(i => i.id === ingredient.id)) {
+                this.currentSelectedIngredients.push({
+                    id: ingredient.id,
+                    name: ingredient.name,
+                    svgLayer: ingredient.svgLayer
+                });
             }
+            this.visualizer.showIngredient(ingredient.svgLayer);
         } else {
-            this.currentSelectedIngredients = this.currentSelectedIngredients.filter(i => i !== ingredientName);
-        }
-
-        // Update visualization
-        if (isChecked) {
-            this.visualizer.showIngredient(svgLayer);
-        } else {
-            this.visualizer.hideIngredient(svgLayer);
+            this.currentSelectedIngredients = this.currentSelectedIngredients.filter(i => i.id !== ingredient.id);
+            this.visualizer.hideIngredient(ingredient.svgLayer);
         }
 
         // Update display
         this.updateCustomPizzaDisplay();
-        this.findAndDisplayClosestPizza();
+        this.updateMatchUI();
     }
 
     /**
-     * Update custom pizza display
+     * Remove a selected ingredient by ID (unchecks its checkbox)
+     */
+    removeIngredient(ingredientId) {
+        const checkbox = document.querySelector(`input[data-ingredient-id="${ingredientId}"]`);
+        if (checkbox) {
+            checkbox.checked = false;
+        }
+
+        const ingredient = this.currentSelectedIngredients.find(i => i.id === ingredientId);
+        if (ingredient) {
+            this.handleIngredientToggle(ingredient, false);
+        }
+    }
+
+    /**
+     * Add an ingredient by ID (checks its checkbox)
+     */
+    addIngredient(ingredientId) {
+        const ingredient = this.dataLoader.getIngredientById(ingredientId);
+        if (!ingredient) return;
+
+        const checkbox = document.querySelector(`input[data-ingredient-id="${ingredientId}"]`);
+        if (checkbox) {
+            checkbox.checked = true;
+        }
+
+        this.handleIngredientToggle(ingredient, true);
+    }
+
+    /**
+     * Clear the whole pizza (all selected ingredients)
+     */
+    clearPizza() {
+        document.querySelectorAll('#ingredients-container input[type="checkbox"]').forEach(checkbox => {
+            checkbox.checked = false;
+        });
+
+        this.currentSelectedIngredients = [];
+        this.visualizer.clearPizza();
+        this.updateCustomPizzaDisplay();
+        this.updateMatchUI();
+    }
+
+    /**
+     * Update custom pizza display (selected ingredient chips + clear button)
      */
     updateCustomPizzaDisplay() {
         const resultContainer = document.getElementById('result');
         if (!resultContainer) return;
 
+        clearElement(resultContainer);
+
         if (this.currentSelectedIngredients.length === 0) {
-            resultContainer.innerHTML = '<h2>Select ingredients to create your pizza</h2>';
+            const hint = createElement('div', { className: 'plate-hint' });
+            const icon = document.createElement('i');
+            icon.className = 'ph ph-cursor-click';
+            hint.appendChild(icon);
+            hint.appendChild(document.createTextNode(' Pick ingredients to build your pizza'));
+            resultContainer.appendChild(hint);
             return;
         }
 
-        const pizzaName = `Custom ${this.currentSelectedIngredients.length}-Ingredient Pizza`;
-        resultContainer.innerHTML = `
-            <h2>${pizzaName}</h2>
-            <p>${this.currentSelectedIngredients.join(', ')}</p>
-        `;
+        const heading = createElement('h2', {}, 'Your Pizza');
+        resultContainer.appendChild(heading);
+
+        const chips = createElement('div', { className: 'selected-chips' });
+        this.currentSelectedIngredients.forEach(ingredient => {
+            const chip = createElement('span', { className: 'chip chip-selected' });
+            chip.appendChild(document.createTextNode(ingredient.name));
+
+            const removeBtn = createElement('button', {
+                className: 'chip-remove',
+                type: 'button',
+                'aria-label': `Remove ${ingredient.name}`
+            }, '×');
+            removeBtn.addEventListener('click', () => this.removeIngredient(ingredient.id));
+            chip.appendChild(removeBtn);
+
+            chips.appendChild(chip);
+        });
+        resultContainer.appendChild(chips);
+
+        const clearBtn = createElement('button', { className: 'btn-ghost clear-pizza-btn', type: 'button' });
+        const trashIcon = document.createElement('i');
+        trashIcon.className = 'ph ph-trash';
+        clearBtn.appendChild(trashIcon);
+        clearBtn.appendChild(document.createTextNode(' Clear pizza'));
+        clearBtn.addEventListener('click', () => this.clearPizza());
+        resultContainer.appendChild(clearBtn);
     }
 
     /**
-     * Find and display closest pizza match
+     * Compute match between the current selection and a set of pizza ingredient IDs
+     * @returns {{ shared: number, score: number }} Jaccard similarity and shared count
      */
-    findAndDisplayClosestPizza() {
+    computeMatch(pizzaIngredientIds) {
+        const selectedIds = new Set(this.currentSelectedIngredients.map(i => i.id));
+        if (selectedIds.size === 0) {
+            return { shared: 0, score: 0 };
+        }
+
+        let shared = 0;
+        pizzaIngredientIds.forEach(id => {
+            if (selectedIds.has(id)) shared++;
+        });
+
+        const unionSize = selectedIds.size + pizzaIngredientIds.size - shared;
+        return { shared, score: unionSize > 0 ? shared / unionSize : 0 };
+    }
+
+    /**
+     * Update all match-driven UI: pizza list ranking, badges, and the closest-match box
+     */
+    updateMatchUI() {
+        this.updatePizzaRanking();
+        this.updateClosestMatch();
+    }
+
+    /**
+     * Re-rank the pizza list by match score and update badges
+     */
+    updatePizzaRanking() {
+        const container = document.getElementById('all-pizzas');
+        if (!container || this.pizzaCards.size === 0) return;
+
+        const hasSelection = this.currentSelectedIngredients.length > 0;
+
+        const ranked = Array.from(this.pizzaCards.values()).map(card => {
+            const { shared, score } = this.computeMatch(card.ingredientIds);
+            return { card, shared, score };
+        });
+
+        ranked.forEach(({ card, shared }) => {
+            if (hasSelection && shared > 0) {
+                card.badge.hidden = false;
+                card.badge.textContent = `${shared}/${card.ingredientIds.size}`;
+            } else {
+                card.badge.hidden = true;
+            }
+        });
+
+        // Sort: by score descending when something is selected, original order otherwise
+        ranked.sort((a, b) => {
+            if (hasSelection && b.score !== a.score) {
+                return b.score - a.score;
+            }
+            return a.card.originalIndex - b.card.originalIndex;
+        });
+
+        const list = container.querySelector('.pizza-list');
+        if (list) {
+            ranked.forEach(({ card }) => list.appendChild(card.element));
+        }
+    }
+
+    /**
+     * Update the closest pizza match box with interactive suggestions
+     */
+    updateClosestMatch() {
         const closestMatchContainer = document.getElementById('closest-match');
         if (!closestMatchContainer) return;
+
+        clearElement(closestMatchContainer);
 
         if (this.currentSelectedIngredients.length === 0) {
             closestMatchContainer.style.display = 'none';
@@ -551,71 +701,99 @@ export class UIController {
             return;
         }
 
-        const pizzas = this.dataLoader.getAllPizzas();
-        let closestPizza = null;
-        let maxMatches = 0;
-        let additionalIngredients = [];
-        let missingIngredients = [];
-
-        pizzas.forEach(pizza => {
-            // Get ingredient names for this pizza
-            const pizzaIngredientNames = pizza.ingredients
-                .map(id => {
-                    const ing = this.dataLoader.getIngredientById(id);
-                    return ing ? ing.name : null;
-                })
-                .filter(name => name !== null);
-
-            const matches = this.currentSelectedIngredients.filter(ing =>
-                pizzaIngredientNames.includes(ing)
-            ).length;
-
-            if (matches > maxMatches) {
-                maxMatches = matches;
-                closestPizza = pizza;
-                additionalIngredients = pizzaIngredientNames.filter(ing =>
-                    !this.currentSelectedIngredients.includes(ing)
-                );
-                missingIngredients = this.currentSelectedIngredients.filter(ing =>
-                    !pizzaIngredientNames.includes(ing)
-                );
+        // Find the best match by Jaccard similarity
+        let best = null;
+        this.pizzaCards.forEach(card => {
+            const { shared, score } = this.computeMatch(card.ingredientIds);
+            if (shared > 0 && (!best || score > best.score)) {
+                best = { pizza: card.pizza, ingredientIds: card.ingredientIds, shared, score };
             }
         });
 
-        if (closestPizza && maxMatches > 0) {
-            // Get the full ingredient list for the closest pizza
-            const closestPizzaIngredients = closestPizza.ingredients
-                .map(id => {
-                    const ing = this.dataLoader.getIngredientById(id);
-                    return ing ? ing.name : null;
-                })
-                .filter(name => name !== null);
-
-            closestMatchContainer.innerHTML = `
-                <h2><i class="ph ph-target"></i> Closest Pizza: ${closestPizza.name}</h2>
-                <p style="color: var(--text-muted); font-size: 0.95em; margin-top: 8px;"><i class="ph ph-list"></i> Ingredients: ${closestPizzaIngredients.join(', ')}</p>
-                <p><i class="ph ph-plus-circle"></i> Add: ${missingIngredients.join(', ') || 'None'}</p>
-                <p><i class="ph ph-minus-circle"></i> Remove: ${additionalIngredients.join(', ') || 'None'}</p>
-            `;
-            closestMatchContainer.style.display = 'block';
-            this.highlightClosestPizza(closestPizza.name);
-        } else {
-            closestMatchContainer.innerHTML = '<p><i class="ph ph-info"></i> No close matches found.</p>';
+        if (!best) {
             closestMatchContainer.style.display = 'none';
             this.removeClosestPizzaHighlight();
+            return;
         }
+
+        const selectedIds = new Set(this.currentSelectedIngredients.map(i => i.id));
+        const toAdd = Array.from(best.ingredientIds).filter(id => !selectedIds.has(id));
+        const toRemove = this.currentSelectedIngredients.filter(i => !best.ingredientIds.has(i.id));
+
+        // Header
+        const heading = createElement('h2', {});
+        const targetIcon = document.createElement('i');
+        targetIcon.className = 'ph ph-target';
+        heading.appendChild(targetIcon);
+        heading.appendChild(document.createTextNode(` Closest: ${best.pizza.name}`));
+        const pct = createElement('span', { className: 'match-pct' }, `${Math.round(best.score * 100)}%`);
+        heading.appendChild(pct);
+        closestMatchContainer.appendChild(heading);
+
+        // Exact match: celebrate instead of suggesting changes
+        if (toAdd.length === 0 && toRemove.length === 0) {
+            const exact = createElement('p', { className: 'match-exact' });
+            const check = document.createElement('i');
+            check.className = 'ph ph-check-circle';
+            exact.appendChild(check);
+            exact.appendChild(document.createTextNode(` You built the ${best.pizza.name}!`));
+            closestMatchContainer.appendChild(exact);
+            closestMatchContainer.style.display = 'block';
+            this.highlightClosestPizza(best.pizza.id);
+            return;
+        }
+
+        // Suggestion chips: click to apply
+        if (toAdd.length > 0) {
+            const row = createElement('div', { className: 'match-row' });
+            row.appendChild(createElement('span', { className: 'match-row-label match-add' }, 'Add'));
+            toAdd.forEach(id => {
+                const ingredient = this.dataLoader.getIngredientById(id);
+                const chip = createElement('button', {
+                    className: 'chip chip-add',
+                    type: 'button',
+                    title: 'Add to your pizza'
+                }, ingredient ? ingredient.name : id);
+                chip.addEventListener('click', () => this.addIngredient(id));
+                row.appendChild(chip);
+            });
+            closestMatchContainer.appendChild(row);
+        }
+
+        if (toRemove.length > 0) {
+            const row = createElement('div', { className: 'match-row' });
+            row.appendChild(createElement('span', { className: 'match-row-label match-remove' }, 'Remove'));
+            toRemove.forEach(ingredient => {
+                const chip = createElement('button', {
+                    className: 'chip chip-remove-suggest',
+                    type: 'button',
+                    title: 'Remove from your pizza'
+                }, ingredient.name);
+                chip.addEventListener('click', () => this.removeIngredient(ingredient.id));
+                row.appendChild(chip);
+            });
+            closestMatchContainer.appendChild(row);
+        }
+
+        // One-click apply
+        const makeBtn = createElement('button', { className: 'btn-primary make-pizza-btn', type: 'button' });
+        const wand = document.createElement('i');
+        wand.className = 'ph ph-magic-wand';
+        makeBtn.appendChild(wand);
+        makeBtn.appendChild(document.createTextNode(` Make this pizza`));
+        makeBtn.addEventListener('click', () => this.selectPizza(best.pizza));
+        closestMatchContainer.appendChild(makeBtn);
+
+        closestMatchContainer.style.display = 'block';
+        this.highlightClosestPizza(best.pizza.id);
     }
 
     /**
      * Highlight closest pizza in list
      */
-    highlightClosestPizza(pizzaName) {
-        document.querySelectorAll('.pizza-item').forEach(pizzaDiv => {
-            if (pizzaDiv.getAttribute('data-pizza-name') === pizzaName) {
-                pizzaDiv.classList.add('highlight');
-            } else {
-                pizzaDiv.classList.remove('highlight');
-            }
+    highlightClosestPizza(pizzaId) {
+        this.pizzaCards.forEach((card, id) => {
+            card.element.classList.toggle('highlight', id === pizzaId);
         });
     }
 
@@ -623,8 +801,8 @@ export class UIController {
      * Remove pizza highlight
      */
     removeClosestPizzaHighlight() {
-        document.querySelectorAll('.pizza-item').forEach(pizzaDiv => {
-            pizzaDiv.classList.remove('highlight');
+        this.pizzaCards.forEach(card => {
+            card.element.classList.remove('highlight');
         });
     }
 
@@ -636,17 +814,19 @@ export class UIController {
         if (!container) return;
 
         clearElement(container);
+        this.pizzaCards.clear();
 
         const heading = createElement('h2', {});
         const icon = document.createElement('i');
         icon.className = 'ph ph-list-bullets';
         heading.appendChild(icon);
-        heading.appendChild(document.createTextNode(' All Pizza Combinations'));
+        heading.appendChild(document.createTextNode(' All Pizzas'));
         container.appendChild(heading);
 
+        const list = createElement('div', { className: 'pizza-list' });
         const pizzas = this.dataLoader.getAllPizzas();
 
-        pizzas.forEach(pizza => {
+        pizzas.forEach((pizza, index) => {
             const ingredientNames = pizza.ingredients
                 .map(id => {
                     const ing = this.dataLoader.getIngredientById(id);
@@ -654,19 +834,45 @@ export class UIController {
                 })
                 .join(', ');
 
-            const pizzaDiv = createElement('div', {
-                className: 'pizza-item',
-                dataset: { pizzaName: pizza.name }
-            });
+            const pizzaDiv = createElement('div', { className: 'pizza-item' });
 
-            pizzaDiv.innerHTML = `<h3>${pizza.name}</h3><p>${ingredientNames}</p>`;
+            const header = createElement('div', { className: 'pizza-item-header' });
+            header.appendChild(createElement('h3', {}, pizza.name));
+            const badge = createElement('span', { className: 'match-badge' });
+            badge.hidden = true;
+            header.appendChild(badge);
+            pizzaDiv.appendChild(header);
+
+            if (pizza.description) {
+                pizzaDiv.appendChild(createElement('p', { className: 'pizza-desc' }, pizza.description));
+            }
+
+            pizzaDiv.appendChild(createElement('p', { className: 'pizza-ingredients' }, ingredientNames));
+
+            if (pizza.tags && pizza.tags.length > 0) {
+                const tags = createElement('div', { className: 'pizza-tags' });
+                pizza.tags.forEach(tag => {
+                    tags.appendChild(createElement('span', { className: 'pizza-tag' }, tag));
+                });
+                pizzaDiv.appendChild(tags);
+            }
 
             pizzaDiv.addEventListener('click', () => {
                 this.selectPizza(pizza);
             });
 
-            container.appendChild(pizzaDiv);
+            list.appendChild(pizzaDiv);
+
+            this.pizzaCards.set(pizza.id, {
+                element: pizzaDiv,
+                badge,
+                ingredientIds: new Set(pizza.ingredients),
+                originalIndex: index,
+                pizza
+            });
         });
+
+        container.appendChild(list);
     }
 
     /**
@@ -684,12 +890,12 @@ export class UIController {
         );
 
         if (missingIngredients.length > 0) {
-            alert(`Missing ingredients: ${missingIngredients.map(i => i.name).join(', ')}`);
+            showToast(`Missing ingredients: ${missingIngredients.map(i => i.name).join(', ')}`, 'warning');
             return;
         }
 
         // Clear all checkboxes first
-        document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+        document.querySelectorAll('#ingredients-container input[type="checkbox"]').forEach(checkbox => {
             checkbox.checked = false;
         });
 
@@ -710,7 +916,11 @@ export class UIController {
 
             if (checkbox) {
                 checkbox.checked = true;
-                this.currentSelectedIngredients.push(ingredient.name);
+                this.currentSelectedIngredients.push({
+                    id: ingredient.id,
+                    name: ingredient.name,
+                    svgLayer: ingredient.svgLayer
+                });
                 this.visualizer.showIngredient(ingredient.svgLayer);
 
                 // Update display after each ingredient
@@ -723,6 +933,6 @@ export class UIController {
         }
 
         // Final display update
-        this.findAndDisplayClosestPizza();
+        this.updateMatchUI();
     }
 }

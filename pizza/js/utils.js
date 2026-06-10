@@ -111,6 +111,61 @@ export function showLoading(container, message = 'Loading...') {
 }
 
 /**
+ * Show skeleton placeholders while content loads
+ * @param {HTMLElement} container - The container to fill with skeletons
+ * @param {number} sections - Number of skeleton sections to render
+ */
+export function showSkeleton(container, sections = 3) {
+    container.innerHTML = '';
+    for (let s = 0; s < sections; s++) {
+        const section = document.createElement('div');
+        section.className = 'skeleton-section';
+
+        const heading = document.createElement('div');
+        heading.className = 'skeleton-line skeleton-heading';
+        section.appendChild(heading);
+
+        const pills = document.createElement('div');
+        pills.className = 'skeleton-pills';
+        for (let i = 0; i < 6; i++) {
+            const pill = document.createElement('div');
+            pill.className = 'skeleton-line skeleton-pill';
+            pill.style.width = `${70 + ((s * 6 + i) * 37) % 80}px`;
+            pills.appendChild(pill);
+        }
+        section.appendChild(pills);
+        container.appendChild(section);
+    }
+}
+
+/**
+ * Show a transient toast notification
+ * @param {string} message - The message to display
+ * @param {string} type - One of 'info', 'success', 'warning'
+ */
+export function showToast(message, type = 'info') {
+    let container = document.querySelector('.toast-container');
+    if (!container) {
+        container = document.createElement('div');
+        container.className = 'toast-container';
+        document.body.appendChild(container);
+    }
+
+    const toast = document.createElement('div');
+    toast.className = `toast toast-${type}`;
+    toast.setAttribute('role', 'status');
+    toast.textContent = message;
+    container.appendChild(toast);
+
+    requestAnimationFrame(() => toast.classList.add('visible'));
+
+    setTimeout(() => {
+        toast.classList.remove('visible');
+        setTimeout(() => toast.remove(), 300);
+    }, 3500);
+}
+
+/**
  * Clear element content
  * @param {HTMLElement} element - The element to clear
  */

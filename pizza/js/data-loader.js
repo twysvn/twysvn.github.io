@@ -50,17 +50,26 @@ export class DataLoader {
     }
 
     /**
-     * Load data for a specific restaurant
+     * Load data for a specific restaurant and make it the current restaurant
      * @param {string} restaurantId - The restaurant ID
      * @returns {Promise<Object>} Restaurant data
      */
     async loadRestaurantData(restaurantId) {
+        const data = await this.fetchRestaurantData(restaurantId);
+        this.currentRestaurant = restaurantId;
+        this.currentRestaurantData = data;
+        return data;
+    }
+
+    /**
+     * Fetch and cache data for a restaurant without changing the current restaurant
+     * @param {string} restaurantId - The restaurant ID
+     * @returns {Promise<Object>} Restaurant data
+     */
+    async fetchRestaurantData(restaurantId) {
         // Check cache first
         if (this.cache.has(restaurantId)) {
-            const cached = this.cache.get(restaurantId);
-            this.currentRestaurant = restaurantId;
-            this.currentRestaurantData = cached;
-            return cached;
+            return this.cache.get(restaurantId);
         }
 
         try {
@@ -85,8 +94,6 @@ export class DataLoader {
 
             // Cache the data
             this.cache.set(restaurantId, data);
-            this.currentRestaurant = restaurantId;
-            this.currentRestaurantData = data;
 
             return data;
         } catch (error) {
@@ -129,6 +136,15 @@ export class DataLoader {
      */
     getAllRestaurants() {
         return this.restaurantsList || [];
+    }
+
+    /**
+     * Get cached restaurant data by ID (without switching the current restaurant)
+     * @param {string} restaurantId - The restaurant ID
+     * @returns {Object|null} Restaurant data if cached
+     */
+    getCachedRestaurantData(restaurantId) {
+        return this.cache.get(restaurantId) || null;
     }
 
     /**
@@ -218,7 +234,7 @@ export class DataLoader {
      */
     async preloadRestaurants(restaurantIds) {
         const promises = restaurantIds.map(id =>
-            this.loadRestaurantData(id).catch(err =>
+            this.fetchRestaurantData(id).catch(err =>
                 console.warn(`Failed to preload ${id}:`, err)
             )
         );

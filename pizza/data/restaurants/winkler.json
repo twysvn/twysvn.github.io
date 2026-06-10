@@ -261,6 +261,22 @@
             "svgLayer": "cocktail-sosse-layer"
           }
         ]
+      },
+      "seafood": {
+        "name": "Seafood",
+        "order": 6,
+        "items": [
+          {
+            "id": "sardellen",
+            "name": "Sardellen",
+            "svgLayer": "sardellen-layer"
+          },
+          {
+            "id": "meeresfruchte",
+            "name": "Meeresfrüchte",
+            "svgLayer": "meeresfruchte-layer"
+          }
+        ]
       }
     }
   },
