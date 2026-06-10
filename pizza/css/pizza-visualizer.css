@@ -204,8 +204,8 @@
     }
 
     .sidebar-wrapper {
-        position: sticky;
-        top: var(--space-4, 16px);
+        position: relative;
+        top: 0;
         margin: 0 auto var(--space-6, 24px);
     }
 

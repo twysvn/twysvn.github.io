@@ -35,6 +35,7 @@ export class UIController {
             // Setup UI elements
             this.setupSearch();
             this.setupRestaurantSelector();
+            this.setupMiniPreview();
 
             // Load default restaurant, falling back to the first enabled one
             const restaurants = this.dataLoader.getAllRestaurants();
@@ -575,9 +576,74 @@ export class UIController {
     }
 
     /**
+     * Setup the floating mini pizza preview (mobile companion while the
+     * main visualizer is scrolled out of view)
+     */
+    setupMiniPreview() {
+        this.miniPreview = createElement('div', {
+            id: 'mini-preview',
+            title: 'Back to your pizza',
+            role: 'button',
+            'aria-label': 'Scroll back to your pizza'
+        });
+
+        this.miniStage = createElement('div', { className: 'mini-preview-stage' });
+        this.miniPreview.appendChild(this.miniStage);
+
+        this.miniCount = createElement('span', { className: 'mini-preview-count' });
+        this.miniPreview.appendChild(this.miniCount);
+
+        this.miniPreview.addEventListener('click', () => {
+            document.getElementById('pizza-container')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        });
+
+        document.body.appendChild(this.miniPreview);
+
+        // Track whether the main visualizer is on screen
+        const plateWrapper = document.querySelector('.pizza-plate-wrapper');
+        if (plateWrapper && 'IntersectionObserver' in window) {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    this.miniPreview.classList.toggle('away', !entry.isIntersecting);
+                });
+            }, { threshold: 0.1 });
+            observer.observe(plateWrapper);
+        } else {
+            // Without IntersectionObserver, rely on the selection state alone
+            this.miniPreview.classList.add('away');
+        }
+    }
+
+    /**
+     * Mirror the current pizza into the mini preview by cloning its SVG layers
+     */
+    updateMiniPreview() {
+        if (!this.miniPreview) return;
+
+        const hasSelection = this.currentSelectedIngredients.length > 0;
+        this.miniPreview.classList.toggle('visible', hasSelection);
+
+        if (!hasSelection) {
+            clearElement(this.miniStage);
+            return;
+        }
+
+        const container = document.getElementById('pizza-container');
+        if (!container) return;
+
+        clearElement(this.miniStage);
+        Array.from(container.children).forEach(layer => {
+            this.miniStage.appendChild(layer.cloneNode(true));
+        });
+        this.miniCount.textContent = this.currentSelectedIngredients.length;
+    }
+
+    /**
      * Update custom pizza display (selected ingredient chips + clear button)
      */
     updateCustomPizzaDisplay() {
+        this.updateMiniPreview();
+
         const resultContainer = document.getElementById('result');
         if (!resultContainer) return;
 
