@@ -453,9 +453,9 @@ export class PizzaVisualizer {
             },
 
             // Cheeses - Enhanced with gradients and textures
-            { id: 'mozzarella-fior-di-latte-layer', customGenerator: this.generateMozzarella.bind(this), attributes: { fill: 'url(#mozzarellaGradient)' }, count: 12, meltedBase: true },
-            { id: 'mozzarella-layer', customGenerator: this.generateMozzarella.bind(this), attributes: { fill: 'url(#mozzarellaGradient)' }, count: 12, meltedBase: true },
-            { id: 'buffelmozzarella-layer', customGenerator: this.generateMozzarella.bind(this), attributes: { fill: '#f8f8f2' }, count: 10, meltedBase: true },
+            { id: 'mozzarella-fior-di-latte-layer', customGenerator: this.generateMozzarella.bind(this), attributes: { fill: 'url(#mozzarellaGradient)' }, count: 12 },
+            { id: 'mozzarella-layer', customGenerator: this.generateMozzarella.bind(this), attributes: { fill: 'url(#mozzarellaGradient)' }, count: 12 },
+            { id: 'buffelmozzarella-layer', customGenerator: this.generateMozzarella.bind(this), attributes: { fill: '#f8f8f2' }, count: 10 },
             { id: 'gorgonzola-layer', customGenerator: this.generateGorgonzola.bind(this), attributes: { fill: '#7f8c8d' }, count: 8 },
             { id: 'parmesan-layer', customGenerator: this.generateParmesan.bind(this), attributes: { fill: '#f1c40f' }, count: 30 },
             { id: 'brie-layer', customGenerator: this.generateBrie.bind(this), attributes: { fill: '#f5f5dc' }, count: 10 },
