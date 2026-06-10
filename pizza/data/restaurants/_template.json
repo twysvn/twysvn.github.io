@@ -5,8 +5,8 @@
     "2. Fill in the restaurant metadata",
     "3. Build ingredient categories based ONLY on ingredients actually used in pizzas",
     "4. Add all pizzas with their exact ingredients",
-    "5. Run validation to ensure all ingredients are used and no duplicates exist",
-    "6. Add the restaurant entry to restaurants.json",
+    "5. Add the restaurant entry to restaurants.json",
+    "6. Run 'node pizza/tools/validate.mjs' - it checks structure, dangling ingredient references, SVG layer coverage and pizzaCount (use --fix to update counts)",
     "7. Delete these comment fields (_comment, _instructions, _validation_tips)"
   ],
   "_validation_tips": [
