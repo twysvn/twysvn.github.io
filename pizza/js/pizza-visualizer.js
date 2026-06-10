@@ -968,22 +968,25 @@ export class PizzaVisualizer {
      * Enhanced parmesan shavings
      */
     generateParmesan(attributes, position) {
-        const size = 4 + Math.random() * 4;
-        const points = [
-            `${position.x},${position.y - size / 2}`,
-            `${position.x + size / 2 + Math.random() * 2},${position.y + size / 2}`,
-            `${position.x - size / 2 - Math.random() * 2},${position.y + size / 2}`
-        ].join(' ');
+        // Curled cheese shaving: a thin crescent ribbon
+        const x = position.x;
+        const y = position.y;
+        const len = 5 + Math.random() * 4;   // half length
+        const curl = 2.5 + Math.random() * 2;
 
-        const parmesan = this.createSvgElement('polygon', {
-            points,
-            fill: attributes.fill,
-            opacity: 0.7 + Math.random() * 0.2,
+        const shaving = this.createSvgElement('path', {
+            d: `M${x - len},${y}
+               Q${x},${y - curl} ${x + len},${y}
+               Q${x},${y - curl + 1.6} ${x - len},${y} Z`,
+            fill: '#f2e3ad',
+            stroke: '#d8c277',
+            'stroke-width': '0.5',
+            opacity: 0.9 + Math.random() * 0.1,
             filter: 'url(#ingredientShadow)',
-            transform: `rotate(${Math.random() * 360} ${position.x} ${position.y})`
+            transform: `rotate(${Math.random() * 360} ${x} ${y})`
         });
 
-        return parmesan;
+        return shaving;
     }
 
     /**
@@ -1106,30 +1109,49 @@ export class PizzaVisualizer {
             transform: `rotate(${Math.random() * 360} ${position.x} ${position.y})`
         });
 
-        const width = 35 + Math.random() * 10;
-        const height = 18 + Math.random() * 6;
+        const x = position.x;
+        const y = position.y;
+        const w = 14 + Math.random() * 4;  // half width
+        const h = 8 + Math.random() * 2;   // half height
+        const wave = 2.5;
+        const j = () => (Math.random() - 0.5) * wave;
 
-        const ham = this.createSvgElement('ellipse', {
-            cx: position.x,
-            cy: position.y,
-            rx: width / 2,
-            ry: height / 2,
-            fill: attributes.fill,
-            opacity: '0.85',
+        // Folded ham slice: irregular wavy band
+        const slice = `M${x - w + j()},${y - h + j()}
+                      Q${x - w * 0.3},${y - h - wave} ${x + w * 0.4 + j()},${y - h + j()}
+                      Q${x + w + wave},${y - h * 0.4} ${x + w + j()},${y + h * 0.3 + j()}
+                      Q${x + w * 0.5},${y + h + wave} ${x - w * 0.4 + j()},${y + h + j()}
+                      Q${x - w - wave},${y + h * 0.3} ${x - w + j()},${y - h + j()} Z`;
+
+        const ham = this.createSvgElement('path', {
+            d: slice,
+            fill: attributes.fill || '#e8a18a',
+            opacity: '0.95',
             filter: 'url(#meatTexture)'
         });
         group.appendChild(ham);
 
-        // Add fat marbling
-        const marbling = this.createSvgElement('ellipse', {
-            cx: position.x + 5,
-            cy: position.y,
-            rx: 6,
-            ry: 4,
-            fill: '#f5deb3',
-            opacity: '0.4'
+        // Fold ridge: lighter band across the slice
+        const fold = this.createSvgElement('path', {
+            d: `M${x - w * 0.8},${y + h * 0.4}
+               Q${x - w * 0.2},${y - h * 0.6} ${x + w * 0.7},${y - h * 0.3}
+               Q${x + w * 0.2},${y + h * 0.1} ${x - w * 0.3},${y + h * 0.7}
+               Q${x - w * 0.6},${y + h * 0.6} ${x - w * 0.8},${y + h * 0.4} Z`,
+            fill: '#f4c3ae',
+            opacity: '0.8'
         });
-        group.appendChild(marbling);
+        group.appendChild(fold);
+
+        // Shadow under the fold for depth
+        const foldShadow = this.createSvgElement('path', {
+            d: `M${x - w * 0.8},${y + h * 0.45}
+               Q${x - w * 0.2},${y - h * 0.55} ${x + w * 0.7},${y - h * 0.25}`,
+            fill: 'none',
+            stroke: '#c97f63',
+            'stroke-width': '1.2',
+            opacity: '0.7'
+        });
+        group.appendChild(foldShadow);
 
         return group;
     }
@@ -1143,32 +1165,43 @@ export class PizzaVisualizer {
             transform: `rotate(${Math.random() * 360} ${position.x} ${position.y})`
         });
 
-        const width = 45 + Math.random() * 10;
-        const height = 8 + Math.random() * 4;
+        const x = position.x;
+        const y = position.y;
+        const w = 17 + Math.random() * 4;  // half length
+        const h = 4.5 + Math.random() * 1; // half height
+        const wv = 1.5;
 
-        // Meat part
-        const meat = this.createSvgElement('rect', {
-            x: position.x - width / 2,
-            y: position.y - height / 2,
-            width: width,
-            height: height,
-            fill: '#8b4513',
-            opacity: '0.85',
-            rx: 2
+        // Wavy bacon strip
+        const strip = `M${x - w},${y - h}
+                      Q${x - w / 2},${y - h - wv} ${x},${y - h}
+                      Q${x + w / 2},${y - h + wv} ${x + w},${y - h}
+                      L${x + w},${y + h}
+                      Q${x + w / 2},${y + h + wv} ${x},${y + h}
+                      Q${x - w / 2},${y + h - wv} ${x - w},${y + h} Z`;
+
+        const meat = this.createSvgElement('path', {
+            d: strip,
+            fill: '#9c4a2f',
+            opacity: '0.95',
+            filter: 'url(#meatTexture)'
         });
         group.appendChild(meat);
 
-        // Fat stripe
-        const fat = this.createSvgElement('rect', {
-            x: position.x - width / 2,
-            y: position.y - height / 2,
-            width: width,
-            height: height / 3,
-            fill: '#f5deb3',
-            opacity: '0.7',
-            rx: 1
+        // Two wavy fat streaks along the strip
+        [-0.35, 0.3].forEach((off, i) => {
+            const fy = y + h * 2 * off;
+            const fat = this.createSvgElement('path', {
+                d: `M${x - w * 0.95},${fy}
+                   Q${x - w / 2},${fy + (i ? wv : -wv)} ${x},${fy}
+                   Q${x + w / 2},${fy + (i ? -wv : wv)} ${x + w * 0.95},${fy}`,
+                fill: 'none',
+                stroke: '#f3e2c0',
+                'stroke-width': 1.6 + Math.random() * 0.8,
+                'stroke-linecap': 'round',
+                opacity: '0.85'
+            });
+            group.appendChild(fat);
         });
-        group.appendChild(fat);
 
         return group;
     }
@@ -1310,19 +1343,39 @@ export class PizzaVisualizer {
             transform: `rotate(${Math.random() * 360} ${position.x} ${position.y})`
         });
 
-        const size = 9 + Math.random() * 4;
-        const points = [
-            `${position.x},${position.y - size}`,
-            `${position.x - size},${position.y + size}`,
-            `${position.x + size},${position.y + size}`
-        ].join(' ');
+        const x = position.x;
+        const y = position.y;
 
-        const tuna = this.createSvgElement('polygon', {
-            points,
-            fill: attributes.fill,
-            opacity: '0.8'
-        });
-        group.appendChild(tuna);
+        // Cluster of 2-3 irregular cooked-tuna flakes
+        const flakeCount = 2 + Math.floor(Math.random() * 2);
+        for (let f = 0; f < flakeCount; f++) {
+            const fx = x + (Math.random() - 0.5) * 10;
+            const fy = y + (Math.random() - 0.5) * 10;
+            const s = 5 + Math.random() * 3;
+            const j = () => (Math.random() - 0.5) * s * 0.7;
+
+            const flake = this.createSvgElement('path', {
+                d: `M${fx - s + j()},${fy + j()}
+                   Q${fx - s * 0.5},${fy - s + j()} ${fx + s * 0.4 + j()},${fy - s * 0.7 + j()}
+                   Q${fx + s + j()},${fy - s * 0.2} ${fx + s * 0.7 + j()},${fy + s * 0.6 + j()}
+                   Q${fx + j()},${fy + s + j()} ${fx - s * 0.6 + j()},${fy + s * 0.5 + j()} Z`,
+                fill: '#cf9270',
+                stroke: '#a06a4e',
+                'stroke-width': '0.6',
+                opacity: 0.92 + Math.random() * 0.08
+            });
+            group.appendChild(flake);
+
+            // Lighter flake line for texture
+            const line = this.createSvgElement('path', {
+                d: `M${fx - s * 0.5},${fy + j() * 0.5} Q${fx},${fy - s * 0.3} ${fx + s * 0.5},${fy + j() * 0.5}`,
+                fill: 'none',
+                stroke: '#ecc3a4',
+                'stroke-width': '1.1',
+                opacity: '0.85'
+            });
+            group.appendChild(line);
+        }
 
         return group;
     }
@@ -1336,15 +1389,35 @@ export class PizzaVisualizer {
             transform: `rotate(${Math.random() * 360} ${position.x} ${position.y})`
         });
 
-        const capWidth = 18 + Math.random() * 6;
-        const capHeight = 9 + Math.random() * 3;
-        const stemWidth = 5 + Math.random() * 2;
-        const stemHeight = 11 + Math.random() * 3;
+        const capWidth = 22 + Math.random() * 6;
+        const capHeight = 11 + Math.random() * 3;
+        const stemWidth = 6 + Math.random() * 2;
+        const stemHeight = 12 + Math.random() * 3;
 
         const x = position.x;
         const y = position.y;
 
-        // Mushroom cap with bezier curves for organic shape
+        // Slice outline: cap and stem as one silhouette for a clean edge
+        const slicePath = `M${x - capWidth / 2},${y}
+                        Q${x - capWidth / 3},${y - capHeight}
+                        ${x},${y - capHeight - 2}
+                        Q${x + capWidth / 3},${y - capHeight}
+                        ${x + capWidth / 2},${y}
+                        L${x + stemWidth / 2},${y}
+                        L${x + stemWidth / 2 + 1},${y + stemHeight}
+                        Q${x},${y + stemHeight + 2} ${x - stemWidth / 2 - 1},${y + stemHeight}
+                        L${x - stemWidth / 2},${y} Z`;
+
+        const outline = this.createSvgElement('path', {
+            d: slicePath,
+            fill: '#f3e6cd',
+            stroke: '#8a6a48',
+            'stroke-width': '1.2',
+            opacity: '0.97'
+        });
+        group.appendChild(outline);
+
+        // Cap with browner tone over the silhouette
         const capPath = `M${x - capWidth / 2},${y}
                         Q${x - capWidth / 3},${y - capHeight}
                         ${x},${y - capHeight - 2}
@@ -1358,18 +1431,14 @@ export class PizzaVisualizer {
         });
         group.appendChild(cap);
 
-        // Stem
-        const stemPath = `M${x - stemWidth / 2},${y}
-                         L${x - stemWidth / 2},${y + stemHeight}
-                         L${x + stemWidth / 2},${y + stemHeight}
-                         L${x + stemWidth / 2},${y} Z`;
-
-        const stem = this.createSvgElement('path', {
-            d: stemPath,
-            fill: '#f5deb3',
-            opacity: '0.9'
+        // Cap rim
+        const rim = this.createSvgElement('path', {
+            d: `M${x - capWidth / 2},${y} L${x + capWidth / 2},${y}`,
+            stroke: '#8a6a48',
+            'stroke-width': '1',
+            opacity: '0.7'
         });
-        group.appendChild(stem);
+        group.appendChild(rim);
 
         // Add gill details under cap
         for (let i = 0; i < 3; i++) {
@@ -1513,31 +1582,31 @@ export class PizzaVisualizer {
             transform: `rotate(${Math.random() * 360} ${position.x} ${position.y})`
         });
 
-        const size = 13 + Math.random() * 5;
+        const size = 12 + Math.random() * 5;
+        const x = position.x;
+        const y = position.y;
 
-        // Outer ring
-        const outer = this.createSvgElement('circle', {
-            cx: position.x,
-            cy: position.y,
-            r: size,
-            stroke: attributes.stroke || '#d2b48c',
-            'stroke-width': 3,
-            fill: 'none',
-            opacity: '0.7'
-        });
-        group.appendChild(outer);
+        // Layered crescent arcs like a sauteed onion sliver
+        const arcCount = 2 + Math.floor(Math.random() * 2);
+        for (let a = 0; a < arcCount; a++) {
+            const r = size * (1 - a * 0.28);
+            const start = Math.PI * (0.15 + Math.random() * 0.2);
+            const end = start + Math.PI * (0.8 + Math.random() * 0.3);
+            const x1 = x + r * Math.cos(start);
+            const y1 = y + r * Math.sin(start);
+            const x2 = x + r * Math.cos(end);
+            const y2 = y + r * Math.sin(end);
 
-        // Inner ring for depth
-        const inner = this.createSvgElement('circle', {
-            cx: position.x,
-            cy: position.y,
-            r: size * 0.6,
-            stroke: '#c9a97a',
-            'stroke-width': 1.5,
-            fill: 'none',
-            opacity: '0.5'
-        });
-        group.appendChild(inner);
+            const arc = this.createSvgElement('path', {
+                d: `M${x1},${y1} A${r},${r} 0 0,1 ${x2},${y2}`,
+                stroke: a === 0 ? '#f2e8d4' : '#e3d2b4',
+                'stroke-width': 2.6 - a * 0.5,
+                'stroke-linecap': 'round',
+                fill: 'none',
+                opacity: 0.92 - a * 0.12
+            });
+            group.appendChild(arc);
+        }
 
         return group;
     }
@@ -1611,24 +1680,58 @@ export class PizzaVisualizer {
             filter: 'url(#ingredientShadow)'
         });
 
-        const size = 7 + Math.random() * 3;
+        const size = 8 + Math.random() * 2.5;
+        const x = position.x;
+        const y = position.y;
 
-        const tomato = this.createSvgElement('circle', {
-            cx: position.x,
-            cy: position.y,
+        // Tomato half: skin ring
+        const skin = this.createSvgElement('circle', {
+            cx: x,
+            cy: y,
             r: size,
-            fill: attributes.fill,
-            opacity: '0.9'
+            fill: '#a8281c',
+            opacity: '0.97'
         });
-        group.appendChild(tomato);
+        group.appendChild(skin);
 
-        // Highlight
-        const highlight = this.createSvgElement('circle', {
-            cx: position.x - size * 0.3,
-            cy: position.y - size * 0.3,
-            r: size * 0.3,
-            fill: '#ff8c7a',
-            opacity: '0.5'
+        // Inner flesh
+        const flesh = this.createSvgElement('circle', {
+            cx: x,
+            cy: y,
+            r: size * 0.78,
+            fill: '#ee6a50',
+            opacity: '0.97'
+        });
+        group.appendChild(flesh);
+
+        // Seed ring
+        const seedCount = 5 + Math.floor(Math.random() * 2);
+        const seedAngle = Math.random() * Math.PI;
+        for (let s = 0; s < seedCount; s++) {
+            const angle = seedAngle + (s / seedCount) * Math.PI * 2;
+            const sx = x + size * 0.45 * Math.cos(angle);
+            const sy = y + size * 0.45 * Math.sin(angle);
+            const seed = this.createSvgElement('ellipse', {
+                cx: sx,
+                cy: sy,
+                rx: size * 0.14,
+                ry: size * 0.2,
+                fill: '#f6d8a8',
+                opacity: '0.9',
+                transform: `rotate(${(angle * 180 / Math.PI) + 90} ${sx} ${sy})`
+            });
+            group.appendChild(seed);
+        }
+
+        // Glossy highlight
+        const highlight = this.createSvgElement('path', {
+            d: `M${x - size * 0.55},${y - size * 0.4}
+               A${size * 0.65},${size * 0.65} 0 0,1 ${x - size * 0.1},${y - size * 0.65}`,
+            fill: 'none',
+            stroke: '#ff9a85',
+            'stroke-width': size * 0.16,
+            'stroke-linecap': 'round',
+            opacity: '0.75'
         });
         group.appendChild(highlight);
 
@@ -1728,16 +1831,26 @@ export class PizzaVisualizer {
      * Enhanced oregano/herb specks
      */
     generateOregano(attributes, position) {
-        const size = 0.8 + Math.random() * 0.8;
+        // Irregular dried herb flake, large and dark enough to read on the sauce
+        const size = 1.6 + Math.random() * 1.6;
+        const greens = ['#3f5b22', '#4a6b2a', '#566f33', '#2f4a1c'];
+        const fill = greens[Math.floor(Math.random() * greens.length)];
 
-        const oregano = this.createSvgElement('ellipse', {
-            cx: position.x,
-            cy: position.y,
-            rx: size,
-            ry: size * 1.5,
-            fill: attributes.fill,
-            opacity: 0.5 + Math.random() * 0.3,
-            transform: `rotate(${Math.random() * 360} ${position.x} ${position.y})`
+        const x = position.x;
+        const y = position.y;
+        const j = () => (Math.random() - 0.5) * size * 0.8;
+        const points = [
+            `${x + j()},${y - size + j()}`,
+            `${x + size + j()},${y + j()}`,
+            `${x + j()},${y + size + j()}`,
+            `${x - size + j()},${y + j()}`
+        ].join(' ');
+
+        const oregano = this.createSvgElement('polygon', {
+            points,
+            fill,
+            opacity: 0.65 + Math.random() * 0.3,
+            transform: `rotate(${Math.random() * 360} ${x} ${y})`
         });
 
         return oregano;
@@ -1798,20 +1911,38 @@ export class PizzaVisualizer {
      * Enhanced garlic
      */
     generateKnoblauch(attributes, position) {
-        const size = 5 + Math.random() * 2;
-        const d = `M${position.x},${position.y}
-                  Q${position.x - size},${position.y - size}
-                  ${position.x},${position.y - size * 2}
-                  Q${position.x + size},${position.y - size}
-                  ${position.x},${position.y}`;
+        // Thin garlic sliver with a toasted edge so it reads on the sauce
+        const x = position.x;
+        const y = position.y;
+        const len = 4.5 + Math.random() * 2;  // half length
+        const wdt = 2.2 + Math.random() * 0.8;
 
-        return this.createSvgElement('path', {
-            d,
-            fill: attributes.fill,
-            opacity: '0.8',
+        const group = this.createSvgElement('g', {
             filter: 'url(#ingredientShadow)',
-            transform: `rotate(${Math.random() * 360} ${position.x} ${position.y})`
+            transform: `rotate(${Math.random() * 360} ${x} ${y})`
         });
+
+        const sliver = this.createSvgElement('path', {
+            d: `M${x - len},${y}
+               Q${x},${y - wdt * 1.6} ${x + len},${y}
+               Q${x},${y + wdt * 1.6} ${x - len},${y} Z`,
+            fill: '#f8f0dc',
+            stroke: '#d9b98a',
+            'stroke-width': '0.7',
+            opacity: '0.95'
+        });
+        group.appendChild(sliver);
+
+        // Faint center nick like a clove cross-section
+        const nick = this.createSvgElement('path', {
+            d: `M${x - len * 0.5},${y} L${x + len * 0.5},${y}`,
+            stroke: '#e3cda4',
+            'stroke-width': '0.6',
+            opacity: '0.9'
+        });
+        group.appendChild(nick);
+
+        return group;
     }
 
     /**
@@ -1952,20 +2083,50 @@ export class PizzaVisualizer {
      * Enhanced sardellen (anchovies)
      */
     generateSardellen(attributes, position) {
-        const size = 14 + Math.random() * 4;
-        const d = `M${position.x - size},${position.y}
-                  Q${position.x},${position.y - size / 2} ${position.x + size},${position.y}
-                  Q${position.x},${position.y + size / 2} ${position.x - size},${position.y}`;
-
-        const fish = this.createSvgElement('path', {
-            d,
-            fill: attributes.fill,
-            opacity: '0.85',
+        const group = this.createSvgElement('g', {
             filter: 'url(#ingredientShadow)',
             transform: `rotate(${Math.random() * 360} ${position.x} ${position.y})`
         });
 
-        return fish;
+        const x = position.x;
+        const y = position.y;
+        const len = 13 + Math.random() * 3;   // half length
+        const wdt = 2.6 + Math.random() * 0.8; // half width
+        const bow = 5 + Math.random() * 3;     // curve amount
+
+        // S-curved fillet band
+        const fillet = this.createSvgElement('path', {
+            d: `M${x - len},${y - wdt}
+               Q${x},${y - wdt - bow} ${x + len},${y - wdt + bow * 0.4}
+               L${x + len},${y + wdt + bow * 0.4}
+               Q${x},${y + wdt - bow} ${x - len},${y + wdt} Z`,
+            fill: '#7e8c9c',
+            opacity: '0.95'
+        });
+        group.appendChild(fillet);
+
+        // Silvery center line
+        const sheen = this.createSvgElement('path', {
+            d: `M${x - len * 0.9},${y} Q${x},${y - bow} ${x + len * 0.9},${y + bow * 0.4}`,
+            fill: 'none',
+            stroke: '#c4cfdb',
+            'stroke-width': '1.4',
+            'stroke-linecap': 'round',
+            opacity: '0.85'
+        });
+        group.appendChild(sheen);
+
+        // Tapered tail tip
+        const tail = this.createSvgElement('path', {
+            d: `M${x + len},${y - wdt + bow * 0.4}
+               L${x + len + 4},${y + bow * 0.4}
+               L${x + len},${y + wdt + bow * 0.4} Z`,
+            fill: '#6a7888',
+            opacity: '0.9'
+        });
+        group.appendChild(tail);
+
+        return group;
     }
 
     /**
