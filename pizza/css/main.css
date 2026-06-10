@@ -510,6 +510,8 @@ button.chip {
    ========================================================================== */
 
 .configurator {
+    position: relative;
+    z-index: 2;
     background: var(--dark-bg-secondary);
     border-radius: var(--radius-lg);
     padding: var(--space-8);
